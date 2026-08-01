@@ -6,9 +6,6 @@ module xyz.melnychuk.niimprint {
     requires java.logging;
     requires java.net.http;
 
-    requires org.controlsfx.controls;
-    requires org.kordamp.ikonli.javafx;
-
     requires com.fasterxml.jackson.databind;
     requires com.google.zxing;
     requires com.google.zxing.javase;
