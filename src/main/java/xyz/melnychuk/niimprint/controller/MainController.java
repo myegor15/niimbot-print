@@ -11,6 +11,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import lombok.Setter;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimprint.AppException;
 import xyz.melnychuk.niimprint.model.*;
@@ -39,6 +40,7 @@ public class MainController extends Controller {
     private VBox propertiesBody;
 
     private PrintService printService;
+    @Setter
     private StickerService stickerService;
 
     @FXML
@@ -76,16 +78,13 @@ public class MainController extends Controller {
     @FXML
     private VBox propertiesBox;
 
-    public void setServerBaseUrl(String url) {
-        serverField.setText(url);
-        printService = new PrintService(url);
+    public void setPrintService(PrintService printService) {
+        this.printService = printService;
+        serverField.setText(printService.getApiUrl());
     }
 
     @FXML
     private void initialize() {
-        stickerService = new StickerService();
-        printService = new PrintService(serverField.getText());
-
         widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getWidth()));
         heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getHeight()));
         densitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
@@ -105,12 +104,6 @@ public class MainController extends Controller {
             label.setHeight(b);
             canvas.setLabelSize(widthSpinner.getValue(), b);
         });
-        serverField.focusedProperty().addListener((o, wasFocused, focused) -> {
-            if (!focused) {
-                printService.setServerUrl(serverField.getText());
-            }
-        });
-
         propertiesBody = new VBox(8);
         propertiesBox.getChildren().add(propertiesBody);
 

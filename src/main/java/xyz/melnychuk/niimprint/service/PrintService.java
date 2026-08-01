@@ -1,5 +1,6 @@
 package xyz.melnychuk.niimprint.service;
 
+import lombok.Getter;
 import xyz.melnychuk.niimblue.NiimBlueApi;
 import xyz.melnychuk.niimblue.request.PrintRequest;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
@@ -8,14 +9,13 @@ import xyz.melnychuk.niimprint.model.Sticker;
 
 public class PrintService {
 
-    private NiimBlueApi api;
+    @Getter
+    private final String apiUrl;
+    private final NiimBlueApi api;
 
-    public PrintService(String baseUrl) {
-        this.api = new NiimBlueApi(baseUrl);
-    }
-
-    public void setServerUrl(String url) {
-        api = new NiimBlueApi(url);
+    public PrintService(String apiUrl) {
+        this.apiUrl = apiUrl;
+        this.api = new NiimBlueApi(apiUrl);
     }
 
     public boolean isConnected() {
