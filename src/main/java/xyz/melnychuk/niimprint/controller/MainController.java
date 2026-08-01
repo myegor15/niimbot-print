@@ -1,30 +1,21 @@
 package xyz.melnychuk.niimprint.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import xyz.melnychuk.niimprint.model.*;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
-import xyz.melnychuk.niimblue.response.InfoResponse;
-import xyz.melnychuk.niimblue.NiimBlueApi;
-import xyz.melnychuk.niimblue.request.PrintRequest;
+import xyz.melnychuk.niimprint.AppException;
+import xyz.melnychuk.niimprint.model.*;
+import xyz.melnychuk.niimprint.service.PrintService;
+import xyz.melnychuk.niimprint.service.StickerService;
 import xyz.melnychuk.niimprint.ui.BarcodeGenerator;
 import xyz.melnychuk.niimprint.ui.StickerCanvas;
 
@@ -32,11 +23,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
-public class MainController {
+public class MainController extends Controller {
 
     private static final List<String> FONTS = List.of(
             "Arial", "Arial Black", "Courier New", "Helvetica",
@@ -44,12 +35,11 @@ public class MainController {
     );
 
     private Sticker label = new Sticker();
-
     private StickerCanvas canvas;
-    private NiimBlueApi api;
     private VBox propertiesBody;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private PrintService printService;
+    private StickerService stickerService;
 
     @FXML
     private TextField serverField;
@@ -88,12 +78,13 @@ public class MainController {
 
     public void setServerBaseUrl(String url) {
         serverField.setText(url);
-        api = new NiimBlueApi(url);
+        printService = new PrintService(url);
     }
 
     @FXML
     private void initialize() {
-        api = new NiimBlueApi(serverField.getText());
+        stickerService = new StickerService();
+        printService = new PrintService(serverField.getText());
 
         widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getWidth()));
         heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getHeight()));
@@ -116,7 +107,7 @@ public class MainController {
         });
         serverField.focusedProperty().addListener((o, wasFocused, focused) -> {
             if (!focused) {
-                api = new NiimBlueApi(serverField.getText());
+                printService.setServerUrl(serverField.getText());
             }
         });
 
@@ -132,14 +123,18 @@ public class MainController {
     }
 
     private void pollStatus() {
-        runAsync(() -> api.isConnected(), ok -> {
-            updateConnectionUi(Boolean.TRUE.equals(ok));
-            if (Boolean.TRUE.equals(ok)) {
-                loadPrinterInfo();
-            } else {
-                printerInfoArea.clear();
-            }
-        });
+        run(
+                () -> printService.isConnected(),
+                ok -> {
+                    updateConnectionUi(Boolean.TRUE.equals(ok));
+                    if (Boolean.TRUE.equals(ok)) {
+                        loadPrinterInfo();
+                    } else {
+                        printerInfoArea.clear();
+                    }
+                },
+                this::showError
+        );
     }
 
     private void updateConnectionUi(boolean connected) {
@@ -152,27 +147,24 @@ public class MainController {
     }
 
     private void loadPrinterInfo() {
-        runAsync(() -> {
-            InfoResponse info = api.info();
-            InfoResponse.PrinterInfo printer = info.printerInfo();
-            InfoResponse.ModelMetadata model = info.modelMetadata();
-            return "Модель: " + model.model() + "\n"
-                    + "DPI: " + model.dpi() + "\n"
-                    + "Задача: " + info.detectedPrintTask() + "\n"
-                    + "Серийник: " + printer.serial() + "\n"
-                    + "MAC: " + printer.mac() + "\n"
-                    + "Заряд: " + printer.charge() + "%\n"
-                    + "FW: " + printer.softwareVersion();
-        }, printerInfoArea::setText);
+        run(
+                printService::getPrinterInfo,
+                printerInfoArea::setText,
+                this::showError
+        );
     }
 
     @FXML
     private void onScan() {
         setMessage("Поиск устройств...");
-        runAsync(api::scan, devices -> {
-            deviceCombo.getItems().setAll(devices.devices());
-            setMessage("Найдено устройств: " + devices.devices().size());
-        });
+        run(
+                printService::scanDevices,
+                devices -> {
+                    deviceCombo.getItems().setAll(devices.devices());
+                    setMessage("Найдено устройств: " + devices.devices().size());
+                },
+                this::showError
+        );
     }
 
     @FXML
@@ -182,19 +174,23 @@ public class MainController {
             setMessage("Сначала выполните поиск и выберите устройство");
             return;
         }
-        runAsync(() -> {
-            String target = device.address() == null || device.address().isBlank() ? device.name() : device.address();
-            api.connect("ble", target);
-            return api.isConnected();
-        }, ok -> setMessage(ok ? "Подключено к " + device : "Не удалось подключиться"));
+        run(
+                () -> printService.connect(device),
+                ok -> setMessage(ok ? "Подключено к " + device : "Не удалось подключиться"),
+                this::showError
+        );
     }
 
     @FXML
     private void onDisconnect() {
-        runAsync(() -> {
-            api.disconnect();
-            return true;
-        }, ok -> setMessage("Отключено"));
+        run(
+                () -> {
+                    printService.disconnect();
+                    return true;
+                },
+                ok -> setMessage("Отключено"),
+                this::showError
+        );
     }
 
     @FXML
@@ -213,14 +209,18 @@ public class MainController {
         if (file == null) {
             return;
         }
-        runAsync(() -> mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class), loaded -> {
-            label = loaded;
-            widthSpinner.getValueFactory().setValue(loaded.getWidth());
-            heightSpinner.getValueFactory().setValue(loaded.getHeight());
-            canvas.setSticker(label);
-            showProperties(null);
-            setMessage("Открыто: " + file.getName());
-        });
+        run(
+                () -> stickerService.loadSticker(file),
+                loaded -> {
+                    label = loaded;
+                    widthSpinner.getValueFactory().setValue(loaded.getWidth());
+                    heightSpinner.getValueFactory().setValue(loaded.getHeight());
+                    canvas.setSticker(label);
+                    showProperties(null);
+                    setMessage("Открыто: " + file.getName());
+                },
+                this::showError
+        );
     }
 
     @FXML
@@ -229,10 +229,14 @@ public class MainController {
         if (file == null) {
             return;
         }
-        runAsync(() -> {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(file, label);
-            return true;
-        }, ok -> setMessage("Сохранено: " + file.getName()));
+        run(
+                () -> {
+                    stickerService.saveSticker(label, file);
+                    return true;
+                },
+                ok -> setMessage("Сохранено: " + file.getName()),
+                this::showError
+        );
     }
 
     @FXML
@@ -251,16 +255,14 @@ public class MainController {
         if (file == null) {
             return;
         }
-        runAsync(() -> {
-            String base64 = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
-            var image = javax.imageio.ImageIO.read(file);
-            double w = 100;
-            double h = image != null ? 100.0 * image.getHeight() / image.getWidth() : 100;
-            return new ImageElement(10, 10, base64, w, h);
-        }, element -> {
-            canvas.addElement(element);
-            setMessage("Изображение добавлено");
-        });
+        run(
+                () -> stickerService.loadImageElement(file),
+                element -> {
+                    canvas.addElement(element);
+                    setMessage("Изображение добавлено");
+                },
+                this::showError
+        );
     }
 
     @FXML
@@ -278,18 +280,15 @@ public class MainController {
             return;
         }
 
-        Task<String> task = new Task<>() {
-            @Override
-            protected String call() throws Exception {
-                PrintRequest request = PrintRequest.of(base64, label.getWidth(), label.getHeight(),
-                        densitySpinner.getValue(), quantitySpinner.getValue(), directionCombo.getValue());
-                api.print(request);
-                return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
-            }
-        };
-        task.setOnSucceeded(e -> setMessage(task.getValue()));
-        task.setOnFailed(e -> showError(task.getException()));
-        new Thread(task).start();
+        run(
+                () -> {
+                    printService.print(base64, label, densitySpinner.getValue(), quantitySpinner.getValue(),
+                            directionCombo.getValue());
+                    return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
+                },
+                this::setMessage,
+                this::showError
+        );
     }
 
     private String snapshotBase64() {
@@ -300,9 +299,8 @@ public class MainController {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(image, "png", out);
             return Base64.getEncoder().encodeToString(out.toByteArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (IOException e) {
+            throw new AppException(e);
         } finally {
             canvas.setSelectionVisible(true);
         }
@@ -323,7 +321,7 @@ public class MainController {
             addRow("Текст", field);
 
             ComboBox<String> fontBox = new ComboBox<>(javafx.collections.FXCollections.observableArrayList(FONTS));
-            fontBox.setValue(List.of(FONTS).contains(text.getFontFamily()) ? text.getFontFamily() : "Arial");
+            fontBox.setValue(FONTS.contains(text.getFontFamily()) ? text.getFontFamily() : "Arial");
             fontBox.valueProperty().addListener((o, a, b) -> {
                 text.setFontFamily(b);
                 canvas.updateElement(element);
@@ -426,28 +424,11 @@ public class MainController {
         return chooser.showSaveDialog(canvasHost.getScene().getWindow());
     }
 
-    private <T> void runAsync(ThrowingSupplier<T> action, java.util.function.Consumer<T> onSuccess) {
-        Task<T> task = new Task<>() {
-            @Override
-            protected T call() throws Exception {
-                return action.get();
-            }
-        };
-        task.setOnSucceeded(e -> onSuccess.accept(task.getValue()));
-        task.setOnFailed(e -> showError(task.getException()));
-        new Thread(task).start();
-    }
-
     private void setMessage(String message) {
         messageLabel.setText(message);
     }
 
     private void showError(Throwable error) {
         setMessage("Ошибка: " + (error != null ? error.getMessage() : "неизвестна"));
-    }
-
-    @FunctionalInterface
-    private interface ThrowingSupplier<T> {
-        T get() throws Exception;
     }
 }
