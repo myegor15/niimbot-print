@@ -1,0 +1,19 @@
+.panel {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1 0 0;
+}
+
+.panel-title {
+    -fx-font-weight: bold;
+}
+
+.canvas-host {
+    -fx-background-color: #ececec;
+}
+
+.status-bar {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1 0 0 0;
+}

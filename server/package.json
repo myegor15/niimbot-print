@@ -1,0 +1,28 @@
+{
+  "name": "niim-print-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Thin REST server for Niimbot printers",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@mmote/niimblue-node": "^1.1.0",
+    "@mmote/niimbluelib": "^0.0.1-alpha.41-node",
+    "express": "^4.21.2",
+    "sharp": "^0.35.3"
+  },
+  "allowScripts": {
+    "sharp@0.35.3": true,
+    "sharp@0.33.5": true,
+    "usb@2.18.0": true,
+    "@serialport/bindings-cpp@13.0.0": true,
+    "@serialport/bindings-cpp@12.0.1": true,
+    "@stoprocent/bluetooth-hci-socket@2.3.0": true,
+    "@stoprocent/noble@2.6.5": true
+  }
+}
