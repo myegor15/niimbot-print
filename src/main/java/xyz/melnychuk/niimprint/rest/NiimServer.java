@@ -1,0 +1,155 @@
+package xyz.melnychuk.niimprint.rest;
+
+import lombok.Getter;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+public class NiimServer {
+    private static final Logger LOG = Logger.getLogger(NiimServer.class.getName());
+    private static final Duration START_TIMEOUT = Duration.ofSeconds(15);
+
+    private final Process process;
+
+    @Getter
+    private final String baseUrl;
+
+    private NiimServer(Process process, String baseUrl) {
+        this.process = process;
+        this.baseUrl = baseUrl;
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+    }
+
+    public static NiimServer start() {
+        Path runtime = runtimeDir();
+        if (runtime == null) {
+            throw new IllegalStateException("Node runtime not found. Run `mvn generate-resources` to build it.");
+        }
+        int port = freePort();
+        ProcessBuilder pb = new ProcessBuilder(
+                runtime.resolve("node/bin/node").toString(),
+                cliPath(runtime).toString(),
+                "server", "-h", "127.0.0.1", "-p", String.valueOf(port));
+        pb.redirectErrorStream(true);
+        try {
+            Process process = pb.start();
+            forwardOutput(process);
+            String baseUrl = "http://127.0.0.1:" + port;
+            waitUntilReady(process, baseUrl);
+            LOG.info("Niimblue server started on " + baseUrl);
+            return new NiimServer(process, baseUrl);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to start node server: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while starting node server", e);
+        }
+    }
+
+    public void stop() {
+        if (process.isAlive()) {
+            process.destroyForcibly();
+        }
+    }
+
+    private static void forwardOutput(Process process) {
+        Thread thread = new Thread(() -> {
+            try (InputStream in = process.getInputStream();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[niimblue] " + line);
+                }
+            } catch (IOException ignored) {
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private static void waitUntilReady(Process process, String baseUrl) throws InterruptedException {
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + "/"))
+                .timeout(Duration.ofSeconds(2))
+                .GET()
+                .build();
+        long deadline = System.currentTimeMillis() + START_TIMEOUT.toMillis();
+        while (System.currentTimeMillis() < deadline) {
+            if (!process.isAlive()) {
+                throw new IllegalStateException("Node server exited with code " + process.exitValue());
+            }
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    return;
+                }
+            } catch (Exception ignored) {
+            }
+            Thread.sleep(200);
+        }
+        throw new IllegalStateException("Niimblue server did not start within " + START_TIMEOUT.getSeconds() + "s");
+    }
+
+    private static int freePort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to find a free port", e);
+        }
+    }
+
+    private static Path runtimeDir() {
+        String property = System.getProperty("niim.runtime");
+        if (property != null && !property.isBlank() && isRuntime(Path.of(property))) {
+            return Path.of(property);
+        }
+        for (Path candidate : candidateRuntimeDirs()) {
+            if (isRuntime(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static List<Path> candidateRuntimeDirs() {
+        List<Path> dirs = new ArrayList<>();
+        dirs.add(Path.of("").toAbsolutePath().resolve("runtime"));
+        dirs.add(Path.of("").toAbsolutePath().resolve("target/runtime"));
+        try {
+            URI location = NiimServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            Path path = Path.of(location);
+            if (Files.isDirectory(path)) {
+                Path basedir = path.getParent().getParent();
+                dirs.add(basedir.resolve("runtime"));
+                dirs.add(basedir.resolve("target/runtime"));
+            } else {
+                Path image = path.getParent().getParent();
+                dirs.add(image.resolve("runtime"));
+            }
+        } catch (Exception ignored) {
+        }
+        return dirs;
+    }
+
+    private static boolean isRuntime(Path dir) {
+        return Files.isExecutable(dir.resolve("node/bin/node"))
+                && Files.isRegularFile(cliPath(dir));
+    }
+
+    private static Path cliPath(Path runtime) {
+        return runtime.resolve("server/node_modules/@mmote/niimblue-node/cli.mjs");
+    }
+}

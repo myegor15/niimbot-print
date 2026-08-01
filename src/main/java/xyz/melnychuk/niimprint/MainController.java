@@ -86,6 +86,11 @@ public class MainController {
     @FXML
     private VBox propertiesBox;
 
+    public void setServerBaseUrl(String url) {
+        serverField.setText(url);
+        api = new NiimbotApi(url);
+    }
+
     @FXML
     private void initialize() {
         api = new NiimbotApi(serverField.getText());
@@ -268,10 +273,14 @@ public class MainController {
 
     @FXML
     private void onPrint() {
+        String base64 = snapshotBase64();
+        if (base64 == null) {
+            return;
+        }
+
         Task<String> task = new Task<>() {
             @Override
             protected String call() throws Exception {
-                String base64 = snapshotBase64();
                 PrintRequest request = PrintRequest.of(base64, label.getWidth(), label.getHeight(),
                         densitySpinner.getValue(), quantitySpinner.getValue(), directionCombo.getValue());
                 api.print(request);
@@ -283,7 +292,7 @@ public class MainController {
         new Thread(task).start();
     }
 
-    private String snapshotBase64() throws Exception {
+    private String snapshotBase64() {
         canvas.setSelectionVisible(false);
         try {
             WritableImage snapshot = canvas.snapshot(null, null);
@@ -291,6 +300,9 @@ public class MainController {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(image, "png", out);
             return Base64.getEncoder().encodeToString(out.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         } finally {
             canvas.setSelectionVisible(true);
         }

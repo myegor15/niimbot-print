@@ -2,22 +2,17 @@
   "name": "niim-print-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Thin REST server for Niimbot printers",
-  "main": "index.js",
+  "description": "Niimbot printer REST server (niimblue-node)",
   "scripts": {
-    "start": "node index.js"
+    "start": "niimblue-cli server -h 0.0.0.0 -p 5010"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@mmote/niimblue-node": "^1.1.0",
-    "@mmote/niimbluelib": "^0.0.1-alpha.41-node",
-    "express": "^4.21.2",
-    "sharp": "^0.35.3"
+    "@mmote/niimblue-node": "^1.1.0"
   },
   "allowScripts": {
-    "sharp@0.35.3": true,
     "sharp@0.33.5": true,
     "usb@2.18.0": true,
     "@serialport/bindings-cpp@13.0.0": true,

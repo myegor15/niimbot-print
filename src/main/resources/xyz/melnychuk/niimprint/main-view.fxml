@@ -20,7 +20,7 @@
     <top>
         <ToolBar>
             <Label text="Сервер:"/>
-            <TextField fx:id="serverField" prefWidth="180" text="http://localhost:5010"/>
+            <TextField fx:id="serverField" editable="false" prefWidth="180" text="..."/>
             <Button fx:id="scanButton" text="Поиск" onAction="#onScan"/>
             <ComboBox fx:id="deviceCombo" prefWidth="220"/>
             <Button fx:id="connectButton" text="Подключить" onAction="#onConnect"/>
