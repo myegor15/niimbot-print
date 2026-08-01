@@ -6,7 +6,6 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -14,11 +13,15 @@ import javafx.util.Duration;
 import lombok.Setter;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimprint.AppException;
-import xyz.melnychuk.niimprint.model.*;
+import xyz.melnychuk.niimprint.model.BarcodeElement;
+import xyz.melnychuk.niimprint.model.Sticker;
+import xyz.melnychuk.niimprint.model.StickerElement;
+import xyz.melnychuk.niimprint.model.TextElement;
 import xyz.melnychuk.niimprint.service.PrintService;
 import xyz.melnychuk.niimprint.service.StickerService;
-import xyz.melnychuk.niimprint.ui.BarcodeGenerator;
 import xyz.melnychuk.niimprint.ui.StickerCanvas;
+import xyz.melnychuk.niimprint.ui.view.ElementPropertiesView;
+import xyz.melnychuk.niimprint.ui.view.ElementPropertiesViewFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,14 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.List;
 
 public class MainController extends Controller {
-
-    private static final List<String> FONTS = List.of(
-            "Arial", "Arial Black", "Courier New", "Helvetica",
-            "Segoe UI", "Tahoma", "Times New Roman", "Verdana"
-    );
 
     private Sticker label = new Sticker();
     private StickerCanvas canvas;
@@ -305,107 +302,10 @@ public class MainController extends Controller {
             propertiesBody.getChildren().add(new Label("Выберите элемент на этикетке"));
             return;
         }
-        if (element instanceof TextElement text) {
-            TextField field = new TextField(text.getText());
-            field.textProperty().addListener((o, a, b) -> {
-                text.setText(b);
-                canvas.updateElement(element);
-            });
-            addRow("Текст", field);
-
-            ComboBox<String> fontBox = new ComboBox<>(javafx.collections.FXCollections.observableArrayList(FONTS));
-            fontBox.setValue(FONTS.contains(text.getFontFamily()) ? text.getFontFamily() : "Arial");
-            fontBox.valueProperty().addListener((o, a, b) -> {
-                text.setFontFamily(b);
-                canvas.updateElement(element);
-            });
-            addRow("Шрифт", fontBox);
-
-            Spinner<Double> size = doubleSpinner(text.getFontSize(), 6, 200);
-            size.valueProperty().addListener((o, a, b) -> {
-                text.setFontSize(b);
-                canvas.updateElement(element);
-            });
-            addRow("Размер", size);
-
-            CheckBox bold = new CheckBox();
-            bold.setSelected(text.isBold());
-            bold.selectedProperty().addListener((o, a, b) -> {
-                text.setBold(b);
-                canvas.updateElement(element);
-            });
-            addRow("Жирный", bold);
-        } else if (element instanceof BarcodeElement barcode) {
-            TextField field = new TextField(barcode.getContent());
-            field.textProperty().addListener((o, a, b) -> {
-                barcode.setContent(b);
-                canvas.updateElement(element);
-            });
-            addRow("Содержимое", field);
-
-            ComboBox<String> formatBox = new ComboBox<>(javafx.collections.FXCollections.observableArrayList(BarcodeGenerator.FORMATS));
-            formatBox.setValue(barcode.getFormat());
-            formatBox.valueProperty().addListener((o, a, b) -> {
-                barcode.setFormat(b);
-                canvas.updateElement(element);
-            });
-            addRow("Формат", formatBox);
-
-            Spinner<Double> bw = doubleSpinner(barcode.getWidth(), 1, 2000);
-            bw.valueProperty().addListener((o, a, b) -> {
-                barcode.setWidth(b);
-                canvas.updateElement(element);
-            });
-            addRow("Ширина", bw);
-
-            Spinner<Double> bh = doubleSpinner(barcode.getHeight(), 1, 2000);
-            bh.valueProperty().addListener((o, a, b) -> {
-                barcode.setHeight(b);
-                canvas.updateElement(element);
-            });
-            addRow("Высота", bh);
-        } else if (element instanceof ImageElement image) {
-            Spinner<Double> iw = doubleSpinner(image.getWidth(), 1, 2000);
-            iw.valueProperty().addListener((o, a, b) -> {
-                image.setWidth(b);
-                canvas.updateElement(element);
-            });
-            addRow("Ширина", iw);
-
-            Spinner<Double> ih = doubleSpinner(image.getHeight(), 1, 2000);
-            ih.valueProperty().addListener((o, a, b) -> {
-                image.setHeight(b);
-                canvas.updateElement(element);
-            });
-            addRow("Высота", ih);
-        }
-
-        Spinner<Double> x = doubleSpinner(element.getX(), 0, 2000);
-        x.valueProperty().addListener((o, a, b) -> {
-            element.setX(b);
-            canvas.updateElement(element);
-        });
-        addRow("X", x);
-
-        Spinner<Double> y = doubleSpinner(element.getY(), 0, 2000);
-        y.valueProperty().addListener((o, a, b) -> {
-            element.setY(b);
-            canvas.updateElement(element);
-        });
-        addRow("Y", y);
-    }
-
-    private Spinner<Double> doubleSpinner(double value, double min, double max) {
-        Spinner<Double> spinner = new Spinner<>(min, max, value, 1);
-        spinner.setEditable(true);
-        spinner.setPrefWidth(120);
-        return spinner;
-    }
-
-    private void addRow(String name, javafx.scene.Node control) {
-        HBox row = new HBox(8, new Label(name), control);
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        propertiesBody.getChildren().add(row);
+        ElementPropertiesView<StickerElement> view = ElementPropertiesViewFactory.create(element);
+        view.setChangeListener(canvas::updateElement);
+        view.show(element);
+        propertiesBody.getChildren().add(view);
     }
 
     private File chooseFile(String title) {
