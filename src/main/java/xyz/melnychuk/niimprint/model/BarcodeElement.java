@@ -5,7 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BarcodeElement extends LabelElement {
+public class BarcodeElement extends StickerElement {
+
     private String content;
     private String format;
     private double width;

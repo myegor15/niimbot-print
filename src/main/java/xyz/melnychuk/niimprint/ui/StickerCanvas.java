@@ -3,18 +3,19 @@ package xyz.melnychuk.niimprint.ui;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import xyz.melnychuk.niimprint.model.BarcodeElement;
-import xyz.melnychuk.niimprint.model.ImageElement;
-import xyz.melnychuk.niimprint.model.Label;
-import xyz.melnychuk.niimprint.model.LabelElement;
-import xyz.melnychuk.niimprint.model.TextElement;
+import lombok.Getter;
+import lombok.Setter;
+import xyz.melnychuk.niimprint.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
@@ -22,32 +23,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class LabelCanvas extends javafx.scene.layout.Pane {
-    private Label label;
-    private LabelElement selected;
-    private Rectangle background;
-    private Rectangle selectionBox;
-    private final Map<LabelElement, Node> nodes = new HashMap<>();
-    private Consumer<LabelElement> selectionListener = e -> {
-    };
+public class StickerCanvas extends Pane {
 
-    public LabelCanvas(Label label) {
-        this.label = label;
+    private Sticker sticker;
+
+    @Getter
+    private StickerElement selectedElement;
+
+    private Rectangle background;
+
+    private Rectangle selectionBox;
+
+    private final Map<StickerElement, Node> nodes = new HashMap<>();
+
+    @Setter
+    private Consumer<StickerElement> selectionListener = e -> {};
+
+    public StickerCanvas(Sticker sticker) {
+        this.sticker = sticker;
         setStyle("-fx-background-color: #ececec;");
         buildBackground();
         setOnMousePressed(e -> selectNone());
         refresh();
     }
 
-    public void setLabel(Label label) {
-        this.label = label;
+    public void setSticker(Sticker sticker) {
+        this.sticker = sticker;
         buildBackground();
-        setLabelSize(label.getWidth(), label.getHeight());
+        setLabelSize(sticker.getWidth(), sticker.getHeight());
         refresh();
-    }
-
-    public void setSelectionListener(Consumer<LabelElement> listener) {
-        this.selectionListener = listener;
     }
 
     public void setLabelSize(int width, int height) {
@@ -63,7 +67,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
         if (background != null) {
             getChildren().remove(background);
         }
-        background = new Rectangle(label.getWidth(), label.getHeight());
+        background = new Rectangle(sticker.getWidth(), sticker.getHeight());
         background.setFill(Color.WHITE);
         getChildren().add(0, background);
     }
@@ -71,7 +75,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
     public void refresh() {
         nodes.values().forEach(getChildren()::remove);
         nodes.clear();
-        for (LabelElement element : label.getElements()) {
+        for (StickerElement element : sticker.getElements()) {
             Node node = createNode(element);
             nodes.put(element, node);
             getChildren().add(node);
@@ -80,8 +84,8 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
         updateSelectionBox();
     }
 
-    public LabelElement addElement(LabelElement element) {
-        label.getElements().add(element);
+    public StickerElement addElement(StickerElement element) {
+        sticker.getElements().add(element);
         Node node = createNode(element);
         nodes.put(element, node);
         getChildren().add(node);
@@ -90,7 +94,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
         return element;
     }
 
-    public void updateElement(LabelElement element) {
+    public void updateElement(StickerElement element) {
         Node old = nodes.get(element);
         if (old == null) {
             return;
@@ -100,22 +104,18 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
         nodes.put(element, node);
         getChildren().add(node);
         makeDraggable(node, element);
-        if (selected == element) {
+        if (selectedElement == element) {
             updateSelectionBox();
         }
     }
 
     public void removeSelected() {
-        if (selected == null) {
+        if (selectedElement == null) {
             return;
         }
-        label.getElements().remove(selected);
-        getChildren().remove(nodes.remove(selected));
+        sticker.getElements().remove(selectedElement);
+        getChildren().remove(nodes.remove(selectedElement));
         selectNone();
-    }
-
-    public LabelElement getSelected() {
-        return selected;
     }
 
     public void setSelectionVisible(boolean visible) {
@@ -124,22 +124,22 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
         }
     }
 
-    public void select(LabelElement element) {
-        selected = element;
+    public void select(StickerElement element) {
+        selectedElement = element;
         updateSelectionBox();
         selectionListener.accept(element);
     }
 
     public void selectNone() {
-        if (selected == null) {
+        if (selectedElement == null) {
             return;
         }
-        selected = null;
+        selectedElement = null;
         updateSelectionBox();
         selectionListener.accept(null);
     }
 
-    private Node createNode(LabelElement element) {
+    private Node createNode(StickerElement element) {
         if (element instanceof TextElement text) {
             return createText(text);
         }
@@ -154,9 +154,9 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
 
     private Node createText(TextElement element) {
         Font font = font(element);
-        javafx.scene.control.Label text = new javafx.scene.control.Label(element.getText());
+        Label text = new Label(element.getText());
         text.setFont(font);
-        text.setPadding(javafx.geometry.Insets.EMPTY);
+        text.setPadding(Insets.EMPTY);
         text.setLayoutX(element.getX());
         text.setLayoutY(element.getY());
         return text;
@@ -184,7 +184,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
             view.setLayoutY(element.getY());
             return view;
         } catch (Exception e) {
-            javafx.scene.control.Label error = new javafx.scene.control.Label("Ошибка штрихкода: " + element.getContent());
+            Label error = new Label("Ошибка штрихкода: " + element.getContent());
             error.setLayoutX(element.getX());
             error.setLayoutY(element.getY());
             return error;
@@ -197,7 +197,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
                 element.getFontSize());
     }
 
-    private void makeDraggable(Node node, LabelElement element) {
+    private void makeDraggable(Node node, StickerElement element) {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
             select(element);
@@ -206,15 +206,15 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
             e.consume();
         });
         node.setOnMouseDragged(e -> {
-            element.setX(clamp(e.getSceneX() - start[0], 0, label.getWidth()));
-            element.setY(clamp(e.getSceneY() - start[1], 0, label.getHeight()));
+            element.setX(clamp(e.getSceneX() - start[0], 0, sticker.getWidth()));
+            element.setY(clamp(e.getSceneY() - start[1], 0, sticker.getHeight()));
             applyPosition(node, element);
             updateSelectionBox();
             e.consume();
         });
     }
 
-    private void applyPosition(Node node, LabelElement element) {
+    private void applyPosition(Node node, StickerElement element) {
         node.setLayoutX(element.getX());
         node.setLayoutY(element.getY());
     }
@@ -232,7 +232,7 @@ public class LabelCanvas extends javafx.scene.layout.Pane {
             selectionBox.setMouseTransparent(true);
             getChildren().add(selectionBox);
         }
-        Node node = selected == null ? null : nodes.get(selected);
+        Node node = selectedElement == null ? null : nodes.get(selectedElement);
         if (node == null) {
             selectionBox.setVisible(false);
             return;

@@ -11,14 +11,15 @@ import lombok.Data;
         @JsonSubTypes.Type(value = ImageElement.class, name = "image"),
         @JsonSubTypes.Type(value = BarcodeElement.class, name = "barcode")
 })
-public abstract class LabelElement {
+public abstract class StickerElement {
+
     private double x;
     private double y;
 
-    protected LabelElement() {
+    protected StickerElement() {
     }
 
-    protected LabelElement(double x, double y) {
+    protected StickerElement(double x, double y) {
         this.x = x;
         this.y = y;
     }

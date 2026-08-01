@@ -1,6 +1,7 @@
 package xyz.melnychuk.niimblue;
 
 import lombok.Getter;
+import xyz.melnychuk.niimprint.AppException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,25 +20,27 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class NiimBlueServer {
+
     private static final Logger LOG = Logger.getLogger(NiimBlueServer.class.getName());
     private static final Duration START_TIMEOUT = Duration.ofSeconds(15);
 
     private final Process process;
 
     @Getter
-    private final String baseUrl;
+    private final String url;
 
-    private NiimBlueServer(Process process, String baseUrl) {
+    private NiimBlueServer(Process process, String url) {
         this.process = process;
-        this.baseUrl = baseUrl;
+        this.url = url;
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     public static NiimBlueServer start() {
         Path runtime = runtimeDir();
         if (runtime == null) {
-            throw new IllegalStateException("Node runtime not found. Run `mvn generate-resources` to build it.");
+            throw new AppException("Node runtime not found. Run `mvn generate-resources` to build it.");
         }
+
         int port = freePort();
         ProcessBuilder pb = new ProcessBuilder(
                 runtime.resolve("node/bin/node").toString(),
@@ -52,10 +55,10 @@ public class NiimBlueServer {
             LOG.info("Niimblue server started on " + baseUrl);
             return new NiimBlueServer(process, baseUrl);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to start node server: " + e.getMessage(), e);
+            throw new AppException("Failed to start node server: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while starting node server", e);
+            throw new AppException("Interrupted while starting node server", e);
         }
     }
 
@@ -89,7 +92,7 @@ public class NiimBlueServer {
         long deadline = System.currentTimeMillis() + START_TIMEOUT.toMillis();
         while (System.currentTimeMillis() < deadline) {
             if (!process.isAlive()) {
-                throw new IllegalStateException("Node server exited with code " + process.exitValue());
+                throw new AppException("Node server exited with code " + process.exitValue());
             }
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -100,19 +103,19 @@ public class NiimBlueServer {
             }
             Thread.sleep(200);
         }
-        throw new IllegalStateException("Niimblue server did not start within " + START_TIMEOUT.getSeconds() + "s");
+        throw new AppException("Niimblue server did not start within " + START_TIMEOUT.getSeconds() + "s");
     }
 
     private static int freePort() {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to find a free port", e);
+            throw new AppException("Unable to find a free port", e);
         }
     }
 
     private static Path runtimeDir() {
-        String property = System.getProperty("niim.runtime");
+        String property = System.getProperty("niimblue.runtime");
         if (property != null && !property.isBlank() && isRuntime(Path.of(property))) {
             return Path.of(property);
         }

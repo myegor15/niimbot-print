@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimprint;
+package xyz.melnychuk.niimprint.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.KeyFrame;
@@ -20,16 +20,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import xyz.melnychuk.niimprint.model.BarcodeElement;
-import xyz.melnychuk.niimprint.model.ImageElement;
-import xyz.melnychuk.niimprint.model.LabelElement;
-import xyz.melnychuk.niimprint.model.TextElement;
+import xyz.melnychuk.niimprint.model.*;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimblue.response.InfoResponse;
 import xyz.melnychuk.niimblue.NiimBlueApi;
 import xyz.melnychuk.niimblue.request.PrintRequest;
 import xyz.melnychuk.niimprint.ui.BarcodeGenerator;
-import xyz.melnychuk.niimprint.ui.LabelCanvas;
+import xyz.melnychuk.niimprint.ui.StickerCanvas;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -40,14 +37,19 @@ import java.util.Base64;
 import java.util.List;
 
 public class MainController {
-    private static final String[] FONTS = {"Arial", "Arial Black", "Courier New", "Helvetica",
-            "Segoe UI", "Tahoma", "Times New Roman", "Verdana"};
 
-    private final ObjectMapper mapper = new ObjectMapper();
-    private xyz.melnychuk.niimprint.model.Label label = new xyz.melnychuk.niimprint.model.Label();
-    private LabelCanvas canvas;
+    private static final List<String> FONTS = List.of(
+            "Arial", "Arial Black", "Courier New", "Helvetica",
+            "Segoe UI", "Tahoma", "Times New Roman", "Verdana"
+    );
+
+    private Sticker label = new Sticker();
+
+    private StickerCanvas canvas;
     private NiimBlueApi api;
     private VBox propertiesBody;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @FXML
     private TextField serverField;
@@ -100,7 +102,7 @@ public class MainController {
         directionCombo.getItems().addAll("top", "left");
         directionCombo.setValue("top");
 
-        canvas = new LabelCanvas(label);
+        canvas = new StickerCanvas(label);
         canvas.setSelectionListener(this::showProperties);
         canvasHost.getChildren().add(canvas);
 
@@ -197,10 +199,10 @@ public class MainController {
 
     @FXML
     private void onNew() {
-        label = new xyz.melnychuk.niimprint.model.Label();
+        label = new Sticker();
         widthSpinner.getValueFactory().setValue(label.getWidth());
         heightSpinner.getValueFactory().setValue(label.getHeight());
-        canvas.setLabel(label);
+        canvas.setSticker(label);
         showProperties(null);
         setMessage("Новая этикетка");
     }
@@ -211,11 +213,11 @@ public class MainController {
         if (file == null) {
             return;
         }
-        runAsync(() -> mapper.readValue(Files.readAllBytes(file.toPath()), xyz.melnychuk.niimprint.model.Label.class), loaded -> {
+        runAsync(() -> mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class), loaded -> {
             label = loaded;
             widthSpinner.getValueFactory().setValue(loaded.getWidth());
             heightSpinner.getValueFactory().setValue(loaded.getHeight());
-            canvas.setLabel(label);
+            canvas.setSticker(label);
             showProperties(null);
             setMessage("Открыто: " + file.getName());
         });
@@ -263,7 +265,7 @@ public class MainController {
 
     @FXML
     private void onDelete() {
-        if (canvas.getSelected() != null) {
+        if (canvas.getSelectedElement() != null) {
             canvas.removeSelected();
             setMessage("Элемент удалён");
         }
@@ -306,7 +308,7 @@ public class MainController {
         }
     }
 
-    private void showProperties(LabelElement element) {
+    private void showProperties(StickerElement element) {
         propertiesBody.getChildren().clear();
         if (element == null) {
             propertiesBody.getChildren().add(new Label("Выберите элемент на этикетке"));

@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimprint.exception;
+package xyz.melnychuk.niimprint;
 
 public class AppException extends RuntimeException {
 

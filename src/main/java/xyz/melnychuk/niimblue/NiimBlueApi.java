@@ -10,8 +10,9 @@ import xyz.melnychuk.niimblue.response.ConnectedResponse;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimblue.response.InfoResponse;
 import xyz.melnychuk.niimblue.response.RfidResponse;
-import xyz.melnychuk.niimprint.exception.AppException;
+import xyz.melnychuk.niimprint.AppException;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,6 +20,10 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class NiimBlueApi {
+
+    private static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration GET_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration POST_TIMEOUT = Duration.ofSeconds(60);
 
     private final String url;
     private final HttpClient client;
@@ -60,23 +65,23 @@ public class NiimBlueApi {
 
     private HttpClient getClient() {
         return HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
+                .connectTimeout(CONNECTION_TIMEOUT)
                 .build();
     }
 
     private ObjectMapper getMapper() {
         return new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
     }
 
     private <T> T get(String path, Class<T> type) {
         try {
             HttpRequest req = HttpRequest.newBuilder(URI.create(url + path))
-                    .timeout(Duration.ofSeconds(30))
+                    .timeout(GET_TIMEOUT)
                     .GET()
                     .build();
             return mapper.readValue(check(client.send(req, HttpResponse.BodyHandlers.ofString())), type);
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             throw new AppException(e);
         }
     }
@@ -85,12 +90,12 @@ public class NiimBlueApi {
         try {
             String json = mapper.writeValueAsString(body);
             HttpRequest req = HttpRequest.newBuilder(URI.create(url + path))
-                    .timeout(Duration.ofSeconds(60))
+                    .timeout(POST_TIMEOUT)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
             return mapper.readValue(check(client.send(req, HttpResponse.BodyHandlers.ofString())), type);
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             throw new AppException(e);
         }
     }

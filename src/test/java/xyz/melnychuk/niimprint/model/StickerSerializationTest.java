@@ -6,19 +6,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LabelSerializationTest {
+class StickerSerializationTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     void roundTripPreservesElements() throws Exception {
-        Label label = new Label(384, 240);
+        Sticker label = new Sticker(384, 240);
         label.getElements().add(new TextElement("Привет", 10, 15));
         label.getElements().add(new BarcodeElement("12345", 20, 30, 200, 80, "CODE_128"));
         label.getElements().add(new ImageElement(5, 5, "aGVsbG8=", 100, 50));
 
         String json = mapper.writeValueAsString(label);
 
-        Label restored = mapper.readValue(json, Label.class);
+        Sticker restored = mapper.readValue(json, Sticker.class);
 
         assertEquals(384, restored.getWidth());
         assertEquals(240, restored.getHeight());
@@ -39,7 +39,7 @@ class LabelSerializationTest {
 
     @Test
     void defaultElementsUseSaneDefaults() {
-        Label label = new Label();
+        Sticker label = new Sticker();
         TextElement text = new TextElement();
         assertTrue(label.getWidth() > 0);
         assertTrue(text.getFontSize() > 0);

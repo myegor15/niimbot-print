@@ -19,4 +19,6 @@ module xyz.melnychuk.niimprint {
     opens xyz.melnychuk.niimblue to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.request to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.response to com.fasterxml.jackson.databind;
+    exports xyz.melnychuk.niimprint.controller;
+    opens xyz.melnychuk.niimprint.controller to javafx.fxml;
 }

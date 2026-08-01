@@ -5,7 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TextElement extends LabelElement {
+public class TextElement extends StickerElement {
+
     private String text;
     private String fontFamily;
     private double fontSize;

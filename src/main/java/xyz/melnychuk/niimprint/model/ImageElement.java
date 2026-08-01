@@ -5,7 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ImageElement extends LabelElement {
+public class ImageElement extends StickerElement {
+
     private String imageBase64;
     private double width;
     private double height;

@@ -6,20 +6,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import xyz.melnychuk.niimblue.NiimBlueServer;
+import xyz.melnychuk.niimprint.controller.MainController;
 
 import java.io.IOException;
 import java.util.Objects;
 
-public class NiimPrintApplication extends Application {
+public class App extends Application {
+
     private NiimBlueServer server;
 
     @Override
     public void start(Stage stage) throws IOException {
-        startServer();
-        Scene scene = getScene();
-        stage.setTitle("Niim Print");
-        stage.setScene(scene);
-        stage.show();
+        startNiimBlue();
+        startUI(stage);
     }
 
     @Override
@@ -29,7 +28,7 @@ public class NiimPrintApplication extends Application {
         }
     }
 
-    private void startServer() {
+    private void startNiimBlue() {
         try {
             server = NiimBlueServer.start();
         } catch (Exception e) {
@@ -40,16 +39,22 @@ public class NiimPrintApplication extends Application {
         }
     }
 
+    private void startUI(Stage stage) throws IOException {
+        stage.setScene(getScene());
+        stage.setTitle("NiimBot Print");
+        stage.show();
+    }
+
     private Scene getScene() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(NiimPrintApplication.class.getResource("main-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 700);
 
         MainController controller = fxmlLoader.getController();
         if (server != null) {
-            controller.setServerBaseUrl(server.getBaseUrl());
+            controller.setServerBaseUrl(server.getUrl());
         }
 
-        String style = Objects.requireNonNull(NiimPrintApplication.class.getResource("style.css")).toExternalForm();
+        String style = Objects.requireNonNull(App.class.getResource("style.css")).toExternalForm();
         scene.getStylesheets().add(style);
 
         return scene;

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimprint.MainController">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimprint.controller.MainController">
     <top>
         <ToolBar>
             <Label text="Сервер:"/>

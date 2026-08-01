@@ -102,7 +102,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>xyz.melnychuk.niimprint/xyz.melnychuk.niimprint.NiimPrintApplication</mainClass>
+                            <mainClass>xyz.melnychuk.niimprint/xyz.melnychuk.niimprint.App</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
