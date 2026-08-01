@@ -36,10 +36,6 @@ public class MainController extends Controller {
     private StickerCanvas canvas;
     private VBox propertiesBody;
 
-    private PrintService printService;
-    @Setter
-    private StickerService stickerService;
-
     @FXML
     private TextField serverField;
     @FXML
@@ -75,6 +71,12 @@ public class MainController extends Controller {
     @FXML
     private VBox propertiesBox;
 
+    private Timeline timeline;
+
+    private PrintService printService;
+    @Setter
+    private StickerService stickerService;
+
     public void setPrintService(PrintService printService) {
         this.printService = printService;
         serverField.setText(printService.getApiUrl());
@@ -106,10 +108,19 @@ public class MainController extends Controller {
 
         updateConnectionUi(false);
         showProperties(null);
+        initTimeline();
+    }
 
-        Timeline poller = new Timeline(new KeyFrame(Duration.seconds(2), e -> pollStatus()));
-        poller.setCycleCount(Timeline.INDEFINITE);
-        poller.play();
+    private void initTimeline() {
+        if (timeline != null) {
+            return;
+        }
+
+        timeline = new Timeline(
+                new KeyFrame(Duration.seconds(5), e -> pollStatus())
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
     private void pollStatus() {
