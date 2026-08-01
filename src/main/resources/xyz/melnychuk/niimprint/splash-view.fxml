@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimprint.controller.SplashController"
+      spacing="16" alignment="CENTER">
+    <Label fx:id="messageLabel" text="Запуск приложения..."/>
+    <ProgressIndicator fx:id="progressIndicator"/>
+</VBox>
