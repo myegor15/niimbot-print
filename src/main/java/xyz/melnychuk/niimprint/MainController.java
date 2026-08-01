@@ -1,14 +1,11 @@
 package xyz.melnychuk.niimprint;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -27,9 +24,10 @@ import xyz.melnychuk.niimprint.model.BarcodeElement;
 import xyz.melnychuk.niimprint.model.ImageElement;
 import xyz.melnychuk.niimprint.model.LabelElement;
 import xyz.melnychuk.niimprint.model.TextElement;
-import xyz.melnychuk.niimprint.rest.DevicesResponse;
-import xyz.melnychuk.niimprint.rest.NiimbotApi;
-import xyz.melnychuk.niimprint.rest.PrintRequest;
+import xyz.melnychuk.niimblue.response.DevicesResponse;
+import xyz.melnychuk.niimblue.response.InfoResponse;
+import xyz.melnychuk.niimblue.NiimBlueApi;
+import xyz.melnychuk.niimblue.request.PrintRequest;
 import xyz.melnychuk.niimprint.ui.BarcodeGenerator;
 import xyz.melnychuk.niimprint.ui.LabelCanvas;
 
@@ -48,7 +46,7 @@ public class MainController {
     private final ObjectMapper mapper = new ObjectMapper();
     private xyz.melnychuk.niimprint.model.Label label = new xyz.melnychuk.niimprint.model.Label();
     private LabelCanvas canvas;
-    private NiimbotApi api;
+    private NiimBlueApi api;
     private VBox propertiesBody;
 
     @FXML
@@ -88,12 +86,12 @@ public class MainController {
 
     public void setServerBaseUrl(String url) {
         serverField.setText(url);
-        api = new NiimbotApi(url);
+        api = new NiimBlueApi(url);
     }
 
     @FXML
     private void initialize() {
-        api = new NiimbotApi(serverField.getText());
+        api = new NiimBlueApi(serverField.getText());
 
         widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getWidth()));
         heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, label.getHeight()));
@@ -116,7 +114,7 @@ public class MainController {
         });
         serverField.focusedProperty().addListener((o, wasFocused, focused) -> {
             if (!focused) {
-                api = new NiimbotApi(serverField.getText());
+                api = new NiimBlueApi(serverField.getText());
             }
         });
 
@@ -153,16 +151,16 @@ public class MainController {
 
     private void loadPrinterInfo() {
         runAsync(() -> {
-            JsonNode info = api.info();
-            JsonNode model = info.get("modelMetadata");
-            JsonNode printer = info.get("printerInfo");
-            return "Модель: " + model.path("model").asText() + "\n"
-                    + "DPI: " + model.path("dpi").asInt() + "\n"
-                    + "Задача: " + info.path("detectedPrintTask").asText() + "\n"
-                    + "Серийник: " + printer.path("serial").asText() + "\n"
-                    + "MAC: " + printer.path("mac").asText() + "\n"
-                    + "Заряд: " + printer.path("charge").asInt() + "%\n"
-                    + "FW: " + printer.path("softwareVersion").asText();
+            InfoResponse info = api.info();
+            InfoResponse.PrinterInfo printer = info.printerInfo();
+            InfoResponse.ModelMetadata model = info.modelMetadata();
+            return "Модель: " + model.model() + "\n"
+                    + "DPI: " + model.dpi() + "\n"
+                    + "Задача: " + info.detectedPrintTask() + "\n"
+                    + "Серийник: " + printer.serial() + "\n"
+                    + "MAC: " + printer.mac() + "\n"
+                    + "Заряд: " + printer.charge() + "%\n"
+                    + "FW: " + printer.softwareVersion();
         }, printerInfoArea::setText);
     }
 

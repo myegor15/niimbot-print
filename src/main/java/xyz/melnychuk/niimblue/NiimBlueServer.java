@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimprint.rest;
+package xyz.melnychuk.niimblue;
 
 import lombok.Getter;
 
@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class NiimServer {
-    private static final Logger LOG = Logger.getLogger(NiimServer.class.getName());
+public class NiimBlueServer {
+    private static final Logger LOG = Logger.getLogger(NiimBlueServer.class.getName());
     private static final Duration START_TIMEOUT = Duration.ofSeconds(15);
 
     private final Process process;
@@ -27,13 +27,13 @@ public class NiimServer {
     @Getter
     private final String baseUrl;
 
-    private NiimServer(Process process, String baseUrl) {
+    private NiimBlueServer(Process process, String baseUrl) {
         this.process = process;
         this.baseUrl = baseUrl;
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
-    public static NiimServer start() {
+    public static NiimBlueServer start() {
         Path runtime = runtimeDir();
         if (runtime == null) {
             throw new IllegalStateException("Node runtime not found. Run `mvn generate-resources` to build it.");
@@ -50,7 +50,7 @@ public class NiimServer {
             String baseUrl = "http://127.0.0.1:" + port;
             waitUntilReady(process, baseUrl);
             LOG.info("Niimblue server started on " + baseUrl);
-            return new NiimServer(process, baseUrl);
+            return new NiimBlueServer(process, baseUrl);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to start node server: " + e.getMessage(), e);
         } catch (InterruptedException e) {
@@ -129,7 +129,7 @@ public class NiimServer {
         dirs.add(Path.of("").toAbsolutePath().resolve("runtime"));
         dirs.add(Path.of("").toAbsolutePath().resolve("target/runtime"));
         try {
-            URI location = NiimServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            URI location = NiimBlueServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
             Path path = Path.of(location);
             if (Files.isDirectory(path)) {
                 Path basedir = path.getParent().getParent();

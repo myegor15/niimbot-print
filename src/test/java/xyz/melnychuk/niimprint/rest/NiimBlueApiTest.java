@@ -1,11 +1,12 @@
 package xyz.melnychuk.niimprint.rest;
 
 import org.junit.jupiter.api.Test;
+import xyz.melnychuk.niimblue.NiimBlueApi;
+import xyz.melnychuk.niimblue.NiimBlueApiException;
+import xyz.melnychuk.niimblue.request.PrintRequest;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,12 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-class NiimbotApiTest {
+class NiimBlueApiTest {
 
     private static class MockServer implements AutoCloseable {
         private final ServerSocket server;
@@ -112,7 +110,7 @@ class NiimbotApiTest {
     void connectSendsExpectedRequest() throws Exception {
         try (MockServer mock = new MockServer()) {
             mock.respond(200, "{\"message\":\"Connected\"}");
-            NiimbotApi api = new NiimbotApi(mock.baseUrl());
+            NiimBlueApi api = new NiimBlueApi(mock.baseUrl());
 
             api.connect("ble", "27:03:07:17:6e:82");
 
@@ -127,9 +125,9 @@ class NiimbotApiTest {
     void connectedParsesStatus() throws Exception {
         try (MockServer mock = new MockServer()) {
             mock.respond(200, "{\"connected\":true}");
-            assertTrue(new NiimbotApi(mock.baseUrl()).isConnected());
+            assertTrue(new NiimBlueApi(mock.baseUrl()).isConnected());
             mock.respond(200, "{\"connected\":false}");
-            assertFalse(new NiimbotApi(mock.baseUrl()).isConnected());
+            assertFalse(new NiimBlueApi(mock.baseUrl()).isConnected());
         }
     }
 
@@ -137,7 +135,7 @@ class NiimbotApiTest {
     void printSendsImagePayload() throws Exception {
         try (MockServer mock = new MockServer()) {
             mock.respond(200, "{\"message\":\"Printed\"}");
-            NiimbotApi api = new NiimbotApi(mock.baseUrl());
+            NiimBlueApi api = new NiimBlueApi(mock.baseUrl());
 
             api.print(PrintRequest.of("QUJD", 384, 240, 3, 1, "top"));
 
@@ -153,9 +151,9 @@ class NiimbotApiTest {
     void serverErrorThrowsApiException() throws Exception {
         try (MockServer mock = new MockServer()) {
             mock.respond(500, "{\"message\":\"Not connected\"}");
-            NiimbotApi api = new NiimbotApi(mock.baseUrl());
+            NiimBlueApi api = new NiimBlueApi(mock.baseUrl());
 
-            assertThrows(NiimbotApi.ApiException.class, () -> api.print(
+            assertThrows(NiimBlueApiException.class, () -> api.print(
                     PrintRequest.of("QUJD", 384, 240, 3, 1, "top")));
         }
     }

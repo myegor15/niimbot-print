@@ -5,13 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import xyz.melnychuk.niimprint.rest.NiimServer;
+import xyz.melnychuk.niimblue.NiimBlueServer;
 
 import java.io.IOException;
 import java.util.Objects;
 
 public class NiimPrintApplication extends Application {
-    private NiimServer server;
+    private NiimBlueServer server;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -31,7 +31,7 @@ public class NiimPrintApplication extends Application {
 
     private void startServer() {
         try {
-            server = NiimServer.start();
+            server = NiimBlueServer.start();
         } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR,
                     "Не удалось запустить встроенный сервер печати: " + e.getMessage()

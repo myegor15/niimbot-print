@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimprint.rest;
+package xyz.melnychuk.niimblue.response;
 
 import java.util.List;
 
