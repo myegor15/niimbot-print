@@ -42,9 +42,16 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
 
         sizeSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(6, 200, text.getFontSize(), 1));
         sizeSpinner.setEditable(true);
-        bind(sizeSpinner.valueProperty(), TextElement::setFontSize);
+        bindLive(sizeSpinner, TextElement::setFontSize);
 
         boldCheck.setSelected(text.isBold());
         bind(boldCheck.selectedProperty(), TextElement::setBold);
+    }
+
+    @Override
+    public void sync() {
+        if (element != null && sizeSpinner.getValueFactory() != null) {
+            sizeSpinner.getValueFactory().setValue(element.getFontSize());
+        }
     }
 }

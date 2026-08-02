@@ -70,4 +70,9 @@ public class StickerCanvasEditor implements StickerEditor {
     public void setSelectionListener(Consumer<StickerElement> listener) {
         canvas.setSelectionListener(listener);
     }
+
+    @Override
+    public void setChangeListener(Consumer<StickerElement> listener) {
+        canvas.setChangeListener(listener);
+    }
 }

@@ -15,6 +15,7 @@ import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.ComponentLoader;
 
 import java.util.Map;
+import java.util.function.DoubleConsumer;
 
 public class BaseElementPropertiesComponentController extends AbstractController {
 
@@ -34,18 +35,22 @@ public class BaseElementPropertiesComponentController extends AbstractController
 
     private StickerEditor editor;
     private StickerElement element;
+    private ElementPropertiesComponentController<?> elementController;
+    private boolean updating;
 
     public void setStickerEditor(StickerEditor editor) {
         this.editor = editor;
     }
 
     public void setHost() {
-        bindPosition();
+        bindLive(xSpinner, this::setX);
+        bindLive(ySpinner, this::setY);
     }
 
     public void showElement(StickerElement element) {
         this.element = element;
         propertyBox.getChildren().clear();
+        elementController = null;
         if (element == null) {
             propertyBox.getChildren().add(new Label("Выберите элемент на этикетке"));
             return;
@@ -56,7 +61,24 @@ public class BaseElementPropertiesComponentController extends AbstractController
         ElementPropertiesComponentController<?> controller = bundle.controller();
         controller.setStickerEditor(editor);
         show(controller, element);
+        elementController = controller;
         propertyBox.getChildren().add(bundle.root());
+    }
+
+    public void syncFromCanvas(StickerElement changed) {
+        if (element == null || element != changed) {
+            return;
+        }
+        updating = true;
+        if (elementController != null) {
+            elementController.setUpdating(true);
+        }
+        updatePositionValues();
+        if (elementController != null) {
+            elementController.sync();
+            elementController.setUpdating(false);
+        }
+        updating = false;
     }
 
     private Class<? extends ElementPropertiesComponentController<?>> registryController(StickerElement element) {
@@ -67,9 +89,18 @@ public class BaseElementPropertiesComponentController extends AbstractController
         return controllerType;
     }
 
-    private void bindPosition() {
-        xSpinner.valueProperty().addListener((o, a, b) -> onPositionChanged(b, ySpinner.getValue()));
-        ySpinner.valueProperty().addListener((o, a, b) -> onPositionChanged(xSpinner.getValue(), b));
+    private void setX(double x) {
+        if (element != null && editor != null) {
+            element.setX(x);
+            editor.updateElement(element);
+        }
+    }
+
+    private void setY(double y) {
+        if (element != null && editor != null) {
+            element.setY(y);
+            editor.updateElement(element);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -77,15 +108,29 @@ public class BaseElementPropertiesComponentController extends AbstractController
         ((ElementPropertiesComponentController<StickerElement>) controller).show(element);
     }
 
-    private void onPositionChanged(Double x, Double y) {
-        if (element == null || editor == null) {
-            return;
+    private void bindLive(Spinner<Double> spinner, DoubleConsumer setter) {
+        spinner.valueProperty().addListener((o, a, b) -> {
+            if (updating || b == null) {
+                return;
+            }
+            setter.accept(b);
+        });
+        spinner.getEditor().textProperty().addListener((o, a, b) -> {
+            if (updating) {
+                return;
+            }
+            Double v = ElementPropertiesComponentController.parseDouble(b);
+            if (v != null) {
+                setter.accept(v);
+            }
+        });
+    }
+
+    private void updatePositionValues() {
+        if (xSpinner.getValueFactory() != null && ySpinner.getValueFactory() != null) {
+            xSpinner.getValueFactory().setValue(element.getX());
+            ySpinner.getValueFactory().setValue(element.getY());
         }
-        double newX = x != null ? x : element.getX();
-        double newY = y != null ? y : element.getY();
-        element.setX(newX);
-        element.setY(newY);
-        editor.updateElement(element);
     }
 
     private void configurePosition(StickerElement element) {

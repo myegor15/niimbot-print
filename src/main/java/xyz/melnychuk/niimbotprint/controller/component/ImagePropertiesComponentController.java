@@ -20,10 +20,18 @@ public class ImagePropertiesComponentController extends ElementPropertiesCompone
 
         widthSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, image.getWidth(), 1));
         widthSpinner.setEditable(true);
-        bind(widthSpinner.valueProperty(), ImageElement::setWidth);
+        bindLive(widthSpinner, ImageElement::setWidth);
 
         heightSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, image.getHeight(), 1));
         heightSpinner.setEditable(true);
-        bind(heightSpinner.valueProperty(), ImageElement::setHeight);
+        bindLive(heightSpinner, ImageElement::setHeight);
+    }
+
+    @Override
+    public void sync() {
+        if (element != null && widthSpinner.getValueFactory() != null && heightSpinner.getValueFactory() != null) {
+            widthSpinner.getValueFactory().setValue(element.getWidth());
+            heightSpinner.getValueFactory().setValue(element.getHeight());
+        }
     }
 }

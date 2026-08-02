@@ -35,10 +35,18 @@ public class BarcodePropertiesComponentController extends ElementPropertiesCompo
 
         widthSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, barcode.getWidth(), 1));
         widthSpinner.setEditable(true);
-        bind(widthSpinner.valueProperty(), BarcodeElement::setWidth);
+        bindLive(widthSpinner, BarcodeElement::setWidth);
 
         heightSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, barcode.getHeight(), 1));
         heightSpinner.setEditable(true);
-        bind(heightSpinner.valueProperty(), BarcodeElement::setHeight);
+        bindLive(heightSpinner, BarcodeElement::setHeight);
+    }
+
+    @Override
+    public void sync() {
+        if (element != null && widthSpinner.getValueFactory() != null && heightSpinner.getValueFactory() != null) {
+            widthSpinner.getValueFactory().setValue(element.getWidth());
+            heightSpinner.getValueFactory().setValue(element.getHeight());
+        }
     }
 }

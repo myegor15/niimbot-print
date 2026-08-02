@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -20,12 +21,15 @@ import xyz.melnychuk.niimbotprint.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
 public class StickerCanvas extends Pane {
+
+    private static final double HANDLE_SIZE = 9;
+    private static final double MIN_SIZE = 10;
 
     private Sticker sticker;
 
@@ -36,15 +40,21 @@ public class StickerCanvas extends Pane {
 
     private Rectangle selectionBox;
 
-    private final Map<StickerElement, Node> nodes = new HashMap<>();
+    private final Rectangle[] handles = new Rectangle[4];
+
+    private final Map<StickerElement, Node> nodes = new IdentityHashMap<>();
 
     @Setter
     private Consumer<StickerElement> selectionListener = e -> {};
+
+    @Setter
+    private Consumer<StickerElement> changeListener = e -> {};
 
     public StickerCanvas(Sticker sticker) {
         this.sticker = sticker;
         setStyle("-fx-background-color: #ececec;");
         buildBackground();
+        buildHandles();
         setOnMousePressed(e -> selectNone());
         refresh();
     }
@@ -74,41 +84,62 @@ public class StickerCanvas extends Pane {
         getChildren().add(0, background);
     }
 
+    private void buildHandles() {
+        for (int i = 0; i < handles.length; i++) {
+            Rectangle handle = new Rectangle(HANDLE_SIZE, HANDLE_SIZE);
+            handle.setFill(Color.WHITE);
+            handle.setStroke(Color.BLUE);
+            handle.setVisible(false);
+            installResizeHandler(handle, corner(i));
+            handles[i] = handle;
+            getChildren().add(handle);
+        }
+    }
+
+    private int[] corner(int index) {
+        return new int[]{
+                (index & 1) == 0 ? -1 : 1,
+                (index & 2) == 0 ? -1 : 1
+        };
+    }
+
     public void refresh() {
         nodes.values().forEach(getChildren()::remove);
         nodes.clear();
         for (StickerElement element : sticker.getElements()) {
             Node node = createNode(element);
             nodes.put(element, node);
-            getChildren().add(node);
+            insertBeforeHandles(node);
             makeDraggable(node, element);
         }
         updateSelectionBox();
+    }
+
+    private void insertBeforeHandles(Node node) {
+        int index = Math.max(1, getChildren().size() - handles.length);
+        getChildren().add(index, node);
     }
 
     public StickerElement addElement(StickerElement element) {
         sticker.getElements().add(element);
         Node node = createNode(element);
         nodes.put(element, node);
-        getChildren().add(node);
+        insertBeforeHandles(node);
         makeDraggable(node, element);
         select(element);
         return element;
     }
 
     public void updateElement(StickerElement element) {
-        Node old = nodes.get(element);
-        if (old == null) {
+        Node node = nodes.get(element);
+        if (node == null) {
             return;
         }
-        getChildren().remove(old);
-        Node node = createNode(element);
-        nodes.put(element, node);
-        getChildren().add(node);
-        makeDraggable(node, element);
-        if (selectedElement == element) {
-            updateSelectionBox();
-        }
+        updateNode(node, element);
+        node = nodes.get(element);
+        applyPosition(node, element);
+        updateSelectionBox();
+        changeListener.accept(element);
     }
 
     public void removeSelected() {
@@ -154,6 +185,22 @@ public class StickerCanvas extends Pane {
         throw new IllegalArgumentException("Unknown element: " + element);
     }
 
+    private void updateNode(Node node, StickerElement element) {
+        if (element instanceof TextElement text && node instanceof Label label) {
+            label.setText(text.getText());
+            label.setFont(font(text));
+        } else if (element instanceof ImageElement image && node instanceof ImageView view) {
+            view.setFitWidth(image.getWidth());
+            view.setFitHeight(image.getHeight());
+        } else if (element instanceof BarcodeElement) {
+            getChildren().remove(node);
+            Node newNode = createBarcode((BarcodeElement) element);
+            nodes.put(element, newNode);
+            insertBeforeHandles(newNode);
+            makeDraggable(newNode, element);
+        }
+    }
+
     private Node createText(TextElement element) {
         Font font = font(element);
         Label text = new Label(element.getText());
@@ -186,8 +233,9 @@ public class StickerCanvas extends Pane {
             view.setLayoutY(element.getY());
             return view;
         } catch (Exception e) {
-            log.error("Exception in createBarcode().", e);
-            Label error = new Label("Ошибка штрихкода: " + element.getContent());
+            log.warn("Barcode cannot be rendered for content '{}' format '{}': {}",
+                    element.getContent(), element.getFormat(), e.getMessage());
+            Label error = new Label("Недопустимый штрихкод");
             error.setLayoutX(element.getX());
             error.setLayoutY(element.getY());
             return error;
@@ -204,17 +252,82 @@ public class StickerCanvas extends Pane {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
             select(element);
-            start[0] = e.getSceneX() - element.getX();
-            start[1] = e.getSceneY() - element.getY();
+            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            start[0] = p.getX() - element.getX();
+            start[1] = p.getY() - element.getY();
             e.consume();
         });
         node.setOnMouseDragged(e -> {
-            element.setX(clamp(e.getSceneX() - start[0], 0, sticker.getWidth()));
-            element.setY(clamp(e.getSceneY() - start[1], 0, sticker.getHeight()));
+            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            element.setX(clamp(p.getX() - start[0], 0, sticker.getWidth()));
+            element.setY(clamp(p.getY() - start[1], 0, sticker.getHeight()));
             applyPosition(node, element);
             updateSelectionBox();
+            changeListener.accept(element);
             e.consume();
         });
+    }
+
+    private void installResizeHandler(Rectangle handle, int[] corner) {
+        final double[] start = new double[8];
+        handle.setOnMousePressed(e -> {
+            if (selectedElement == null) {
+                return;
+            }
+            Node sel = nodes.get(selectedElement);
+            if (sel == null) {
+                return;
+            }
+            Bounds b = sel.getLayoutBounds();
+            start[2] = b.getWidth();
+            start[3] = b.getHeight();
+            start[4] = selectedElement instanceof TextElement text ? text.getFontSize() : 0;
+            double ax = sel.getLayoutX() + b.getMinX();
+            double ay = sel.getLayoutY() + b.getMinY();
+            start[5] = ax + (corner[0] < 0 ? start[2] : 0);
+            start[6] = ay + (corner[1] < 0 ? start[3] : 0);
+            e.consume();
+        });
+        handle.setOnMouseDragged(e -> {
+            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            resize(corner, start, p.getX(), p.getY());
+        });
+    }
+
+    private void resize(int[] corner, double[] start, double x, double y) {
+        if (selectedElement == null) {
+            return;
+        }
+        double origW = start[2] > 0 ? start[2] : 1;
+        double origH = start[3] > 0 ? start[3] : 1;
+        double sx = clamp(x, 0, sticker.getWidth());
+        double sy = clamp(y, 0, sticker.getHeight());
+        double k = Math.hypot(start[5] - sx, start[6] - sy) / Math.hypot(origW, origH);
+        k = Math.max(k, MIN_SIZE / Math.max(1, Math.min(origW, origH)));
+
+        double newX = corner[0] < 0 ? start[5] - origW * k : start[5];
+        double newY = corner[1] < 0 ? start[6] - origH * k : start[6];
+        newX = clamp(newX, 0, sticker.getWidth() - MIN_SIZE);
+        newY = clamp(newY, 0, sticker.getHeight() - MIN_SIZE);
+        newX = Math.min(newX, start[5]);
+        newY = Math.min(newY, start[6]);
+
+        if (selectedElement instanceof TextElement text) {
+            text.setX(newX);
+            text.setY(newY);
+            text.setFontSize(Math.max(1, start[4] * k));
+        } else if (selectedElement instanceof ImageElement image) {
+            image.setX(newX);
+            image.setY(newY);
+            image.setWidth(origW * k);
+            image.setHeight(origH * k);
+        } else if (selectedElement instanceof BarcodeElement barcode) {
+            barcode.setX(newX);
+            barcode.setY(newY);
+            barcode.setWidth(origW * k);
+            barcode.setHeight(origH * k);
+        }
+        updateElement(selectedElement);
     }
 
     private void applyPosition(Node node, StickerElement element) {
@@ -233,11 +346,12 @@ public class StickerCanvas extends Pane {
             selectionBox.setStroke(Color.BLUE);
             selectionBox.getStrokeDashArray().addAll(4.0, 4.0);
             selectionBox.setMouseTransparent(true);
-            getChildren().add(selectionBox);
+            insertBeforeHandles(selectionBox);
         }
         Node node = selectedElement == null ? null : nodes.get(selectedElement);
         if (node == null) {
             selectionBox.setVisible(false);
+            setHandlesVisible(false);
             return;
         }
         Bounds bounds = node.getLayoutBounds();
@@ -245,11 +359,37 @@ public class StickerCanvas extends Pane {
             Platform.runLater(this::updateSelectionBox);
             return;
         }
+        double x = node.getLayoutX() + bounds.getMinX();
+        double y = node.getLayoutY() + bounds.getMinY();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
         selectionBox.setVisible(true);
-        selectionBox.setX(node.getLayoutX() + bounds.getMinX());
-        selectionBox.setY(node.getLayoutY() + bounds.getMinY());
-        selectionBox.setWidth(bounds.getWidth());
-        selectionBox.setHeight(bounds.getHeight());
+        selectionBox.setX(x);
+        selectionBox.setY(y);
+        selectionBox.setWidth(w);
+        selectionBox.setHeight(h);
+        updateHandles(x, y, w, h);
+        setHandlesVisible(true);
+    }
+
+    private void updateHandles(double x, double y, double w, double h) {
+        double half = HANDLE_SIZE / 2;
+        for (int i = 0; i < handles.length; i++) {
+            int[] c = corner(i);
+            Rectangle handle = handles[i];
+            handle.setX(x + (c[0] > 0 ? w : 0) - half);
+            handle.setY(y + (c[1] > 0 ? h : 0) - half);
+            handle.setCursor(c[0] == c[1]
+                    ? (c[0] > 0 ? Cursor.SE_RESIZE : Cursor.NW_RESIZE)
+                    : (c[0] > 0 ? Cursor.SW_RESIZE : Cursor.NE_RESIZE));
+        }
+    }
+
+    private void setHandlesVisible(boolean visible) {
+        for (Rectangle handle : handles) {
+            handle.setVisible(visible);
+            handle.setMouseTransparent(!visible);
+        }
     }
 
     private static Image decodeBase64(String base64) {

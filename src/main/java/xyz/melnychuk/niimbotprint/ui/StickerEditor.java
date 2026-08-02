@@ -21,4 +21,6 @@ public interface StickerEditor {
     String snapshotPngBase64();
 
     void setSelectionListener(Consumer<StickerElement> listener);
+
+    void setChangeListener(Consumer<StickerElement> listener);
 }

@@ -110,6 +110,8 @@ public class MainViewController extends AbstractController {
             elementActionsController.setHasSelection(element != null);
         });
 
+        canvasController.setChangeListener(elementPropertiesController::syncFromCanvas);
+
         applyConnectionState(false);
     }
 

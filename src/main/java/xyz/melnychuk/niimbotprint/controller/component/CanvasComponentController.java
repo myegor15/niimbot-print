@@ -31,4 +31,8 @@ public class CanvasComponentController extends AbstractController {
     public void setSelectionListener(Consumer<StickerElement> listener) {
         editor.setSelectionListener(listener);
     }
+
+    public void setChangeListener(Consumer<StickerElement> listener) {
+        editor.setChangeListener(listener);
+    }
 }
