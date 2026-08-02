@@ -17,22 +17,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class NiimBlueServer {
+public class NiimBlueApiManager {
 
     private static final Duration START_TIMEOUT = Duration.ofSeconds(15);
 
     private final Process process;
 
     @Getter
-    private final String url;
+    private final NiimBlueApi api;
 
-    private NiimBlueServer(Process process, String url) {
+    private NiimBlueApiManager(Process process, NiimBlueApi api) {
         this.process = process;
-        this.url = url;
+        this.api = api;
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
-    public static NiimBlueServer start() {
+    public static NiimBlueApiManager start() {
         Path runtime = runtimeDir();
         if (runtime == null) {
             throw new AppException("Node runtime not found. Run `mvn generate-resources` to build it.");
@@ -47,10 +47,11 @@ public class NiimBlueServer {
         try {
             Process process = pb.start();
             forwardOutput(process);
-            String baseUrl = "http://127.0.0.1:" + port;
-            waitUntilReady(process, new NiimBlueApi(baseUrl));
-            log.info("start(). NiimBlue server started on {}", baseUrl);
-            return new NiimBlueServer(process, baseUrl);
+            String apiUrl = "http://127.0.0.1:" + port;
+            NiimBlueApi api = new NiimBlueApi(apiUrl);
+            waitUntilReady(process, api);
+            log.info("start(). NiimBlue server started on {}", apiUrl);
+            return new NiimBlueApiManager(process, api);
         } catch (IOException e) {
             throw new AppException("Failed to start node server: " + e.getMessage(), e);
         } catch (InterruptedException e) {
@@ -121,7 +122,7 @@ public class NiimBlueServer {
         dirs.add(Path.of("").toAbsolutePath().resolve("runtime"));
         dirs.add(Path.of("").toAbsolutePath().resolve("target/runtime"));
         try {
-            URI location = NiimBlueServer.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            URI location = NiimBlueApiManager.class.getProtectionDomain().getCodeSource().getLocation().toURI();
             Path path = Path.of(location);
             if (Files.isDirectory(path)) {
                 Path basedir = path.getParent().getParent();

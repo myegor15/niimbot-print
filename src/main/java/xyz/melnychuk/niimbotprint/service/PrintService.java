@@ -1,28 +1,29 @@
 package xyz.melnychuk.niimbotprint.service;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApi;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.dto.DeviceDto;
-import xyz.melnychuk.niimbotprint.dto.PrinterDto;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
+import xyz.melnychuk.niimbotprint.dto.PrinterDto;
 import xyz.melnychuk.niimbotprint.mapper.DeviceMapper;
-import xyz.melnychuk.niimbotprint.mapper.PrinterInfoMapper;
 import xyz.melnychuk.niimbotprint.mapper.PrintTaskMapper;
+import xyz.melnychuk.niimbotprint.mapper.PrinterInfoMapper;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class PrintService {
 
-    @Getter
-    private final String apiUrl;
     private final NiimBlueApi api;
 
-    public PrintService(String apiUrl) {
-        this.apiUrl = apiUrl;
-        this.api = new NiimBlueApi(apiUrl);
+    public PrintService(NiimBlueApi api) {
+        this.api = Objects.requireNonNull(api);
+    }
+
+    public String getApiUrl() {
+        return api.getUrl();
     }
 
     public boolean isConnected() {

@@ -3,6 +3,7 @@ package xyz.melnychuk.niimblue;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.request.ConnectRequest;
 import xyz.melnychuk.niimblue.request.PrintRequest;
@@ -28,6 +29,7 @@ public class NiimBlueApi {
     private static final Duration GET_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration POST_TIMEOUT = Duration.ofSeconds(60);
 
+    @Getter
     private final String url;
     private final HttpClient client;
     private final ObjectMapper mapper;

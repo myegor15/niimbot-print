@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import xyz.melnychuk.niimblue.NiimBlueServer;
+import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.MainController;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
@@ -19,7 +19,7 @@ import java.util.Objects;
 @Slf4j
 public class App extends Application {
 
-    private NiimBlueServer server;
+    private NiimBlueApiManager server;
 
     @Override
     public void start(Stage stage) {
@@ -42,7 +42,7 @@ public class App extends Application {
 
     private void startNiimBlue(Stage stage) {
         AsyncUtils.run(
-                NiimBlueServer::start,
+                NiimBlueApiManager::start,
                 e -> {
                     server = e;
                     showMain(stage);
@@ -66,7 +66,7 @@ public class App extends Application {
             Scene scene = new Scene(fxmlLoader.load(), 1200, 700);
 
             MainController controller = fxmlLoader.getController();
-            controller.setPrintService(new PrintService(server.getUrl()));
+            controller.setPrintService(new PrintService(server.getApi()));
             controller.setStickerService(new StickerService());
 
             String style = Objects.requireNonNull(getResource("style.css")).toExternalForm();
