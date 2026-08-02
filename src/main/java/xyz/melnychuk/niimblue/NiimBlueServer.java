@@ -2,7 +2,7 @@ package xyz.melnychuk.niimblue;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import xyz.melnychuk.niimprint.AppException;
+import xyz.melnychuk.niimbotprint.AppException;
 
 import java.io.BufferedReader;
 import java.io.IOException;

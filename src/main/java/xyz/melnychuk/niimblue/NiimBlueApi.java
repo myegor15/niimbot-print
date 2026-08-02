@@ -11,7 +11,7 @@ import xyz.melnychuk.niimblue.response.ConnectedResponse;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimblue.response.InfoResponse;
 import xyz.melnychuk.niimblue.response.RfidResponse;
-import xyz.melnychuk.niimprint.AppException;
+import xyz.melnychuk.niimbotprint.AppException;
 
 import java.io.IOException;
 import java.net.URI;

@@ -1,4 +1,4 @@
-module xyz.melnychuk.niimprint {
+module xyz.melnychuk.niimbotprint {
 
     requires javafx.controls;
     requires javafx.fxml;
@@ -18,14 +18,14 @@ module xyz.melnychuk.niimprint {
 
     requires static lombok;
 
-    exports xyz.melnychuk.niimprint;
+    exports xyz.melnychuk.niimbotprint;
 
-    opens xyz.melnychuk.niimprint.controller to javafx.fxml;
+    opens xyz.melnychuk.niimbotprint.controller to javafx.fxml;
 
-    opens xyz.melnychuk.niimprint.model to com.fasterxml.jackson.databind;
+    opens xyz.melnychuk.niimbotprint.model to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.request to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.response to com.fasterxml.jackson.databind;
-    opens xyz.melnychuk.niimprint.dto to com.fasterxml.jackson.databind;
+    opens xyz.melnychuk.niimbotprint.dto to com.fasterxml.jackson.databind;
 
 }
