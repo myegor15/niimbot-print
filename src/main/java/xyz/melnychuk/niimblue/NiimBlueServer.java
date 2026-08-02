@@ -102,7 +102,7 @@ public class NiimBlueServer {
                     return;
                 }
             } catch (Exception e) {
-                log.warn("Exception in waitUntilReady().", e);
+                log.warn("Exception in waitUntilReady().");
             }
             Thread.sleep(500);
         }

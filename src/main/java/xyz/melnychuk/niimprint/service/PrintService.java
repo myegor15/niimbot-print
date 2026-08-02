@@ -3,11 +3,15 @@ package xyz.melnychuk.niimprint.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApi;
-import xyz.melnychuk.niimblue.request.PrintRequest;
-import xyz.melnychuk.niimblue.response.DevicesResponse;
-import xyz.melnychuk.niimblue.response.InfoResponse;
 import xyz.melnychuk.niimprint.AppException;
-import xyz.melnychuk.niimprint.model.Sticker;
+import xyz.melnychuk.niimprint.dto.DeviceDto;
+import xyz.melnychuk.niimprint.dto.PrinterDto;
+import xyz.melnychuk.niimprint.dto.PrintTaskDto;
+import xyz.melnychuk.niimprint.mapper.DeviceMapper;
+import xyz.melnychuk.niimprint.mapper.PrinterInfoMapper;
+import xyz.melnychuk.niimprint.mapper.PrintTaskMapper;
+
+import java.util.List;
 
 @Slf4j
 public class PrintService {
@@ -30,18 +34,24 @@ public class PrintService {
         }
     }
 
-    public DevicesResponse scanDevices() {
+    public List<DeviceDto> scanDevices() {
         try {
-            return api.scan();
+            return api.scan()
+                    .devices()
+                    .stream()
+                    .map(DeviceMapper::toDto)
+                    .toList();
         } catch (Exception e) {
             log.error("Exception in scanDevices().", e);
             throw new AppException(e);
         }
     }
 
-    public boolean connect(DevicesResponse.Device device) {
+    public boolean connect(DeviceDto device) {
         try {
-            String target = device.address() == null || device.address().isBlank() ? device.name() : device.address();
+            String target = device.getAddress() == null || device.getAddress().isBlank()
+                    ? device.getName()
+                    : device.getAddress();
             api.connect("ble", target);
             return api.isConnected();
         } catch (Exception e) {
@@ -59,31 +69,18 @@ public class PrintService {
         }
     }
 
-    public String getPrinterInfo() {
+    public PrinterDto getPrinterInfo() {
         try {
-            InfoResponse info = api.info();
-            InfoResponse.PrinterInfo printer = info.printerInfo();
-            InfoResponse.ModelMetadata model = info.modelMetadata();
-            return "Модель: " + model.model() + "\n"
-                    + "DPI: " + model.dpi() + "\n"
-                    + "Задача: " + info.detectedPrintTask() + "\n"
-                    + "Серийник: " + printer.serial() + "\n"
-                    + "MAC: " + printer.mac() + "\n"
-                    + "Заряд: " + printer.charge() + "%\n"
-                    + "FW: " + printer.softwareVersion();
+            return PrinterInfoMapper.toDto(api.info());
         } catch (Exception e) {
             log.error("Exception in getPrinterInfo().", e);
             throw new AppException(e);
         }
     }
 
-    public void print(String base64, Sticker sticker, int density, int quantity, String direction) {
+    public void print(PrintTaskDto task) {
         try {
-            PrintRequest request = PrintRequest.of(
-                    base64, sticker.getWidth(), sticker.getHeight(),
-                    density, quantity, direction
-            );
-            api.print(request);
+            api.print(PrintTaskMapper.toApi(task));
         } catch (Exception e) {
             log.error("Exception in print().", e);
             throw new AppException(e);

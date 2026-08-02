@@ -12,9 +12,11 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimprint.AppException;
 import xyz.melnychuk.niimprint.model.BarcodeElement;
+import xyz.melnychuk.niimprint.dto.DeviceDto;
+import xyz.melnychuk.niimprint.dto.PrinterDto;
+import xyz.melnychuk.niimprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimprint.model.Sticker;
 import xyz.melnychuk.niimprint.model.StickerElement;
 import xyz.melnychuk.niimprint.model.TextElement;
@@ -41,7 +43,7 @@ public class MainController extends Controller {
     @FXML
     private TextField serverField;
     @FXML
-    private ComboBox<DevicesResponse.Device> deviceCombo;
+    private ComboBox<DeviceDto> deviceCombo;
     @FXML
     private Button scanButton;
     @FXML
@@ -152,8 +154,20 @@ public class MainController extends Controller {
     private void loadPrinterInfo() {
         run(
                 printService::getPrinterInfo,
-                printerInfoArea::setText,
+                this::setPrinterInfo,
                 this::showError
+        );
+    }
+
+    private void setPrinterInfo(PrinterDto info) {
+        printerInfoArea.setText(
+                "Модель: " + info.getModel() + "\n"
+                + "DPI: " + info.getDpi() + "\n"
+                + "Задача: " + info.getDetectedPrintTask() + "\n"
+                + "Серийник: " + info.getSerial() + "\n"
+                + "MAC: " + info.getMac() + "\n"
+                + "Заряд: " + info.getCharge() + "%\n"
+                + "FW: " + info.getSoftwareVersion()
         );
     }
 
@@ -163,8 +177,8 @@ public class MainController extends Controller {
         run(
                 printService::scanDevices,
                 devices -> {
-                    deviceCombo.getItems().setAll(devices.devices());
-                    setMessage("Найдено устройств: " + devices.devices().size());
+                    deviceCombo.getItems().setAll(devices);
+                    setMessage("Найдено устройств: " + devices.size());
                 },
                 this::showError
         );
@@ -172,7 +186,7 @@ public class MainController extends Controller {
 
     @FXML
     private void onConnect() {
-        DevicesResponse.Device device = deviceCombo.getValue();
+        DeviceDto device = deviceCombo.getValue();
         if (device == null) {
             setMessage("Сначала выполните поиск и выберите устройство");
             return;
@@ -285,8 +299,9 @@ public class MainController extends Controller {
 
         run(
                 () -> {
-                    printService.print(base64, label, densitySpinner.getValue(), quantitySpinner.getValue(),
-                            directionCombo.getValue());
+                    PrintTaskDto task = new PrintTaskDto(base64, label.getWidth(), label.getHeight(),
+                            densitySpinner.getValue(), quantitySpinner.getValue(), directionCombo.getValue());
+                    printService.print(task);
                     return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
                 },
                 this::setMessage,
