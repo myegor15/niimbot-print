@@ -4,7 +4,7 @@
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.SplashController"
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.view.SplashViewController"
       spacing="16" alignment="CENTER">
     <Label fx:id="messageLabel" text="Запуск приложения..."/>
     <ProgressIndicator fx:id="progressIndicator"/>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.StatusBarComponentController"
+      spacing="12" styleClass="status-bar">
+    <padding>
+        <Insets top="4" right="8" bottom="4" left="8"/>
+    </padding>
+    <Label fx:id="connectionLabel" text="Не подключено"/>
+    <Label fx:id="messageLabel" text="Готово"/>
+</HBox>

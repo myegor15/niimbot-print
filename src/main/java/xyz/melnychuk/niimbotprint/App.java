@@ -5,8 +5,8 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
-import xyz.melnychuk.niimbotprint.controller.MainController;
-import xyz.melnychuk.niimbotprint.controller.SplashController;
+import xyz.melnychuk.niimbotprint.controller.view.MainViewController;
+import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
@@ -51,7 +51,7 @@ public class App extends Application {
 
     private void showSplash(Stage stage) {
         try {
-            stage.setScene(ViewLoader.load(SplashController.class, stage).scene());
+            stage.setScene(ViewLoader.load(SplashViewController.class, stage).scene());
         } catch (Exception e) {
             log.error("Exception in showSplash().", e);
             showError("Не удалось открыть окно загрузки.");
@@ -60,7 +60,7 @@ public class App extends Application {
 
     private void showMain(Stage stage) {
         try {
-            ViewLoader.Result<MainController> result = ViewLoader.load(MainController.class, stage);
+            ViewLoader.Result<MainViewController> result = ViewLoader.load(MainViewController.class, stage);
             result.controller().setPrintService(new PrintService(apiManager.getApi()));
             result.controller().setStickerService(new StickerService());
             stage.setScene(result.scene());

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.view.MainViewController">
+    <top>
+        <fx:include source="../component/topbar-component.fxml" fx:id="topBar"/>
+    </top>
+
+    <left>
+        <VBox spacing="8">
+            <fx:include source="../component/sticker-settings-component.fxml" fx:id="stickerSettings"/>
+            <fx:include source="../component/print-settings-component.fxml" fx:id="printSettings"/>
+            <fx:include source="../component/printer-info-component.fxml" fx:id="printerInfo"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="6">
+            <fx:include source="../component/element-actions-component.fxml" fx:id="elementActions"/>
+            <fx:include source="../component/canvas-component.fxml" fx:id="canvas"/>
+        </VBox>
+    </center>
+
+    <right>
+        <fx:include source="../component/element-properties-component.fxml" fx:id="elementProperties"/>
+    </right>
+
+    <bottom>
+        <fx:include source="../component/status-bar-component.fxml" fx:id="statusBar"/>
+    </bottom>
+</BorderPane>
