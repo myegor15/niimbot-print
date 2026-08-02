@@ -13,10 +13,10 @@ import javafx.util.Duration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.AppException;
-import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.dto.DeviceDto;
-import xyz.melnychuk.niimbotprint.dto.PrinterDto;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
+import xyz.melnychuk.niimbotprint.dto.PrinterDto;
+import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
@@ -25,6 +25,7 @@ import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.StickerCanvas;
 import xyz.melnychuk.niimbotprint.ui.view.ElementPropertiesView;
 import xyz.melnychuk.niimbotprint.ui.view.ElementPropertiesViewFactory;
+import xyz.melnychuk.niimbotprint.util.View;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -34,6 +35,13 @@ import java.io.IOException;
 import java.util.Base64;
 
 @Slf4j
+@View(
+        fxml = "main-view.fxml",
+        title = "NiimBot Print",
+        width = 1200,
+        height = 700,
+        stylesheets = "style.css"
+)
 public class MainController extends Controller {
 
     private Sticker label = new Sticker();
@@ -162,12 +170,12 @@ public class MainController extends Controller {
     private void setPrinterInfo(PrinterDto info) {
         printerInfoArea.setText(
                 "Модель: " + info.getModel() + "\n"
-                + "DPI: " + info.getDpi() + "\n"
-                + "Задача: " + info.getDetectedPrintTask() + "\n"
-                + "Серийник: " + info.getSerial() + "\n"
-                + "MAC: " + info.getMac() + "\n"
-                + "Заряд: " + info.getCharge() + "%\n"
-                + "FW: " + info.getSoftwareVersion()
+                        + "DPI: " + info.getDpi() + "\n"
+                        + "Задача: " + info.getDetectedPrintTask() + "\n"
+                        + "Серийник: " + info.getSerial() + "\n"
+                        + "MAC: " + info.getMac() + "\n"
+                        + "Заряд: " + info.getCharge() + "%\n"
+                        + "FW: " + info.getSoftwareVersion()
         );
     }
 
