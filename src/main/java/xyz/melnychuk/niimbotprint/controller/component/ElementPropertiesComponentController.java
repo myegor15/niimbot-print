@@ -1,38 +1,44 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Spinner;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.view.ElementPropertiesView;
-import xyz.melnychuk.niimbotprint.ui.view.ElementPropertiesViewFactory;
 
-public class ElementPropertiesComponentController extends AbstractController {
+import java.util.function.BiConsumer;
 
-    @FXML
-    private VBox propertiesBox;
+public abstract class ElementPropertiesComponentController<T extends StickerElement> extends AbstractController {
 
-    private final VBox body = new VBox(8);
     private StickerEditor editor;
+
+    protected T element;
 
     public void setStickerEditor(StickerEditor editor) {
         this.editor = editor;
     }
 
-    public void setHost() {
-        propertiesBox.getChildren().add(body);
+    public void show(T element) {
+        this.element = element;
     }
 
-    public void showElement(StickerElement element) {
-        body.getChildren().clear();
-        if (element == null) {
-            body.getChildren().add(new Label("Выберите элемент на этикетке"));
-            return;
-        }
-        ElementPropertiesView<StickerElement> view = ElementPropertiesViewFactory.create(element);
-        view.setChangeListener(editor::updateElement);
-        view.show(element);
-        body.getChildren().add(view);
+    protected <V> void bind(ObservableValue<V> property, BiConsumer<T, V> setter) {
+        property.addListener(changeListener(setter));
+    }
+
+    protected <V> ChangeListener<V> changeListener(BiConsumer<T, V> setter) {
+        return (o, a, b) -> {
+            setter.accept(element, b);
+            if (editor != null) {
+                editor.updateElement(element);
+            }
+        };
+    }
+
+    protected Spinner<Double> doubleSpinner(double value, double min, double max) {
+        Spinner<Double> spinner = new Spinner<>(min, max, value, 1);
+        spinner.setEditable(true);
+        spinner.setPrefWidth(120);
+        return spinner;
     }
 }

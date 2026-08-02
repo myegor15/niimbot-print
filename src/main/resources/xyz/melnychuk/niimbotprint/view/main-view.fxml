@@ -24,7 +24,7 @@
     </center>
 
     <right>
-        <fx:include source="../component/element-properties-component.fxml" fx:id="elementProperties"/>
+        <fx:include source="../component/base-element-properties-component.fxml" fx:id="elementProperties"/>
     </right>
 
     <bottom>

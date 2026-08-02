@@ -37,7 +37,7 @@ public class MainViewController extends AbstractController {
     @FXML
     private ElementActionsComponentController elementActionsController;
     @FXML
-    private ElementPropertiesComponentController elementPropertiesController;
+    private BaseElementPropertiesComponentController elementPropertiesController;
     @FXML
     private StatusBarComponentController statusBarController;
 
