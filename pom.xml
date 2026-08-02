@@ -16,6 +16,8 @@
         <zxing.version>3.5.4</zxing.version>
         <lombok.version>1.18.46</lombok.version>
         <junit.version>5.12.1</junit.version>
+        <slf4j.version>2.0.18</slf4j.version>
+        <logback.version>1.6.1</logback.version>
     </properties>
 
     <dependencies>
@@ -58,6 +60,17 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
 
         <dependency>

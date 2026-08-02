@@ -15,6 +15,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimprint.model.*;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@Slf4j
 public class StickerCanvas extends Pane {
 
     private Sticker sticker;
@@ -184,6 +186,7 @@ public class StickerCanvas extends Pane {
             view.setLayoutY(element.getY());
             return view;
         } catch (Exception e) {
+            log.error("Exception in createBarcode().", e);
             Label error = new Label("Ошибка штрихкода: " + element.getContent());
             error.setLayoutX(element.getX());
             error.setLayoutY(element.getY());

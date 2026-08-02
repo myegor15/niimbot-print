@@ -1,6 +1,7 @@
 package xyz.melnychuk.niimprint.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimprint.AppException;
 import xyz.melnychuk.niimprint.model.ImageElement;
 import xyz.melnychuk.niimprint.model.Sticker;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Base64;
 
+@Slf4j
 public class StickerService {
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -19,7 +21,8 @@ public class StickerService {
     public Sticker loadSticker(File file) {
         try {
             return mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Exception in loadSticker().", e);
             throw new AppException(e);
         }
     }
@@ -27,7 +30,8 @@ public class StickerService {
     public void saveSticker(Sticker sticker, File file) {
         try {
             mapper.writerWithDefaultPrettyPrinter().writeValue(file, sticker);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Exception in saveSticker().", e);
             throw new AppException(e);
         }
     }
@@ -40,7 +44,8 @@ public class StickerService {
             double w = 100;
             double h = image != null ? 100.0 * image.getHeight() / image.getWidth() : 100;
             return new ImageElement(10, 10, base64, w, h);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Exception in loadImageElement().", e);
             throw new AppException(e);
         }
     }

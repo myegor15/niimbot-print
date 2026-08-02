@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.response.DevicesResponse;
 import xyz.melnychuk.niimprint.AppException;
 import xyz.melnychuk.niimprint.model.BarcodeElement;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 
+@Slf4j
 public class MainController extends Controller {
 
     private Sticker label = new Sticker();
@@ -333,6 +335,7 @@ public class MainController extends Controller {
     }
 
     private void showError(Throwable error) {
+        log.error("Exception in showError().", error);
         setMessage("Ошибка: " + (error != null ? error.getMessage() : "неизвестна"));
     }
 }

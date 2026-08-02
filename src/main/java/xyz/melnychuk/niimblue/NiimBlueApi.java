@@ -3,6 +3,7 @@ package xyz.melnychuk.niimblue;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.request.ConnectRequest;
 import xyz.melnychuk.niimblue.request.PrintRequest;
 import xyz.melnychuk.niimblue.request.ScanRequest;
@@ -19,6 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+@Slf4j
 public class NiimBlueApi {
 
     private static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(5);
@@ -36,11 +38,11 @@ public class NiimBlueApi {
     }
 
     public void connect(String transport, String address) {
-        postJson("/connect", new ConnectRequest(transport, address), JsonNode.class);
+        post("/connect", new ConnectRequest(transport, address), JsonNode.class);
     }
 
     public void disconnect() {
-        postJson("/disconnect", mapper.createObjectNode(), JsonNode.class);
+        post("/disconnect", mapper.createObjectNode(), JsonNode.class);
     }
 
     public boolean isConnected() {
@@ -56,11 +58,11 @@ public class NiimBlueApi {
     }
 
     public DevicesResponse scan() {
-        return postJson("/scan", new ScanRequest("ble"), DevicesResponse.class);
+        return post("/scan", new ScanRequest("ble"), DevicesResponse.class);
     }
 
     public void print(PrintRequest request) {
-        postJson("/print", request, JsonNode.class);
+        post("/print", request, JsonNode.class);
     }
 
     private HttpClient getClient() {
@@ -82,11 +84,12 @@ public class NiimBlueApi {
                     .build();
             return mapper.readValue(check(client.send(req, HttpResponse.BodyHandlers.ofString())), type);
         } catch (IOException | InterruptedException e) {
+            log.error("Exception in get().", e);
             throw new AppException(e);
         }
     }
 
-    private <T> T postJson(String path, Object body, Class<T> type) {
+    private <T> T post(String path, Object body, Class<T> type) {
         try {
             String json = mapper.writeValueAsString(body);
             HttpRequest req = HttpRequest.newBuilder(URI.create(url + path))
@@ -96,6 +99,7 @@ public class NiimBlueApi {
                     .build();
             return mapper.readValue(check(client.send(req, HttpResponse.BodyHandlers.ofString())), type);
         } catch (IOException | InterruptedException e) {
+            log.error("Exception in post().", e);
             throw new AppException(e);
         }
     }

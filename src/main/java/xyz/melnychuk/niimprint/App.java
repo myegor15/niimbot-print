@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueServer;
 import xyz.melnychuk.niimprint.controller.MainController;
 import xyz.melnychuk.niimprint.service.PrintService;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
+@Slf4j
 public class App extends Application {
 
     private NiimBlueServer server;
@@ -45,7 +47,7 @@ public class App extends Application {
                     server = e;
                     showMain(stage);
                 },
-                e -> showErrorAlert("Не удалось запустить встроенный сервер печати: " + e.getMessage())
+                e -> showError("Exception in startNiimBlue().", "Не удалось запустить встроенный сервер печати: ", e)
         );
     }
 
@@ -54,7 +56,7 @@ public class App extends Application {
             FXMLLoader loader = getLoader("splash-view.fxml");
             stage.setScene(new Scene(loader.load(), 400, 200));
         } catch (IOException e) {
-            showErrorAlert("Не удалось открыть окно загрузки: " + e.getMessage());
+            showError("Exception in showSplash().", "Не удалось открыть окно загрузки: ", e);
         }
     }
 
@@ -72,7 +74,7 @@ public class App extends Application {
 
             stage.setScene(scene);
         } catch (IOException e) {
-            showErrorAlert("Не удалось открыть главное окно: " + e.getMessage());
+            showError("Exception in showMain().", "Не удалось открыть главное окно: ", e);
         }
     }
 
@@ -84,7 +86,8 @@ public class App extends Application {
         return App.class.getResource(name);
     }
 
-    private void showErrorAlert(String message) {
-        new Alert(Alert.AlertType.ERROR, message).show();
+    private void showError(String logMessage, String userMessage, Throwable throwable) {
+        log.error(logMessage, throwable);
+        new Alert(Alert.AlertType.ERROR, userMessage + throwable.getMessage()).show();
     }
 }

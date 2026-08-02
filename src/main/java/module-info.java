@@ -12,6 +12,10 @@ module xyz.melnychuk.niimprint {
     requires com.google.zxing;
     requires com.google.zxing.javase;
 
+    requires org.slf4j;
+    requires ch.qos.logback.core;
+    requires ch.qos.logback.classic;
+
     requires static lombok;
 
     exports xyz.melnychuk.niimprint;

@@ -1,6 +1,7 @@
 package xyz.melnychuk.niimblue;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimprint.AppException;
 
 import java.io.BufferedReader;
@@ -17,11 +18,10 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+@Slf4j
 public class NiimBlueServer {
 
-    private static final Logger LOG = Logger.getLogger(NiimBlueServer.class.getName());
     private static final Duration START_TIMEOUT = Duration.ofSeconds(15);
 
     private final Process process;
@@ -52,7 +52,7 @@ public class NiimBlueServer {
             forwardOutput(process);
             String baseUrl = "http://127.0.0.1:" + port;
             waitUntilReady(process, baseUrl);
-            LOG.info("Niimblue server started on " + baseUrl);
+            log.info("start(). NiimBlue server started on {}", baseUrl);
             return new NiimBlueServer(process, baseUrl);
         } catch (IOException e) {
             throw new AppException("Failed to start node server: " + e.getMessage(), e);
@@ -74,9 +74,10 @@ public class NiimBlueServer {
                  BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println("[niimblue] " + line);
+                    log.info("forwardOutput(). {}", line);
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.error("Exception in forwardOutput().", e);
             }
         });
         thread.setDaemon(true);
@@ -84,6 +85,7 @@ public class NiimBlueServer {
     }
 
     private static void waitUntilReady(Process process, String baseUrl) throws InterruptedException {
+        //TODO: вынести в NimBlueApi
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
         HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + "/"))
                 .timeout(Duration.ofSeconds(2))
@@ -99,9 +101,10 @@ public class NiimBlueServer {
                 if (response.statusCode() == 200) {
                     return;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("Exception in waitUntilReady().", e);
             }
-            Thread.sleep(200);
+            Thread.sleep(500);
         }
         throw new AppException("Niimblue server did not start within " + START_TIMEOUT.getSeconds() + "s");
     }
@@ -142,7 +145,8 @@ public class NiimBlueServer {
                 Path image = path.getParent().getParent();
                 dirs.add(image.resolve("runtime"));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.error("Exception in candidateRuntimeDirs().", e);
         }
         return dirs;
     }
