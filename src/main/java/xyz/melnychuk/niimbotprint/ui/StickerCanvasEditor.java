@@ -1,10 +1,9 @@
-package xyz.melnychuk.niimbotprint.controller.component;
+package xyz.melnychuk.niimbotprint.ui;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.StickerCanvas;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

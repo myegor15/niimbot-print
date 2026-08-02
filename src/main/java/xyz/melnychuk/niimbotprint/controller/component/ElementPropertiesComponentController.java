@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Spinner;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 import java.util.function.BiConsumer;
 

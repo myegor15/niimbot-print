@@ -6,6 +6,8 @@ import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.ui.StickerCanvas;
+import xyz.melnychuk.niimbotprint.ui.StickerCanvasEditor;
+import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 import java.util.function.Consumer;
 

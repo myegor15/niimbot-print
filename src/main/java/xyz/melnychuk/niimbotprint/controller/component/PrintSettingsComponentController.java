@@ -9,6 +9,7 @@ import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
+import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 public class PrintSettingsComponentController extends AbstractController {
 

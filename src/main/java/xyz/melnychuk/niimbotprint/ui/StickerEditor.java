@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimbotprint.controller.component;
+package xyz.melnychuk.niimbotprint.ui;
 
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 

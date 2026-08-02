@@ -11,6 +11,7 @@ import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.ImageElement;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
+import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.ComponentLoader;
 
 import java.util.Map;

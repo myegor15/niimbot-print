@@ -7,6 +7,7 @@ import javafx.stage.FileChooser;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.StickerService;
+import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 import java.io.File;
 
