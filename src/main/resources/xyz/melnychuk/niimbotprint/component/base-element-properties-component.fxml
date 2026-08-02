@@ -11,15 +11,17 @@
     <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>
-    <Label text="Свойства" styleClass="panel-title"/>
-    <Label text="Позиция"/>
-    <HBox spacing="8">
-        <Label text="X" prefWidth="40"/>
-        <Spinner fx:id="xSpinner" editable="true" prefWidth="120"/>
-    </HBox>
-    <HBox spacing="8">
-        <Label text="Y" prefWidth="40"/>
-        <Spinner fx:id="ySpinner" editable="true" prefWidth="120"/>
-    </HBox>
+    <VBox fx:id="staticBox" spacing="8">
+        <Label text="Свойства" styleClass="panel-title"/>
+        <Label text="Позиция"/>
+        <HBox spacing="8">
+            <Label text="X" prefWidth="40"/>
+            <Spinner fx:id="xSpinner" editable="true" prefWidth="120"/>
+        </HBox>
+        <HBox spacing="8">
+            <Label text="Y" prefWidth="40"/>
+            <Spinner fx:id="ySpinner" editable="true" prefWidth="120"/>
+        </HBox>
+    </VBox>
     <VBox fx:id="propertyBox" spacing="8"/>
 </VBox>

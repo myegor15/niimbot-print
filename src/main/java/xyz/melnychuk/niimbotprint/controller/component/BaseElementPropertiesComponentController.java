@@ -1,7 +1,6 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.VBox;
@@ -31,6 +30,8 @@ public class BaseElementPropertiesComponentController extends AbstractController
     @FXML
     private Spinner<Double> ySpinner;
     @FXML
+    private VBox staticBox;
+    @FXML
     private VBox propertyBox;
 
     private StickerEditor editor;
@@ -51,8 +52,10 @@ public class BaseElementPropertiesComponentController extends AbstractController
         this.element = element;
         propertyBox.getChildren().clear();
         elementController = null;
-        if (element == null) {
-            propertyBox.getChildren().add(new Label("Выберите элемент на этикетке"));
+        boolean has = element != null;
+        staticBox.setVisible(has);
+        staticBox.setManaged(has);
+        if (!has) {
             return;
         }
         configurePosition(element);
