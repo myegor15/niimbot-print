@@ -10,9 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -51,7 +48,7 @@ public class NiimBlueServer {
             Process process = pb.start();
             forwardOutput(process);
             String baseUrl = "http://127.0.0.1:" + port;
-            waitUntilReady(process, baseUrl);
+            waitUntilReady(process, new NiimBlueApi(baseUrl));
             log.info("start(). NiimBlue server started on {}", baseUrl);
             return new NiimBlueServer(process, baseUrl);
         } catch (IOException e) {
@@ -84,25 +81,14 @@ public class NiimBlueServer {
         thread.start();
     }
 
-    private static void waitUntilReady(Process process, String baseUrl) throws InterruptedException {
-        //TODO: вынести в NimBlueApi
-        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
-        HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + "/"))
-                .timeout(Duration.ofSeconds(2))
-                .GET()
-                .build();
+    private static void waitUntilReady(Process process, NiimBlueApi api) throws InterruptedException {
         long deadline = System.currentTimeMillis() + START_TIMEOUT.toMillis();
         while (System.currentTimeMillis() < deadline) {
             if (!process.isAlive()) {
                 throw new AppException("Node server exited with code " + process.exitValue());
             }
-            try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == 200) {
-                    return;
-                }
-            } catch (Exception e) {
-                log.warn("Exception in waitUntilReady().");
+            if (api.ping()) {
+                return;
             }
             Thread.sleep(500);
         }

@@ -24,6 +24,7 @@ import java.time.Duration;
 public class NiimBlueApi {
 
     private static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration PING_TIMEOUT = Duration.ofSeconds(2);
     private static final Duration GET_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration POST_TIMEOUT = Duration.ofSeconds(60);
 
@@ -63,6 +64,18 @@ public class NiimBlueApi {
 
     public void print(PrintRequest request) {
         post("/print", request, JsonNode.class);
+    }
+
+    public boolean ping() {
+        try {
+            HttpRequest req = HttpRequest.newBuilder(URI.create(url + "/"))
+                    .timeout(PING_TIMEOUT)
+                    .GET()
+                    .build();
+            return client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode() == 200;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private HttpClient getClient() {
