@@ -5,9 +5,9 @@ import javafx.scene.layout.StackPane;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.StickerCanvas;
-import xyz.melnychuk.niimbotprint.ui.StickerCanvasEditor;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
+import xyz.melnychuk.niimbotprint.ui.editor.CanvasStickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 import java.util.function.Consumer;
 
@@ -21,7 +21,7 @@ public class CanvasComponentController extends AbstractController {
     public void setSticker(Sticker sticker) {
         StickerCanvas canvas = new StickerCanvas(sticker);
         canvasHost.getChildren().add(canvas);
-        editor = new StickerCanvasEditor(canvas);
+        editor = new CanvasStickerEditor(canvas);
     }
 
     public StickerEditor getStickerEditor() {

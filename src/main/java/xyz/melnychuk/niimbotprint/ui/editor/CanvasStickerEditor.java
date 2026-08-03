@@ -1,9 +1,12 @@
-package xyz.melnychuk.niimbotprint.ui;
+package xyz.melnychuk.niimbotprint.ui.editor;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,82 +15,80 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.function.Consumer;
 
-public class StickerCanvasEditor implements StickerEditor {
+@RequiredArgsConstructor
+public class CanvasStickerEditor implements StickerEditor {
 
-    private final StickerCanvas canvas;
-
-    public StickerCanvasEditor(StickerCanvas canvas) {
-        this.canvas = canvas;
-    }
+    @NonNull
+    private final StickerCanvas stickerCanvas;
 
     @Override
     public StickerElement addElement(StickerElement element) {
-        return canvas.addElement(element);
+        return stickerCanvas.addElement(element);
     }
 
     @Override
     public void removeSelected() {
-        canvas.removeSelected();
+        stickerCanvas.removeSelected();
     }
 
     @Override
     public StickerElement getSelectedElement() {
-        return canvas.getSelectedElement();
+        return stickerCanvas.getSelectedElement();
     }
 
     @Override
     public void updateElement(StickerElement element) {
-        canvas.updateElement(element);
+        stickerCanvas.updateElement(element);
     }
 
     @Override
     public void refresh() {
-        canvas.refresh();
+        stickerCanvas.refresh();
     }
 
     @Override
     public void setLabelSize(int width, int height) {
-        canvas.setLabelSize(width, height);
+        stickerCanvas.setLabelSize(width, height);
     }
 
     @Override
     public void setGridVisible(boolean visible) {
-        canvas.setGridVisible(visible);
+        stickerCanvas.setGridVisible(visible);
     }
 
     @Override
     public boolean isGridVisible() {
-        return canvas.isGridVisible();
+        return stickerCanvas.isGridVisible();
     }
 
     @Override
     public void setPositionSnap(boolean enabled) {
-        canvas.setPositionSnap(enabled);
+        stickerCanvas.setPositionSnap(enabled);
     }
 
     @Override
     public boolean isPositionSnap() {
-        return canvas.isPositionSnap();
+        return stickerCanvas.isPositionSnap();
     }
 
     @Override
     public void setRotationSnap(boolean enabled) {
-        canvas.setRotationSnap(enabled);
+        stickerCanvas.setRotationSnap(enabled);
     }
 
     @Override
     public boolean isRotationSnap() {
-        return canvas.isRotationSnap();
+        return stickerCanvas.isRotationSnap();
     }
 
     @Override
     public String snapshotPngBase64() {
-        boolean gridVisible = canvas.isGridVisible();
-        canvas.setGridVisible(false);
-        canvas.hideGuides();
-        canvas.setSelectionVisible(false);
+        boolean gridVisible = stickerCanvas.isGridVisible();
+        stickerCanvas.setGridVisible(false);
+        stickerCanvas.hideGuides();
+        stickerCanvas.setSelectionVisible(false);
         try {
-            WritableImage snapshot = canvas.snapshot(null, null);
+            WritableImage snapshot = stickerCanvas.snapshot(null, null);
             BufferedImage image = SwingFXUtils.fromFXImage(snapshot, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(image, "png", out);
@@ -95,18 +96,18 @@ public class StickerCanvasEditor implements StickerEditor {
         } catch (IOException e) {
             throw new AppException(e);
         } finally {
-            canvas.setSelectionVisible(true);
-            canvas.setGridVisible(gridVisible);
+            stickerCanvas.setSelectionVisible(true);
+            stickerCanvas.setGridVisible(gridVisible);
         }
     }
 
     @Override
     public void setSelectionListener(Consumer<StickerElement> listener) {
-        canvas.setSelectionListener(listener);
+        stickerCanvas.setSelectionListener(listener);
     }
 
     @Override
     public void setChangeListener(Consumer<StickerElement> listener) {
-        canvas.setChangeListener(listener);
+        stickerCanvas.setChangeListener(listener);
     }
 }

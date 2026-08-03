@@ -4,11 +4,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import lombok.AccessLevel;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -17,10 +16,7 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
 
     @Setter
     private StickerEditor stickerEditor;
-
-    @Setter(AccessLevel.PRIVATE)
     private boolean updating;
-
     protected T element;
 
     public final void show(StickerElement element) {
@@ -32,9 +28,9 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         if (this.element != element) {
             return;
         }
-        setUpdating(true);
+        updating = true;
         sync();
-        setUpdating(false);
+        updating = false;
     }
 
     protected abstract void apply();

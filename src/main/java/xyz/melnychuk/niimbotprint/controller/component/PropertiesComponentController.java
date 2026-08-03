@@ -5,7 +5,7 @@ import javafx.scene.layout.VBox;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 import java.util.List;
 

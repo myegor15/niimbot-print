@@ -10,7 +10,7 @@ import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.View;
 
 import java.util.Objects;

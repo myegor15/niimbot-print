@@ -4,10 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.StickerService;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 import java.io.File;
 
@@ -19,8 +20,9 @@ public class StickerSettingsComponentController extends AbstractController {
     private Spinner<Integer> heightSpinner;
 
     private Sticker sticker;
+    private StickerEditor stickerEditor;
+    @Setter
     private StickerService stickerService;
-    private StickerEditor editor;
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
@@ -28,12 +30,8 @@ public class StickerSettingsComponentController extends AbstractController {
         heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, sticker.getHeight()));
     }
 
-    public void setStickerService(StickerService stickerService) {
-        this.stickerService = stickerService;
-    }
-
     public void setStickerEditor(StickerEditor editor) {
-        this.editor = editor;
+        this.stickerEditor = editor;
         widthSpinner.valueProperty().addListener((o, a, b) -> resize(b, heightSpinner.getValue()));
         heightSpinner.valueProperty().addListener((o, a, b) -> resize(widthSpinner.getValue(), b));
     }
@@ -41,7 +39,7 @@ public class StickerSettingsComponentController extends AbstractController {
     private void resize(int width, int height) {
         sticker.setWidth(width);
         sticker.setHeight(height);
-        editor.setLabelSize(width, height);
+        stickerEditor.setLabelSize(width, height);
     }
 
     @FXML
@@ -52,8 +50,8 @@ public class StickerSettingsComponentController extends AbstractController {
         sticker.getElements().clear();
         widthSpinner.getValueFactory().setValue(s.getWidth());
         heightSpinner.getValueFactory().setValue(s.getHeight());
-        editor.setLabelSize(s.getWidth(), s.getHeight());
-        editor.refresh();
+        stickerEditor.setLabelSize(s.getWidth(), s.getHeight());
+        stickerEditor.refresh();
         message("Новая этикетка");
     }
 
@@ -71,8 +69,8 @@ public class StickerSettingsComponentController extends AbstractController {
                     sticker.setElements(loaded.getElements());
                     widthSpinner.getValueFactory().setValue(loaded.getWidth());
                     heightSpinner.getValueFactory().setValue(loaded.getHeight());
-                    editor.setLabelSize(loaded.getWidth(), loaded.getHeight());
-                    editor.refresh();
+                    stickerEditor.setLabelSize(loaded.getWidth(), loaded.getHeight());
+                    stickerEditor.refresh();
                     message("Открыто: " + file.getName());
                 },
                 this::error

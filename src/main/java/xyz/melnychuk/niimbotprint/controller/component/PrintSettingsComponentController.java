@@ -5,11 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
-import xyz.melnychuk.niimbotprint.ui.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 public class PrintSettingsComponentController extends AbstractController {
 
@@ -22,20 +23,14 @@ public class PrintSettingsComponentController extends AbstractController {
     @FXML
     private Button printButton;
 
+    @Setter
     private Sticker sticker;
+    private StickerEditor stickerEditor;
+    @Setter
     private PrintService printService;
-    private StickerEditor editor;
-
-    public void setSticker(Sticker sticker) {
-        this.sticker = sticker;
-    }
-
-    public void setPrintService(PrintService printService) {
-        this.printService = printService;
-    }
 
     public void setStickerEditor(StickerEditor editor) {
-        this.editor = editor;
+        this.stickerEditor = editor;
         densitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
         quantitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         directionCombo.getItems().addAll("top", "left");
@@ -48,7 +43,7 @@ public class PrintSettingsComponentController extends AbstractController {
 
     @FXML
     private void onPrint() {
-        String base64 = editor.snapshotPngBase64();
+        String base64 = stickerEditor.snapshotPngBase64();
         if (base64 == null) {
             return;
         }

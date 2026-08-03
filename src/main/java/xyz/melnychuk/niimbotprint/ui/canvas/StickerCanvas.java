@@ -1,30 +1,22 @@
-package xyz.melnychuk.niimbotprint.ui;
+package xyz.melnychuk.niimbotprint.ui.canvas;
 
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import xyz.melnychuk.niimbotprint.model.*;
+import xyz.melnychuk.niimbotprint.model.Sticker;
+import xyz.melnychuk.niimbotprint.model.StickerElement;
 
-import java.io.ByteArrayInputStream;
-import java.util.Base64;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -34,15 +26,12 @@ public class StickerCanvas extends Pane {
 
     private static final double HANDLE_SIZE = 9;
     private static final double MIN_SIZE = 10;
-    private static final double SNAP_THRESHOLD = 6;
     private static final double GRID_CELLS = 10;
     private static final double ROTATION_DISTANCE = 40;
-    private static final double ROTATION_SNAP_THRESHOLD = 5;
     private static final Color GRID_COLOR = Color.rgb(0, 0, 0, 0.08);
     private static final Color GUIDE_COLOR = Color.rgb(255, 60, 60, 0.9);
     private static final Color HANDLE_COLOR = Color.rgb(30, 120, 255);
     private static final Color SNAP_COLOR = Color.rgb(60, 160, 60);
-    private static final double[] SNAP_OFFSETS = {0, 0.5, 1};
 
     private Sticker sticker;
 
@@ -52,16 +41,20 @@ public class StickerCanvas extends Pane {
     private Rectangle background;
 
     private Group grid;
-    private boolean gridVisible = true;
 
+    @Getter
+    private boolean gridVisible = true;
+    @Getter
+    @Setter
     private boolean positionSnap = true;
+    @Getter
+    @Setter
     private boolean rotationSnap = true;
 
     private Line vGuide;
     private Line hGuide;
 
     private Rectangle selectionBox;
-
     private final Rectangle[] handles = new Rectangle[4];
 
     private final Group rotationHandle = new Group();
@@ -70,7 +63,7 @@ public class StickerCanvas extends Pane {
 
     private final double[] rotation = new double[8];
 
-    private final Map<StickerElement, Node> nodes = new IdentityHashMap<>();
+    private final Map<StickerElement, ElementView> views = new IdentityHashMap<>();
 
     @Setter
     private Consumer<StickerElement> selectionListener = e -> {};
@@ -152,26 +145,6 @@ public class StickerCanvas extends Pane {
         }
     }
 
-    public boolean isGridVisible() {
-        return gridVisible;
-    }
-
-    public void setPositionSnap(boolean enabled) {
-        positionSnap = enabled;
-    }
-
-    public boolean isPositionSnap() {
-        return positionSnap;
-    }
-
-    public void setRotationSnap(boolean enabled) {
-        rotationSnap = enabled;
-    }
-
-    public boolean isRotationSnap() {
-        return rotationSnap;
-    }
-
     private void ensureGuides() {
         if (vGuide == null) {
             vGuide = new Line();
@@ -221,15 +194,21 @@ public class StickerCanvas extends Pane {
     }
 
     public void refresh() {
-        nodes.values().forEach(getChildren()::remove);
-        nodes.clear();
+        views.values().forEach(v -> getChildren().remove(v.node()));
+        views.clear();
         for (StickerElement element : sticker.getElements()) {
-            Node node = createNode(element);
-            nodes.put(element, node);
-            insertBeforeHandles(node);
-            makeDraggable(node, element);
+            attach(ElementViewFactory.getElementView(element));
         }
         updateSelectionBox();
+    }
+
+    private void attach(ElementView view) {
+        StickerElement element = view.element();
+        Node node = view.node();
+        node.setRotate(element.getRotation());
+        views.put(element, view);
+        insertBeforeHandles(node);
+        makeDraggable(node, element);
     }
 
     private void insertBeforeHandles(Node node) {
@@ -239,22 +218,19 @@ public class StickerCanvas extends Pane {
 
     public StickerElement addElement(StickerElement element) {
         sticker.getElements().add(element);
-        Node node = createNode(element);
-        nodes.put(element, node);
-        insertBeforeHandles(node);
-        makeDraggable(node, element);
+        attach(ElementViewFactory.getElementView(element));
         select(element);
         return element;
     }
 
     public void updateElement(StickerElement element) {
-        Node node = nodes.get(element);
-        if (node == null) {
+        ElementView view = views.get(element);
+        if (view == null) {
             return;
         }
-        updateNode(node, element);
-        node = nodes.get(element);
-        applyPosition(node, element);
+        view.node().setRotate(element.getRotation());
+        view.refresh();
+        view.applyPosition();
         updateSelectionBox();
         changeListener.accept(element);
     }
@@ -264,7 +240,8 @@ public class StickerCanvas extends Pane {
             return;
         }
         sticker.getElements().remove(selectedElement);
-        getChildren().remove(nodes.remove(selectedElement));
+        ElementView view = views.remove(selectedElement);
+        getChildren().remove(view.node());
         selectNone();
     }
 
@@ -289,86 +266,6 @@ public class StickerCanvas extends Pane {
         selectionListener.accept(null);
     }
 
-    private Node createNode(StickerElement element) {
-        Node node;
-        if (element instanceof TextElement text) {
-            node = createText(text);
-        } else if (element instanceof ImageElement image) {
-            node = createImage(image);
-        } else if (element instanceof BarcodeElement barcode) {
-            node = createBarcode(barcode);
-        } else {
-            throw new IllegalArgumentException("Unknown element: " + element);
-        }
-        node.setRotate(element.getRotation());
-        return node;
-    }
-
-    private void updateNode(Node node, StickerElement element) {
-        if (element instanceof TextElement text && node instanceof Label label) {
-            label.setText(text.getText());
-            label.setFont(font(text));
-        } else if (element instanceof ImageElement image && node instanceof ImageView view) {
-            view.setFitWidth(image.getWidth());
-            view.setFitHeight(image.getHeight());
-        } else if (element instanceof BarcodeElement) {
-            getChildren().remove(node);
-            Node newNode = createBarcode((BarcodeElement) element);
-            newNode.setRotate(element.getRotation());
-            nodes.put(element, newNode);
-            insertBeforeHandles(newNode);
-            makeDraggable(newNode, element);
-        }
-        node.setRotate(element.getRotation());
-    }
-
-    private Node createText(TextElement element) {
-        Font font = font(element);
-        Label text = new Label(element.getText());
-        text.setFont(font);
-        text.setPadding(Insets.EMPTY);
-        text.setLayoutX(element.getX());
-        text.setLayoutY(element.getY());
-        return text;
-    }
-
-    private Node createImage(ImageElement element) {
-        ImageView view = new ImageView(decodeBase64(element.getImageBase64()));
-        view.setFitWidth(element.getWidth());
-        view.setFitHeight(element.getHeight());
-        view.setPreserveRatio(true);
-        view.setLayoutX(element.getX());
-        view.setLayoutY(element.getY());
-        return view;
-    }
-
-    private Node createBarcode(BarcodeElement element) {
-        try {
-            var image = BarcodeGenerator.generate(element.getContent(), element.getFormat(),
-                    (int) element.getWidth(), (int) element.getHeight());
-            ImageView view = new ImageView(SwingFXUtils.toFXImage(image, null));
-            view.setFitWidth(element.getWidth());
-            view.setFitHeight(element.getHeight());
-            view.setPreserveRatio(false);
-            view.setLayoutX(element.getX());
-            view.setLayoutY(element.getY());
-            return view;
-        } catch (Exception e) {
-            log.warn("Barcode cannot be rendered for content '{}' format '{}': {}",
-                    element.getContent(), element.getFormat(), e.getMessage());
-            Label error = new Label("Недопустимый штрихкод");
-            error.setLayoutX(element.getX());
-            error.setLayoutY(element.getY());
-            return error;
-        }
-    }
-
-    private static Font font(TextElement element) {
-        return Font.font(element.getFontFamily(),
-                element.isBold() ? FontWeight.BOLD : FontWeight.NORMAL,
-                element.getFontSize());
-    }
-
     private void makeDraggable(Node node, StickerElement element) {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
@@ -383,7 +280,10 @@ public class StickerCanvas extends Pane {
             double x = clamp(p.getX() - start[0], 0, sticker.getWidth());
             double y = clamp(p.getY() - start[1], 0, sticker.getHeight());
             if (positionSnap) {
-                double[] snapped = snapPosition(x, y, node);
+                Bounds bounds = views.get(element).node().getLayoutBounds();
+                double[] snapped = SnapEngine.snapPosition(x, y,
+                        bounds.getWidth(), bounds.getHeight(),
+                        sticker.getWidth(), sticker.getHeight(), vGuide, hGuide);
                 x = snapped[0];
                 y = snapped[1];
             } else {
@@ -391,63 +291,12 @@ public class StickerCanvas extends Pane {
             }
             element.setX(x);
             element.setY(y);
-            applyPosition(node, element);
+            views.get(element).applyPosition();
             updateSelectionBox();
             changeListener.accept(element);
             e.consume();
         });
         node.setOnMouseReleased(e -> hideGuides());
-    }
-
-    private double[] snapPosition(double x, double y, Node node) {
-        Bounds bounds = node.getLayoutBounds();
-        double[] sx = new double[]{0, 0};
-        double[] sy = new double[]{0, 0};
-        snapAxis(x, bounds.getWidth(), sticker.getWidth(), vGuide, true, sx);
-        snapAxis(y, bounds.getHeight(), sticker.getHeight(), hGuide, false, sy);
-        return new double[]{sx[0], sy[0]};
-    }
-
-    private void snapAxis(double coord, double size, double max, Line guide, boolean vertical, double[] out) {
-        out[1] = 0;
-        double best = Double.MAX_VALUE;
-        double bestCoord = coord;
-        double bestTarget = Double.NaN;
-        double[] targets = {max / 2, 0, max};
-        for (double offset : SNAP_OFFSETS) {
-            double ref = coord + offset * size;
-            for (double target : targets) {
-                double distance = Math.abs(ref - target);
-                if (distance < SNAP_THRESHOLD && distance < best) {
-                    best = distance;
-                    bestCoord = target - offset * size;
-                    bestTarget = target;
-                }
-            }
-        }
-        if (best < SNAP_THRESHOLD) {
-            out[0] = bestCoord;
-            out[1] = 1;
-            placeGuide(guide, vertical, bestTarget);
-        } else {
-            out[0] = coord;
-            guide.setVisible(false);
-        }
-    }
-
-    private void placeGuide(Line guide, boolean vertical, double target) {
-        guide.setVisible(true);
-        if (vertical) {
-            guide.setStartX(target);
-            guide.setEndX(target);
-            guide.setStartY(0);
-            guide.setEndY(sticker.getHeight());
-        } else {
-            guide.setStartX(0);
-            guide.setEndX(sticker.getWidth());
-            guide.setStartY(target);
-            guide.setEndY(target);
-        }
     }
 
     public void hideGuides() {
@@ -462,14 +311,15 @@ public class StickerCanvas extends Pane {
             if (selectedElement == null) {
                 return;
             }
-            Node sel = nodes.get(selectedElement);
-            if (sel == null) {
+            ElementView view = views.get(selectedElement);
+            if (view == null) {
                 return;
             }
+            Node sel = view.node();
             Bounds b = sel.getLayoutBounds();
             start[2] = b.getWidth();
             start[3] = b.getHeight();
-            start[4] = selectedElement instanceof TextElement text ? text.getFontSize() : 0;
+            view.beginResize();
             double ax = sel.getLayoutX() + b.getMinX();
             double ay = sel.getLayoutY() + b.getMinY();
             start[5] = ax + (corner[0] < 0 ? start[2] : 0);
@@ -500,21 +350,7 @@ public class StickerCanvas extends Pane {
         newX = Math.min(newX, start[5]);
         newY = Math.min(newY, start[6]);
 
-        if (selectedElement instanceof TextElement text) {
-            text.setX(newX);
-            text.setY(newY);
-            text.setFontSize(Math.max(1, start[4] * k));
-        } else if (selectedElement instanceof ImageElement image) {
-            image.setX(newX);
-            image.setY(newY);
-            image.setWidth(origW * k);
-            image.setHeight(origH * k);
-        } else if (selectedElement instanceof BarcodeElement barcode) {
-            barcode.setX(newX);
-            barcode.setY(newY);
-            barcode.setWidth(origW * k);
-            barcode.setHeight(origH * k);
-        }
+        views.get(selectedElement).resize(k, newX, newY);
         updateElement(selectedElement);
     }
 
@@ -524,11 +360,11 @@ public class StickerCanvas extends Pane {
             if (selectedElement == null) {
                 return;
             }
-            Node sel = nodes.get(selectedElement);
-            if (sel == null) {
+            ElementView view = views.get(selectedElement);
+            if (view == null) {
                 return;
             }
-            double[] c = centerOf(sel);
+            double[] c = centerOf(view.node());
             rotation[0] = c[0];
             rotation[1] = c[1];
             rotation[2] = selectedElement.getRotation();
@@ -542,12 +378,10 @@ public class StickerCanvas extends Pane {
             double angle = pointerAngle(e.getSceneX(), e.getSceneY(), rotation[0], rotation[1]);
             double delta = normalizeDegrees(rotation[3] - angle);
             double target = normalizeDegrees(rotation[2] + delta);
-            double snapped = rotationSnap ? snapRotation(target) : target;
+            double snapped = rotationSnap ? SnapEngine.snapRotation(target) : target;
             selectedElement.setRotation(snapped);
-            Node sel = nodes.get(selectedElement);
-            if (sel != null) {
-                sel.setRotate(selectedElement.getRotation());
-            }
+            Node sel = views.get(selectedElement).node();
+            sel.setRotate(selectedElement.getRotation());
             updateSelectionBox();
             setRotationHighlight(rotationSnap && snapped != target);
             changeListener.accept(selectedElement);
@@ -559,13 +393,6 @@ public class StickerCanvas extends Pane {
         Color color = snapped ? SNAP_COLOR : HANDLE_COLOR;
         rotStem.setStroke(color);
         rotTip.setStroke(color);
-    }
-
-    private static double snapRotation(double degrees) {
-        double nearest = Math.round(degrees / 15) * 15;
-        return Math.abs(degrees - nearest) <= ROTATION_SNAP_THRESHOLD
-                ? normalizeDegrees(nearest)
-                : degrees;
     }
 
     private double[] centerOf(Node node) {
@@ -584,11 +411,6 @@ public class StickerCanvas extends Pane {
         return ((degrees % 360) + 360) % 360;
     }
 
-    private void applyPosition(Node node, StickerElement element) {
-        node.setLayoutX(element.getX());
-        node.setLayoutY(element.getY());
-    }
-
     private double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -602,7 +424,8 @@ public class StickerCanvas extends Pane {
             selectionBox.setMouseTransparent(true);
             insertBeforeHandles(selectionBox);
         }
-        Node node = selectedElement == null ? null : nodes.get(selectedElement);
+        ElementView view = selectedElement == null ? null : views.get(selectedElement);
+        Node node = view == null ? null : view.node();
         if (node == null) {
             selectionBox.setVisible(false);
             setHandlesVisible(false);
@@ -670,13 +493,5 @@ public class StickerCanvas extends Pane {
             rotStem.setEndX(0);
             rotStem.setEndY(0);
         }
-    }
-
-    private static Image decodeBase64(String base64) {
-        if (base64 == null || base64.isBlank()) {
-            return null;
-        }
-        byte[] data = Base64.getDecoder().decode(base64);
-        return new Image(new ByteArrayInputStream(data));
     }
 }

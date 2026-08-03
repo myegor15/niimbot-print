@@ -23,7 +23,7 @@ module xyz.melnychuk.niimbotprint {
     opens xyz.melnychuk.niimbotprint.controller to javafx.fxml;
     opens xyz.melnychuk.niimbotprint.controller.view to javafx.fxml;
     opens xyz.melnychuk.niimbotprint.controller.component to javafx.fxml;
-    opens xyz.melnychuk.niimbotprint.ui to javafx.fxml;
+    opens xyz.melnychuk.niimbotprint.ui.canvas to javafx.fxml;
 
     opens xyz.melnychuk.niimbotprint.model to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue to com.fasterxml.jackson.databind;
