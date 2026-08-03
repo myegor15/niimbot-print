@@ -3,36 +3,32 @@ package xyz.melnychuk.niimbotprint.controller.component;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import lombok.AccessLevel;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public abstract class ElementPropertiesComponentController<T extends StickerElement> extends AbstractController {
 
-    private StickerEditor editor;
+    @Setter
+    private StickerEditor stickerEditor;
 
+    @Setter(AccessLevel.PRIVATE)
     private boolean updating;
 
     protected T element;
 
-    public void setStickerEditor(StickerEditor editor) {
-        this.editor = editor;
+    public final void show(StickerElement element) {
+        this.element = (T) element;
+        apply();
     }
 
-    public void showElement(StickerElement element) {
-        show((T) element);
-    }
-
-    public void show(T element) {
-        this.element = element;
-    }
-
-    public void sync() {
-    }
-
-    public void syncIfMatches(StickerElement element) {
+    public final void sync(StickerElement element) {
         if (this.element != element) {
             return;
         }
@@ -41,13 +37,13 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         setUpdating(false);
     }
 
-    protected void setUpdating(boolean updating) {
-        this.updating = updating;
-    }
+    protected abstract void apply();
+
+    protected abstract void sync();
 
     protected void touch() {
-        if (editor != null) {
-            editor.updateElement(element);
+        if (stickerEditor != null) {
+            stickerEditor.updateElement(element);
         }
     }
 
@@ -55,7 +51,7 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         property.addListener(changeListener(setter));
     }
 
-    protected <V> ChangeListener<V> changeListener(BiConsumer<T, V> setter) {
+    private <V> ChangeListener<V> changeListener(BiConsumer<T, V> setter) {
         return (o, a, b) -> {
             if (updating) {
                 return;
@@ -65,7 +61,9 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         };
     }
 
-    protected void bindLive(Spinner<Double> spinner, BiConsumer<T, Double> setter) {
+    protected void bindSpinner(Spinner<Double> spinner, double min, double max, BiConsumer<T, Double> setter, Supplier<Double> value) {
+        spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, value.get(), 1));
+        spinner.setEditable(true);
         bind(spinner.valueProperty(), setter);
         spinner.getEditor().textProperty().addListener((o, a, b) -> {
             Double v = parseDouble(b);
@@ -76,16 +74,17 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         });
     }
 
-    protected Spinner<Double> doubleSpinner(double value, double min, double max) {
-        Spinner<Double> spinner = new Spinner<>(min, max, value, 1);
-        spinner.setEditable(true);
-        spinner.setPrefWidth(120);
-        return spinner;
+    protected void syncSpinner(Spinner<Double> spinner, Supplier<Double> value) {
+        if (element != null && spinner.getValueFactory() != null) {
+            spinner.getValueFactory().setValue(value.get());
+        }
     }
 
     protected static Double parseDouble(String text) {
         try {
-            return text == null ? null : Double.valueOf(text.trim().replace(",", "."));
+            return text == null
+                    ? null
+                    : Double.valueOf(text.trim().replace(",", "."));
         } catch (NumberFormatException e) {
             return null;
         }

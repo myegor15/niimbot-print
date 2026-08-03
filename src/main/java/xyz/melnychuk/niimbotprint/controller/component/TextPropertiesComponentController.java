@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import xyz.melnychuk.niimbotprint.model.TextElement;
 import xyz.melnychuk.niimbotprint.util.Component;
@@ -30,28 +29,22 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
     private CheckBox boldCheck;
 
     @Override
-    public void show(TextElement text) {
-        super.show(text);
-
-        textField.setText(text.getText());
+    protected void apply() {
+        textField.setText(element.getText());
         bind(textField.textProperty(), TextElement::setText);
 
         fontBox.setItems(FXCollections.observableArrayList(FONTS));
-        fontBox.setValue(FONTS.contains(text.getFontFamily()) ? text.getFontFamily() : "Arial");
+        fontBox.setValue(FONTS.contains(element.getFontFamily()) ? element.getFontFamily() : "Arial");
         bind(fontBox.valueProperty(), TextElement::setFontFamily);
 
-        sizeSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(6, 200, text.getFontSize(), 1));
-        sizeSpinner.setEditable(true);
-        bindLive(sizeSpinner, TextElement::setFontSize);
+        bindSpinner(sizeSpinner, 6, 200, TextElement::setFontSize, element::getFontSize);
 
-        boldCheck.setSelected(text.isBold());
+        boldCheck.setSelected(element.isBold());
         bind(boldCheck.selectedProperty(), TextElement::setBold);
     }
 
     @Override
-    public void sync() {
-        if (element != null && sizeSpinner.getValueFactory() != null) {
-            sizeSpinner.getValueFactory().setValue(element.getFontSize());
-        }
+    protected void sync() {
+        syncSpinner(sizeSpinner, element::getFontSize);
     }
 }

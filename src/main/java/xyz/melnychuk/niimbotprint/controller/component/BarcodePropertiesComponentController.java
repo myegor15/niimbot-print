@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.ui.BarcodeGenerator;
@@ -23,30 +22,21 @@ public class BarcodePropertiesComponentController extends ElementPropertiesCompo
     private Spinner<Double> heightSpinner;
 
     @Override
-    public void show(BarcodeElement barcode) {
-        super.show(barcode);
-
-        contentField.setText(barcode.getContent());
+    protected void apply() {
+        contentField.setText(element.getContent());
         bind(contentField.textProperty(), BarcodeElement::setContent);
 
         formatBox.setItems(FXCollections.observableArrayList(BarcodeGenerator.FORMATS));
-        formatBox.setValue(barcode.getFormat());
+        formatBox.setValue(element.getFormat());
         bind(formatBox.valueProperty(), BarcodeElement::setFormat);
 
-        widthSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, barcode.getWidth(), 1));
-        widthSpinner.setEditable(true);
-        bindLive(widthSpinner, BarcodeElement::setWidth);
-
-        heightSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 2000, barcode.getHeight(), 1));
-        heightSpinner.setEditable(true);
-        bindLive(heightSpinner, BarcodeElement::setHeight);
+        bindSpinner(widthSpinner, 1, 2000, BarcodeElement::setWidth, element::getWidth);
+        bindSpinner(heightSpinner, 1, 2000, BarcodeElement::setHeight, element::getHeight);
     }
 
     @Override
-    public void sync() {
-        if (element != null && widthSpinner.getValueFactory() != null && heightSpinner.getValueFactory() != null) {
-            widthSpinner.getValueFactory().setValue(element.getWidth());
-            heightSpinner.getValueFactory().setValue(element.getHeight());
-        }
+    protected void sync() {
+        syncSpinner(widthSpinner, element::getWidth);
+        syncSpinner(heightSpinner, element::getHeight);
     }
 }

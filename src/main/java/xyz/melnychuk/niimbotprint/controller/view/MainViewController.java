@@ -126,13 +126,13 @@ public class MainViewController extends AbstractController {
         var bundle = ElementPropertiesComponentControllerFactory.getController(element);
         currentElementProperties = bundle.controller();
         currentElementProperties.setStickerEditor(editor);
-        currentElementProperties.showElement(element);
+        currentElementProperties.show(element);
         elementProperties.getChildren().setAll(List.of(bundle.root()));
     }
 
     private void syncElementProperties(StickerElement changed) {
         if (currentElementProperties != null) {
-            currentElementProperties.syncIfMatches(changed);
+            currentElementProperties.sync(changed);
         }
     }
 
