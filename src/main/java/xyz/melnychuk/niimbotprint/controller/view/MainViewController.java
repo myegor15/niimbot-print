@@ -84,8 +84,9 @@ public class MainViewController extends AbstractController {
         editor = canvasController.getStickerEditor();
 
         topBarController.setPrintService(printService);
-        topBarController.setServerUrl(printService.getApiUrl());
         topBarController.setConnectionListener(this::applyConnectionState);
+
+        statusBarController.setApiUrl(printService.getApiUrl());
 
         stickerSettingsController.setSticker(sticker);
         stickerSettingsController.setStickerService(stickerService);
