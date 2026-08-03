@@ -21,11 +21,24 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         this.editor = editor;
     }
 
+    public void showElement(StickerElement element) {
+        show((T) element);
+    }
+
     public void show(T element) {
         this.element = element;
     }
 
     public void sync() {
+    }
+
+    public void syncIfMatches(StickerElement element) {
+        if (this.element != element) {
+            return;
+        }
+        setUpdating(true);
+        sync();
+        setUpdating(false);
     }
 
     protected void setUpdating(boolean updating) {

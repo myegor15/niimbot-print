@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -252,13 +253,13 @@ public class StickerCanvas extends Pane {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
             select(element);
-            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
             start[0] = p.getX() - element.getX();
             start[1] = p.getY() - element.getY();
             e.consume();
         });
         node.setOnMouseDragged(e -> {
-            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
             element.setX(clamp(p.getX() - start[0], 0, sticker.getWidth()));
             element.setY(clamp(p.getY() - start[1], 0, sticker.getHeight()));
             applyPosition(node, element);
@@ -289,7 +290,7 @@ public class StickerCanvas extends Pane {
             e.consume();
         });
         handle.setOnMouseDragged(e -> {
-            javafx.geometry.Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
+            Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
             resize(corner, start, p.getX(), p.getY());
         });
     }

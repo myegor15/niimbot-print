@@ -3,16 +3,19 @@ package xyz.melnychuk.niimbotprint.controller.view;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
+import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.View;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -38,12 +41,14 @@ public class MainViewController extends AbstractController {
     @FXML
     private ElementActionsComponentController elementActionsController;
     @FXML
-    private BaseElementPropertiesComponentController elementPropertiesController;
+    private VBox elementProperties;
     @FXML
     private StatusBarComponentController statusBarController;
 
     private PrintService printService;
     private StickerService stickerService;
+    private StickerEditor editor;
+    private ElementPropertiesComponentController<?> currentElementProperties;
     private boolean bound;
 
     public void setPrintService(PrintService printService) {
@@ -83,7 +88,7 @@ public class MainViewController extends AbstractController {
 
         Sticker sticker = new Sticker();
         canvasController.setSticker(sticker);
-        StickerEditor editor = canvasController.getStickerEditor();
+        editor = canvasController.getStickerEditor();
 
         topBarController.setPrintService(printService);
         topBarController.setServerUrl(printService.getApiUrl());
@@ -102,17 +107,33 @@ public class MainViewController extends AbstractController {
 
         printerInfoController.setPrintService(printService);
 
-        elementPropertiesController.setStickerEditor(editor);
-        elementPropertiesController.setHost();
-
         canvasController.setSelectionListener(element -> {
-            elementPropertiesController.showElement(element);
+            showElementProperties(element);
             elementActionsController.setHasSelection(element != null);
         });
 
-        canvasController.setChangeListener(elementPropertiesController::syncFromCanvas);
+        canvasController.setChangeListener(this::syncElementProperties);
 
         applyConnectionState(false);
+    }
+
+    private void showElementProperties(StickerElement element) {
+        if (element == null) {
+            currentElementProperties = null;
+            elementProperties.getChildren().clear();
+            return;
+        }
+        var bundle = ElementPropertiesComponentControllerFactory.getController(element);
+        currentElementProperties = bundle.controller();
+        currentElementProperties.setStickerEditor(editor);
+        currentElementProperties.showElement(element);
+        elementProperties.getChildren().setAll(List.of(bundle.root()));
+    }
+
+    private void syncElementProperties(StickerElement changed) {
+        if (currentElementProperties != null) {
+            currentElementProperties.syncIfMatches(changed);
+        }
     }
 
     private void initTimeline() {
