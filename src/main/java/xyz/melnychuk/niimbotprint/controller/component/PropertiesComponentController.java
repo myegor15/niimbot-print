@@ -29,7 +29,7 @@ public class PropertiesComponentController extends AbstractController {
         currentElementProperties = bundle.controller();
         currentElementProperties.setStickerEditor(stickerEditor);
         currentElementProperties.show(element);
-        elementProperties.getChildren().setAll(List.of(bundle.root()));
+        elementProperties.getChildren().setAll(List.of(bundle.node()));
     }
 
     public void sync(StickerElement changed) {

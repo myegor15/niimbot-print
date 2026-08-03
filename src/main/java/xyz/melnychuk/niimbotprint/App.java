@@ -1,6 +1,7 @@
 package xyz.melnychuk.niimbotprint;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
-import xyz.melnychuk.niimbotprint.util.ViewLoader;
+import xyz.melnychuk.niimbotprint.util.FxmlLoader;
 
 @Slf4j
 public class App extends Application {
@@ -51,7 +52,8 @@ public class App extends Application {
 
     private void showSplash(Stage stage) {
         try {
-            stage.setScene(ViewLoader.load(SplashViewController.class, stage).scene());
+            var bandle = FxmlLoader.loadView(SplashViewController.class, stage);
+            stage.setScene(bandle.node());
         } catch (Exception e) {
             log.error("Exception in showSplash().", e);
             showError("Не удалось открыть окно загрузки.");
@@ -60,12 +62,12 @@ public class App extends Application {
 
     private void showMain(Stage stage) {
         try {
-            var bundle = ViewLoader.load(MainViewController.class, stage);
+            var bundle = FxmlLoader.loadView(MainViewController.class, stage);
             bundle.controller().setServices(
                     new PrintService(apiManager.getApi()),
                     new StickerService()
             );
-            stage.setScene(bundle.scene());
+            stage.setScene(bundle.node());
         } catch (Exception e) {
             log.error("Exception in showMain().", e);
             showError("Не удалось открыть главное окно.");

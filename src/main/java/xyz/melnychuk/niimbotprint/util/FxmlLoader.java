@@ -1,6 +1,7 @@
 package xyz.melnychuk.niimbotprint.util;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.AccessLevel;
@@ -13,12 +14,12 @@ import java.net.URL;
 import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ViewLoader {
+public final class FxmlLoader {
 
-    public record Bundle<T>(T controller, Scene scene) {
+    public record Bundle<T, V>(T controller, V node) {
     }
 
-    public static <T> Bundle<T> load(Class<T> controllerClass, Stage stage) {
+    public static <T> Bundle<T, Scene> loadView(Class<T> controllerClass, Stage stage) {
         View info = controllerClass.getAnnotation(View.class);
         if (info == null) {
             throw new AppException("No @View annotation on " + controllerClass.getName());
@@ -38,6 +39,21 @@ public final class ViewLoader {
             return new Bundle<>(loader.getController(), scene);
         } catch (IOException e) {
             throw new AppException("Failed to load view " + info.fxml(), e);
+        }
+    }
+
+    public static <T> Bundle<T, Node> loadComponent(Class<T> controllerClass) {
+        Component component = controllerClass.getAnnotation(Component.class);
+        if (component == null) {
+            throw new AppException("No @Component annotation on " + controllerClass.getName());
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getResource(component.fxml()));
+            Node node = loader.load();
+            return new Bundle<>(loader.getController(), node);
+        } catch (IOException e) {
+            throw new AppException("Failed to load component " + component.fxml(), e);
         }
     }
 

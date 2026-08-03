@@ -1,5 +1,6 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
+import javafx.scene.Node;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import xyz.melnychuk.niimbotprint.AppException;
@@ -7,7 +8,7 @@ import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.ImageElement;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
-import xyz.melnychuk.niimbotprint.util.ComponentLoader;
+import xyz.melnychuk.niimbotprint.util.FxmlLoader;
 
 import java.util.Map;
 
@@ -21,11 +22,11 @@ public final class ElementPropertiesComponentControllerFactory {
                     ImageElement.class, ImagePropertiesComponentController.class
             );
 
-    public static ComponentLoader.Bundle<? extends ElementPropertiesComponentController<?>> getController(StickerElement element) {
+    public static FxmlLoader.Bundle<? extends ElementPropertiesComponentController<?>, Node> getController(StickerElement element) {
         Class<? extends ElementPropertiesComponentController<?>> type = REGISTRY.get(element.getClass());
         if (type == null) {
             throw new AppException("Unknown element: " + element);
         }
-        return ComponentLoader.load(type);
+        return FxmlLoader.loadComponent(type);
     }
 }
