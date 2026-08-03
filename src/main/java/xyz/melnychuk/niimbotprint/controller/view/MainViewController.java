@@ -3,19 +3,16 @@ package xyz.melnychuk.niimbotprint.controller.view;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.View;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -41,14 +38,13 @@ public class MainViewController extends AbstractController {
     @FXML
     private ElementActionsComponentController elementActionsController;
     @FXML
-    private VBox elementProperties;
+    private PropertiesComponentController propertiesController;
     @FXML
     private StatusBarComponentController statusBarController;
 
     private PrintService printService;
     private StickerService stickerService;
     private StickerEditor editor;
-    private ElementPropertiesComponentController<?> currentElementProperties;
     private boolean bound;
 
     public void setPrintService(PrintService printService) {
@@ -107,33 +103,16 @@ public class MainViewController extends AbstractController {
 
         printerInfoController.setPrintService(printService);
 
+        propertiesController.setStickerEditor(editor);
+
         canvasController.setSelectionListener(element -> {
-            showElementProperties(element);
+            propertiesController.show(element);
             elementActionsController.setHasSelection(element != null);
         });
 
-        canvasController.setChangeListener(this::syncElementProperties);
+        canvasController.setChangeListener(propertiesController::sync);
 
         applyConnectionState(false);
-    }
-
-    private void showElementProperties(StickerElement element) {
-        if (element == null) {
-            currentElementProperties = null;
-            elementProperties.getChildren().clear();
-            return;
-        }
-        var bundle = ElementPropertiesComponentControllerFactory.getController(element);
-        currentElementProperties = bundle.controller();
-        currentElementProperties.setStickerEditor(editor);
-        currentElementProperties.show(element);
-        elementProperties.getChildren().setAll(List.of(bundle.root()));
-    }
-
-    private void syncElementProperties(StickerElement changed) {
-        if (currentElementProperties != null) {
-            currentElementProperties.sync(changed);
-        }
     }
 
     private void initTimeline() {

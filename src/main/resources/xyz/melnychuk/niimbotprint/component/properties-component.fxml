@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="xyz.melnychuk.niimbotprint.controller.component.PropertiesComponentController"
+      spacing="8" styleClass="panel" minWidth="230" prefWidth="230">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <Label text="Свойства" styleClass="panel-title"/>
+    <VBox fx:id="elementProperties" spacing="8"/>
+</VBox>

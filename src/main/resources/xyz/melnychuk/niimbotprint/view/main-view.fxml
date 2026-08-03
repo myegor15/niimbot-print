@@ -26,13 +26,7 @@
     </center>
 
     <right>
-        <VBox spacing="8" styleClass="panel">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Label text="Свойства" styleClass="panel-title"/>
-            <VBox fx:id="elementProperties" spacing="8"/>
-        </VBox>
+        <fx:include source="../component/properties-component.fxml" fx:id="properties"/>
     </right>
 
     <bottom>
