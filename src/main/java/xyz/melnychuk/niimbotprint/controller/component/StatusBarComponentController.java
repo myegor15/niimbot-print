@@ -19,7 +19,7 @@ public class StatusBarComponentController extends AbstractController {
 
     public void setConnected(boolean connected) {
         connectionLabel.setText(connected ? "Подключено" : "Не подключено");
-        connectionLabel.setStyle(connected ? "-fx-text-fill: green;" : "-fx-text-fill: gray;");
+        connectionLabel.getStyleClass().setAll(connected ? "status-online" : "status-offline");
     }
 
     public void setMessage(String text) {

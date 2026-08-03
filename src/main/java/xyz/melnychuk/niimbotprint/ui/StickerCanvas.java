@@ -53,7 +53,7 @@ public class StickerCanvas extends Pane {
 
     public StickerCanvas(Sticker sticker) {
         this.sticker = sticker;
-        setStyle("-fx-background-color: #ececec;");
+        getStyleClass().add("canvas");
         buildBackground();
         buildHandles();
         setOnMousePressed(e -> selectNone());

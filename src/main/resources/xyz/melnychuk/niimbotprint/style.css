@@ -2,6 +2,8 @@
     -fx-background-color: #f5f5f5;
     -fx-border-color: #dddddd;
     -fx-border-width: 0 1 0 0;
+    -fx-padding: 10;
+    -fx-min-width: 230;
 }
 
 .panel-title {
@@ -12,8 +14,21 @@
     -fx-background-color: #ececec;
 }
 
+.canvas {
+    -fx-background-color: #ececec;
+}
+
 .status-bar {
     -fx-background-color: #f0f0f0;
     -fx-border-color: #dddddd;
     -fx-border-width: 1 0 0 0;
+    -fx-padding: 4 8;
+}
+
+.status-online {
+    -fx-text-fill: #2e7d32;
+}
+
+.status-offline {
+    -fx-text-fill: #9e9e9e;
 }
