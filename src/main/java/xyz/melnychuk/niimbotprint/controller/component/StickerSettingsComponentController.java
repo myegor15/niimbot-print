@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Sticker;
@@ -23,6 +24,7 @@ public class StickerSettingsComponentController extends AbstractController {
     private StickerEditor stickerEditor;
     @Setter
     private StickerService stickerService;
+    private File currentFile;
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
@@ -44,6 +46,7 @@ public class StickerSettingsComponentController extends AbstractController {
 
     @FXML
     private void onNew() {
+        currentFile = null;
         Sticker s = new Sticker();
         sticker.setWidth(s.getWidth());
         sticker.setHeight(s.getHeight());
@@ -64,6 +67,7 @@ public class StickerSettingsComponentController extends AbstractController {
         run(
                 () -> stickerService.loadSticker(file),
                 loaded -> {
+                    currentFile = file;
                     sticker.setWidth(loaded.getWidth());
                     sticker.setHeight(loaded.getHeight());
                     sticker.setElements(loaded.getElements());
@@ -79,10 +83,24 @@ public class StickerSettingsComponentController extends AbstractController {
 
     @FXML
     private void onSave() {
+        if (currentFile != null) {
+            saveTo(currentFile);
+        } else {
+            onSaveAs();
+        }
+    }
+
+    @FXML
+    private void onSaveAs() {
         File file = chooseFile("Сохранить этикетку", true);
         if (file == null) {
             return;
         }
+        saveTo(withJsonExtension(file));
+    }
+
+    private void saveTo(File file) {
+        currentFile = file;
         run(
                 () -> {
                     stickerService.saveSticker(sticker, file);
@@ -96,7 +114,19 @@ public class StickerSettingsComponentController extends AbstractController {
     private File chooseFile(String title, boolean save) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(title);
+        chooser.getExtensionFilters().add(new ExtensionFilter("Этикетка (*.json)", "*.json"));
+        if (save) {
+            chooser.setInitialFileName("sticker.json");
+        }
         var window = widthSpinner.getScene().getWindow();
         return save ? chooser.showSaveDialog(window) : chooser.showOpenDialog(window);
     }
+
+    private File withJsonExtension(File file) {
+        if (file.getName().toLowerCase().endsWith(".json")) {
+            return file;
+        }
+        return new File(file.getParent(), file.getName() + ".json");
+    }
+
 }

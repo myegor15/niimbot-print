@@ -1,5 +1,6 @@
 package xyz.melnychuk.niimbotprint.service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.AppException;
@@ -15,14 +16,17 @@ import java.util.Base64;
 @Slf4j
 public class StickerService {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
     public Sticker loadSticker(File file) {
         try {
             return mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class);
         } catch (Exception e) {
             log.error("Exception in loadSticker().", e);
-            throw new AppException(e);
+            throw new AppException("Неверный файл этикетки: " + e.getMessage(), e);
         }
     }
 

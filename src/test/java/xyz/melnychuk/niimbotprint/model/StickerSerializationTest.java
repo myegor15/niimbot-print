@@ -1,13 +1,19 @@
 package xyz.melnychuk.niimbotprint.model;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StickerSerializationTest {
     private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper strictMapper = new ObjectMapper()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
     @Test
     void roundTripPreservesElements() throws Exception {
@@ -44,5 +50,17 @@ class StickerSerializationTest {
         assertTrue(label.getWidth() > 0);
         assertTrue(text.getFontSize() > 0);
         assertEquals("CODE_128", new BarcodeElement().getFormat());
+    }
+
+    @Test
+    void strictMapperRejectsUnknownProperty() {
+        String json = "{\"width\":384,\"height\":240,\"foo\":1}";
+        assertThrows(Exception.class, () -> strictMapper.readValue(json, Sticker.class));
+    }
+
+    @Test
+    void strictMapperRejectsUnknownElementType() {
+        String json = "{\"width\":384,\"height\":240,\"elements\":[{\"type\":\"qrcode\"}]}";
+        assertThrows(Exception.class, () -> strictMapper.readValue(json, Sticker.class));
     }
 }
