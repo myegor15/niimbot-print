@@ -2,7 +2,9 @@ package xyz.melnychuk.niimbotprint.controller.component;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.stage.FileChooser;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
@@ -11,21 +13,21 @@ import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 
 import java.io.File;
 
-public class ElementActionsComponentController extends AbstractController {
+public class CanvasActionsComponentController extends AbstractController {
 
     @FXML
     private Button deleteButton;
+    @FXML
+    private ToggleButton gridToggle;
+    @FXML
+    private ToggleButton snapToggle;
+    @FXML
+    private ToggleButton angleSnapToggle;
 
-    private StickerEditor editor;
+    @Setter
+    private StickerEditor stickerEditor;
+    @Setter
     private StickerService stickerService;
-
-    public void setStickerEditor(StickerEditor editor) {
-        this.editor = editor;
-    }
-
-    public void setStickerService(StickerService stickerService) {
-        this.stickerService = stickerService;
-    }
 
     public void setHasSelection(boolean has) {
         deleteButton.setDisable(!has);
@@ -33,12 +35,12 @@ public class ElementActionsComponentController extends AbstractController {
 
     @FXML
     private void onAddText() {
-        editor.addElement(new TextElement("Текст", 10, 10));
+        stickerEditor.addElement(new TextElement("Текст", 10, 10));
     }
 
     @FXML
     private void onAddBarcode() {
-        editor.addElement(new BarcodeElement());
+        stickerEditor.addElement(new BarcodeElement());
     }
 
     @FXML
@@ -50,7 +52,7 @@ public class ElementActionsComponentController extends AbstractController {
         run(
                 () -> stickerService.loadImageElement(file),
                 element -> {
-                    editor.addElement(element);
+                    stickerEditor.addElement(element);
                     message("Изображение добавлено");
                 },
                 this::error
@@ -59,9 +61,30 @@ public class ElementActionsComponentController extends AbstractController {
 
     @FXML
     private void onDelete() {
-        if (editor.getSelectedElement() != null) {
-            editor.removeSelected();
+        if (stickerEditor.getSelectedElement() != null) {
+            stickerEditor.removeSelected();
             message("Элемент удалён");
+        }
+    }
+
+    @FXML
+    private void onToggleGrid() {
+        if (stickerEditor != null) {
+            stickerEditor.setGridVisible(gridToggle.isSelected());
+        }
+    }
+
+    @FXML
+    private void onTogglePositionSnap() {
+        if (stickerEditor != null) {
+            stickerEditor.setPositionSnap(snapToggle.isSelected());
+        }
+    }
+
+    @FXML
+    private void onToggleRotationSnap() {
+        if (stickerEditor != null) {
+            stickerEditor.setRotationSnap(angleSnapToggle.isSelected());
         }
     }
 

@@ -18,6 +18,18 @@ public interface StickerEditor {
 
     void setLabelSize(int width, int height);
 
+    void setGridVisible(boolean visible);
+
+    boolean isGridVisible();
+
+    void setPositionSnap(boolean enabled);
+
+    boolean isPositionSnap();
+
+    void setRotationSnap(boolean enabled);
+
+    boolean isRotationSnap();
+
     String snapshotPngBase64();
 
     void setSelectionListener(Consumer<StickerElement> listener);

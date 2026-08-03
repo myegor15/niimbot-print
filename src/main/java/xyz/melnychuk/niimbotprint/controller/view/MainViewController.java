@@ -37,7 +37,7 @@ public class MainViewController extends AbstractController {
     @FXML
     private CanvasComponentController canvasController;
     @FXML
-    private ElementActionsComponentController elementActionsController;
+    private CanvasActionsComponentController elementActionsController;
     @FXML
     private PropertiesComponentController propertiesController;
     @FXML

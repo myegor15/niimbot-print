@@ -19,7 +19,7 @@
 
     <center>
         <VBox spacing="6">
-            <fx:include source="../component/element-actions-component.fxml" fx:id="elementActions"/>
+            <fx:include source="../component/canvas-actions-component.fxml" fx:id="elementActions"/>
             <fx:include source="../component/canvas-component.fxml" fx:id="canvas"/>
         </VBox>
     </center>

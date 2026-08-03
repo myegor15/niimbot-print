@@ -51,7 +51,40 @@ public class StickerCanvasEditor implements StickerEditor {
     }
 
     @Override
+    public void setGridVisible(boolean visible) {
+        canvas.setGridVisible(visible);
+    }
+
+    @Override
+    public boolean isGridVisible() {
+        return canvas.isGridVisible();
+    }
+
+    @Override
+    public void setPositionSnap(boolean enabled) {
+        canvas.setPositionSnap(enabled);
+    }
+
+    @Override
+    public boolean isPositionSnap() {
+        return canvas.isPositionSnap();
+    }
+
+    @Override
+    public void setRotationSnap(boolean enabled) {
+        canvas.setRotationSnap(enabled);
+    }
+
+    @Override
+    public boolean isRotationSnap() {
+        return canvas.isRotationSnap();
+    }
+
+    @Override
     public String snapshotPngBase64() {
+        boolean gridVisible = canvas.isGridVisible();
+        canvas.setGridVisible(false);
+        canvas.hideGuides();
         canvas.setSelectionVisible(false);
         try {
             WritableImage snapshot = canvas.snapshot(null, null);
@@ -63,6 +96,7 @@ public class StickerCanvasEditor implements StickerEditor {
             throw new AppException(e);
         } finally {
             canvas.setSelectionVisible(true);
+            canvas.setGridVisible(gridVisible);
         }
     }
 

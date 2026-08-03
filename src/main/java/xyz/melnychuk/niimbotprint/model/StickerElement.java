@@ -23,6 +23,7 @@ public abstract class StickerElement {
 
     private double x;
     private double y;
+    private double rotation;
 
     protected StickerElement() {
     }
