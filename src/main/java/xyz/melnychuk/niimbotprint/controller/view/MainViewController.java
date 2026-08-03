@@ -13,6 +13,7 @@ import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.View;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -47,13 +48,9 @@ public class MainViewController extends AbstractController {
     private StickerEditor editor;
     private boolean bound;
 
-    public void setPrintService(PrintService printService) {
-        this.printService = printService;
-        bind();
-    }
-
-    public void setStickerService(StickerService stickerService) {
-        this.stickerService = stickerService;
+    public void setServices(PrintService printService, StickerService stickerService) {
+        this.printService = Objects.requireNonNull(printService);
+        this.stickerService = Objects.requireNonNull(stickerService);
         bind();
     }
 

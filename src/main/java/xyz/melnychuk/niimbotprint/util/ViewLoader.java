@@ -15,10 +15,10 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ViewLoader {
 
-    public record Result<T>(T controller, Scene scene) {
+    public record Bundle<T>(T controller, Scene scene) {
     }
 
-    public static <T> Result<T> load(Class<T> controllerClass, Stage stage) {
+    public static <T> Bundle<T> load(Class<T> controllerClass, Stage stage) {
         View info = controllerClass.getAnnotation(View.class);
         if (info == null) {
             throw new AppException("No @View annotation on " + controllerClass.getName());
@@ -35,7 +35,7 @@ public final class ViewLoader {
                 stage.setTitle(info.title());
             }
 
-            return new Result<>(loader.getController(), scene);
+            return new Bundle<>(loader.getController(), scene);
         } catch (IOException e) {
             throw new AppException("Failed to load view " + info.fxml(), e);
         }

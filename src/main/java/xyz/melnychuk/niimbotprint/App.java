@@ -60,10 +60,12 @@ public class App extends Application {
 
     private void showMain(Stage stage) {
         try {
-            ViewLoader.Result<MainViewController> result = ViewLoader.load(MainViewController.class, stage);
-            result.controller().setPrintService(new PrintService(apiManager.getApi()));
-            result.controller().setStickerService(new StickerService());
-            stage.setScene(result.scene());
+            var bundle = ViewLoader.load(MainViewController.class, stage);
+            bundle.controller().setServices(
+                    new PrintService(apiManager.getApi()),
+                    new StickerService()
+            );
+            stage.setScene(bundle.scene());
         } catch (Exception e) {
             log.error("Exception in showMain().", e);
             showError("Не удалось открыть главное окно.");
