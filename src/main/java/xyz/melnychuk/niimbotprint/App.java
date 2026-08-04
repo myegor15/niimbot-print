@@ -1,8 +1,10 @@
 package xyz.melnychuk.niimbotprint;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
@@ -32,8 +34,9 @@ public class App extends Application {
     }
 
     private void startUi(Stage stage) {
-        showSplash(stage);
-        stage.show();
+        if (showSplash(stage)) {
+            stage.show();
+        }
     }
 
     private void startNiimBlue(Stage stage) {
@@ -45,18 +48,20 @@ public class App extends Application {
                 },
                 e -> {
                     log.error("Exception in startNiimBlue().", e);
-                    showError("Не удалось запустить встроенный сервер печати.");
+                    showError(stage, "Не удалось запустить встроенный сервер печати.");
                 }
         );
     }
 
-    private void showSplash(Stage stage) {
+    private boolean showSplash(Stage stage) {
         try {
             var bandle = FxmlLoader.loadView(SplashViewController.class, stage);
-            stage.setScene(bandle.node());
+            showScene(stage, bandle.node());
+            return true;
         } catch (Exception e) {
             log.error("Exception in showSplash().", e);
-            showError("Не удалось открыть окно загрузки.");
+            showError(stage, "Не удалось открыть окно загрузки.");
+            return false;
         }
     }
 
@@ -67,14 +72,22 @@ public class App extends Application {
                     new PrintService(apiManager.getApi()),
                     new StickerService()
             );
-            stage.setScene(bundle.node());
+            showScene(stage, bundle.node());
         } catch (Exception e) {
             log.error("Exception in showMain().", e);
-            showError("Не удалось открыть главное окно.");
+            showError(stage, "Не удалось открыть главное окно.");
         }
     }
 
-    private void showError(String message) {
-        new Alert(Alert.AlertType.ERROR, message).show();
+    private void showScene(Stage stage, Scene scene) {
+        stage.setScene(scene);
+        stage.centerOnScreen();
+    }
+
+    private void showError(Stage stage, String message) {
+        Platform.setImplicitExit(false);
+        stage.close();
+        new Alert(Alert.AlertType.ERROR, message, ButtonType.OK).showAndWait();
+        Platform.exit();
     }
 }
