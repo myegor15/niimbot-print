@@ -7,17 +7,18 @@ import javafx.scene.control.SpinnerValueFactory;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class ElementPropertiesComponentController<T extends StickerElement> extends AbstractController {
 
-    @Setter
-    private StickerEditor stickerEditor;
-    private boolean updating;
     protected T element;
+    private boolean updating;
+
+    @Setter
+    private Consumer<StickerElement> elementChangeListener;
 
     public final void show(StickerElement element) {
         this.element = (T) element;
@@ -38,8 +39,8 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
     protected abstract void sync();
 
     protected void touch() {
-        if (stickerEditor != null) {
-            stickerEditor.updateElement(element);
+        if (elementChangeListener != null) {
+            elementChangeListener.accept(element);
         }
     }
 

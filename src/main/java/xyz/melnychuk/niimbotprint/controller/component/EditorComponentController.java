@@ -1,15 +1,18 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.Setter;
+import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.Sticker;
@@ -17,13 +20,17 @@ import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
-import xyz.melnychuk.niimbotprint.ui.editor.CanvasStickerEditor;
-import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.Editor;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 
-public class EditorComponentController extends AbstractController {
+public class EditorComponentController extends AbstractController implements Editor {
 
     @FXML
     private StackPane canvasHost;
@@ -41,27 +48,51 @@ public class EditorComponentController extends AbstractController {
     private Slider zoomSlider;
     @FXML
     private Label zoomLabel;
+    private Group zoomGroup;
+
+    private ElementPropertiesComponentController<?> currentElementPropertiesController;
+
+    private Sticker sticker;
+    private StickerCanvas canvas;
 
     @Setter
     private StickerService stickerService;
 
-    private StickerEditor editor;
-    private Group zoomGroup;
-    private ElementPropertiesComponentController<?> currentElementProperties;
-
     public void setSticker(Sticker sticker) {
-        StickerCanvas canvas = new StickerCanvas(sticker);
+        this.sticker = sticker;
+        canvas = new StickerCanvas(sticker);
         zoomGroup = new Group(canvas);
         canvasHost.getChildren().add(zoomGroup);
-        editor = new CanvasStickerEditor(canvas);
-        editor.setSelectionListener(this::onSelectionChanged);
-        editor.setChangeListener(this::sync);
+        canvas.setSelectionListener(this::onSelectionChanged);
+        canvas.setChangeListener(this::sync);
         zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> onZoom());
         onZoom();
     }
 
-    public StickerEditor getStickerEditor() {
-        return editor;
+    @Override
+    public void refresh() {
+        canvas.setLabelSize(sticker.getWidth(), sticker.getHeight());
+        canvas.refresh();
+    }
+
+    @Override
+    public String snapshot() {
+        boolean gridVisible = canvas.isGridVisible();
+        canvas.setGridVisible(false);
+        canvas.hideGuides();
+        canvas.setSelectionVisible(false);
+        try {
+            WritableImage image = canvas.snapshot(null, null);
+            BufferedImage buffered = SwingFXUtils.fromFXImage(image, null);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ImageIO.write(buffered, "png", out);
+            return Base64.getEncoder().encodeToString(out.toByteArray());
+        } catch (IOException e) {
+            throw new AppException(e);
+        } finally {
+            canvas.setSelectionVisible(true);
+            canvas.setGridVisible(gridVisible);
+        }
     }
 
     private void onSelectionChanged(StickerElement element) {
@@ -71,31 +102,31 @@ public class EditorComponentController extends AbstractController {
 
     private void show(StickerElement element) {
         if (element == null) {
-            currentElementProperties = null;
+            currentElementPropertiesController = null;
             elementProperties.getChildren().clear();
             return;
         }
         var bundle = ElementPropertiesComponentControllerFactory.getController(element);
-        currentElementProperties = bundle.controller();
-        currentElementProperties.setStickerEditor(editor);
-        currentElementProperties.show(element);
+        currentElementPropertiesController = bundle.controller();
+        currentElementPropertiesController.setElementChangeListener(canvas::updateElement);
+        currentElementPropertiesController.show(element);
         elementProperties.getChildren().setAll(List.of(bundle.node()));
     }
 
     private void sync(StickerElement changed) {
-        if (currentElementProperties != null) {
-            currentElementProperties.sync(changed);
+        if (currentElementPropertiesController != null) {
+            currentElementPropertiesController.sync(changed);
         }
     }
 
     @FXML
     private void onAddText() {
-        editor.addElement(new TextElement("Текст", 10, 10));
+        canvas.addElement(new TextElement("Текст", 10, 10));
     }
 
     @FXML
     private void onAddBarcode() {
-        editor.addElement(new BarcodeElement());
+        canvas.addElement(new BarcodeElement());
     }
 
     @FXML
@@ -107,7 +138,7 @@ public class EditorComponentController extends AbstractController {
         run(
                 () -> stickerService.loadImageElement(file),
                 element -> {
-                    editor.addElement(element);
+                    canvas.addElement(element);
                     message("Изображение добавлено");
                 },
                 this::error
@@ -116,31 +147,25 @@ public class EditorComponentController extends AbstractController {
 
     @FXML
     private void onDelete() {
-        if (editor.getSelectedElement() != null) {
-            editor.removeSelected();
+        if (canvas.getSelectedElement() != null) {
+            canvas.removeSelected();
             message("Элемент удалён");
         }
     }
 
     @FXML
     private void onToggleGrid() {
-        if (editor != null) {
-            editor.setGridVisible(gridToggle.isSelected());
-        }
+        canvas.setGridVisible(gridToggle.isSelected());
     }
 
     @FXML
     private void onTogglePositionSnap() {
-        if (editor != null) {
-            editor.setPositionSnap(snapToggle.isSelected());
-        }
+        canvas.setPositionSnap(snapToggle.isSelected());
     }
 
     @FXML
     private void onToggleRotationSnap() {
-        if (editor != null) {
-            editor.setRotationSnap(angleSnapToggle.isSelected());
-        }
+        canvas.setRotationSnap(angleSnapToggle.isSelected());
     }
 
     @FXML

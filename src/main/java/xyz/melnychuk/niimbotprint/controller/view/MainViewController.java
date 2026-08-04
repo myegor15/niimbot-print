@@ -10,7 +10,6 @@ import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
-import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
 import xyz.melnychuk.niimbotprint.util.View;
 
 import java.util.Objects;
@@ -39,9 +38,11 @@ public class MainViewController extends AbstractController {
     @FXML
     private StatusBarComponentController statusBarController;
 
+    private Sticker sticker;
+    private Timeline timeline;
+
     private PrintService printService;
     private StickerService stickerService;
-    private StickerEditor editor;
     private boolean bound;
 
     public void setServices(PrintService printService, StickerService stickerService) {
@@ -61,8 +62,6 @@ public class MainViewController extends AbstractController {
         }
         bound = true;
 
-        statusBarController.setMessage("Готово");
-
         Stream.of(
                         topBarController,
                         stickerSettingsController,
@@ -75,36 +74,39 @@ public class MainViewController extends AbstractController {
                     component.setErrorHandler(this::showError);
                 });
 
-        Sticker sticker = new Sticker();
-        editorController.setStickerService(stickerService);
-        editorController.setSticker(sticker);
-        editor = editorController.getStickerEditor();
-
         topBarController.setPrintService(printService);
         topBarController.setConnectionListener(this::applyConnectionState);
 
+        statusBarController.setMessage("Готово");
         statusBarController.setApiUrl(printService.getApiUrl());
 
+        printerInfoController.setPrintService(printService);
+
+        sticker = new Sticker();
+        editorController.setSticker(sticker);
+        editorController.setStickerService(stickerService);
+
         stickerSettingsController.setSticker(sticker);
+        stickerSettingsController.setEditor(editorController);
         stickerSettingsController.setStickerService(stickerService);
-        stickerSettingsController.setStickerEditor(editor);
 
         printSettingsController.setSticker(sticker);
+        printSettingsController.setEditor(editorController);
         printSettingsController.setPrintService(printService);
-        printSettingsController.setStickerEditor(editor);
-
-        printerInfoController.setPrintService(printService);
 
         applyConnectionState(false);
     }
 
     private void initTimeline() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> pollStatus()));
+        timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> pollStatus()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
     private void pollStatus() {
+        if (printService == null) {
+            return;
+        }
         run(
                 printService::isConnected,
                 ok -> applyConnectionState(Boolean.TRUE.equals(ok)),
@@ -124,7 +126,6 @@ public class MainViewController extends AbstractController {
     }
 
     private void showError(Throwable error) {
-        log.error("Exception in showError().", error);
         statusBarController.setMessage("Ошибка: " + (error != null ? error.getMessage() : "неизвестна"));
     }
 }

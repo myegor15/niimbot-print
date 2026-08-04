@@ -10,7 +10,7 @@ import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
-import xyz.melnychuk.niimbotprint.ui.editor.StickerEditor;
+import xyz.melnychuk.niimbotprint.ui.Editor;
 
 public class PrintSettingsComponentController extends AbstractController {
 
@@ -25,12 +25,13 @@ public class PrintSettingsComponentController extends AbstractController {
 
     @Setter
     private Sticker sticker;
-    private StickerEditor stickerEditor;
+    private Editor editor;
+
     @Setter
     private PrintService printService;
 
-    public void setStickerEditor(StickerEditor editor) {
-        this.stickerEditor = editor;
+    public void setEditor(Editor editor) {
+        this.editor = editor;
         densitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
         quantitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         directionCombo.getItems().addAll("top", "left");
@@ -43,7 +44,7 @@ public class PrintSettingsComponentController extends AbstractController {
 
     @FXML
     private void onPrint() {
-        String base64 = stickerEditor.snapshotPngBase64();
+        String base64 = editor.snapshot();
         if (base64 == null) {
             return;
         }
