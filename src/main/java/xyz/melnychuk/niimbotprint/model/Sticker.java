@@ -8,19 +8,18 @@ import java.util.List;
 @Data
 public class Sticker {
 
-    public static final int DEFAULT_WIDTH = 384;
-    public static final int DEFAULT_HEIGHT = 240;
-
+    private PrinterModel printerModel;
     private int width;
     private int height;
     private List<StickerElement> elements = new ArrayList<>();
 
     public Sticker() {
-        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        this(PrinterModel.B1);
     }
 
-    public Sticker(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public Sticker(PrinterModel printerModel) {
+        this.printerModel = printerModel;
+        this.width = printerModel.getDefaultWidth();
+        this.height = printerModel.getDefaultHeight();
     }
 }

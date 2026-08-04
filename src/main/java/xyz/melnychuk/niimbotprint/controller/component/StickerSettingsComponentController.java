@@ -1,12 +1,14 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
+import xyz.melnychuk.niimbotprint.model.PrinterModel;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
@@ -15,6 +17,8 @@ import java.io.File;
 
 public class StickerSettingsComponentController extends AbstractController {
 
+    @FXML
+    private ComboBox<PrinterModel> modelComboBox;
     @FXML
     private Spinner<Integer> widthSpinner;
     @FXML
@@ -29,14 +33,29 @@ public class StickerSettingsComponentController extends AbstractController {
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
+        modelComboBox.getItems().setAll(PrinterModel.values());
+        modelComboBox.setValue(sticker.getPrinterModel() != null ? sticker.getPrinterModel() : PrinterModel.B1);
         widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, sticker.getWidth()));
         heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, sticker.getHeight()));
     }
 
     public void setEditor(Editor editor) {
         this.editor = editor;
+        modelComboBox.valueProperty().addListener((o, a, b) -> applyModel(b));
         widthSpinner.valueProperty().addListener((o, a, b) -> resize(b, heightSpinner.getValue()));
         heightSpinner.valueProperty().addListener((o, a, b) -> resize(widthSpinner.getValue(), b));
+    }
+
+    private void applyModel(PrinterModel model) {
+        if (!PrinterModel.B1.equals(model) && !PrinterModel.D11.equals(model)) {
+            return;
+        }
+        sticker.setPrinterModel(model);
+        sticker.setWidth(model.getDefaultWidth());
+        sticker.setHeight(model.getDefaultHeight());
+        widthSpinner.getValueFactory().setValue(model.getDefaultWidth());
+        heightSpinner.getValueFactory().setValue(model.getDefaultHeight());
+        editor.refresh();
     }
 
     private void resize(int width, int height) {
@@ -49,9 +68,11 @@ public class StickerSettingsComponentController extends AbstractController {
     private void onNew() {
         currentFile = null;
         Sticker s = new Sticker();
+        sticker.setPrinterModel(s.getPrinterModel());
         sticker.setWidth(s.getWidth());
         sticker.setHeight(s.getHeight());
         sticker.getElements().clear();
+        modelComboBox.setValue(s.getPrinterModel());
         widthSpinner.getValueFactory().setValue(s.getWidth());
         heightSpinner.getValueFactory().setValue(s.getHeight());
         editor.refresh();
@@ -68,9 +89,11 @@ public class StickerSettingsComponentController extends AbstractController {
                 () -> stickerService.loadSticker(file),
                 loaded -> {
                     currentFile = file;
+                    sticker.setPrinterModel(loaded.getPrinterModel());
                     sticker.setWidth(loaded.getWidth());
                     sticker.setHeight(loaded.getHeight());
                     sticker.setElements(loaded.getElements());
+                    modelComboBox.setValue(loaded.getPrinterModel() != null ? loaded.getPrinterModel() : PrinterModel.B1);
                     widthSpinner.getValueFactory().setValue(loaded.getWidth());
                     heightSpinner.getValueFactory().setValue(loaded.getHeight());
                     editor.refresh();
