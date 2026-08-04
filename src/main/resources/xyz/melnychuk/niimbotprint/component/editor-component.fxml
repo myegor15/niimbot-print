@@ -3,9 +3,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -14,9 +16,6 @@
     <center>
         <VBox spacing="6">
             <HBox spacing="5" styleClass="panel">
-                <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
-                <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
-                <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
                 <Button text="+ Текст" onAction="#onAddText"/>
                 <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
                 <Button text="+ Изображение" onAction="#onAddImage"/>
@@ -25,6 +24,14 @@
             <ScrollPane VBox.vgrow="ALWAYS">
                 <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
             </ScrollPane>
+            <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
+                <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
+                <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
+                <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Slider fx:id="zoomSlider" min="25" max="200" value="100" blockIncrement="25" majorTickUnit="25" showTickLabels="true" snapToTicks="true" prefWidth="200"/>
+                <Label fx:id="zoomLabel" text="100%" styleClass="zoom-value"/>
+            </HBox>
         </VBox>
     </center>
     <right>

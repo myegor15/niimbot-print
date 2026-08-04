@@ -32,3 +32,15 @@
 .status-offline {
     -fx-text-fill: #9e9e9e;
 }
+
+.editor-toolbar {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1 0 1;
+    -fx-padding: 3 8;
+}
+
+.zoom-value {
+    -fx-min-width: 45;
+    -fx-alignment: CENTER_RIGHT;
+}

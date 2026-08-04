@@ -1,7 +1,10 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,19 +37,27 @@ public class EditorComponentController extends AbstractController {
     private ToggleButton snapToggle;
     @FXML
     private ToggleButton angleSnapToggle;
+    @FXML
+    private Slider zoomSlider;
+    @FXML
+    private Label zoomLabel;
 
     @Setter
     private StickerService stickerService;
 
     private StickerEditor editor;
+    private Group zoomGroup;
     private ElementPropertiesComponentController<?> currentElementProperties;
 
     public void setSticker(Sticker sticker) {
         StickerCanvas canvas = new StickerCanvas(sticker);
-        canvasHost.getChildren().add(canvas);
+        zoomGroup = new Group(canvas);
+        canvasHost.getChildren().add(zoomGroup);
         editor = new CanvasStickerEditor(canvas);
         editor.setSelectionListener(this::onSelectionChanged);
         editor.setChangeListener(this::sync);
+        zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> onZoom());
+        onZoom();
     }
 
     public StickerEditor getStickerEditor() {
@@ -130,6 +141,18 @@ public class EditorComponentController extends AbstractController {
         if (editor != null) {
             editor.setRotationSnap(angleSnapToggle.isSelected());
         }
+    }
+
+    @FXML
+    private void onZoom() {
+        if (zoomGroup == null) {
+            return;
+        }
+        double percent = Math.round(zoomSlider.getValue() / 25) * 25;
+        zoomSlider.setValue(percent);
+        zoomGroup.setScaleX(percent / 100);
+        zoomGroup.setScaleY(percent / 100);
+        zoomLabel.setText((int) Math.round(percent) + "%");
     }
 
     private File chooseFile(String title) {
