@@ -1,21 +1,40 @@
 .panel {
     -fx-background-color: #f5f5f5;
-    -fx-border-color: #dddddd;
-    -fx-border-width: 0 1 0 0;
     -fx-padding: 10;
     -fx-min-width: 230;
+}
+
+.panel-root {
+    -fx-background-color: #f5f5f5;
+    -fx-min-width: 230;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1 0 0;
+}
+
+.editor {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1 0 0;
 }
 
 .panel-title {
     -fx-font-weight: bold;
 }
 
-.canvas-host {
-    -fx-background-color: #ececec;
+.canvas {
+    -fx-background-color: #e5e5e5;
 }
 
-.canvas {
-    -fx-background-color: #ececec;
+.canvas-scroll {
+    -fx-background-color: #e5e5e5;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.canvas-scroll > .viewport {
+    -fx-background-color: #e5e5e5;
 }
 
 .status-bar {
@@ -35,18 +54,12 @@
 
 .editor-toolbar {
     -fx-background-color: #f5f5f5;
-    -fx-border-color: #dddddd;
-    -fx-border-width: 0 1 0 1;
     -fx-padding: 3 8;
 }
 
 .zoom-value {
     -fx-min-width: 45;
     -fx-alignment: CENTER_RIGHT;
-}
-
-.printer-toolbar {
-    -fx-alignment: CENTER_LEFT;
 }
 
 .icon-button {

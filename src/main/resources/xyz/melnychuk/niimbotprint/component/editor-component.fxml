@@ -14,15 +14,15 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="xyz.melnychuk.niimbotprint.controller.component.EditorComponentController">
     <center>
-        <VBox spacing="6">
+        <VBox styleClass="editor">
             <HBox spacing="5" styleClass="panel">
                 <Button text="+ Текст" onAction="#onAddText"/>
                 <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
                 <Button text="+ Изображение" onAction="#onAddImage"/>
                 <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
             </HBox>
-            <ScrollPane VBox.vgrow="ALWAYS">
-                <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
+            <ScrollPane VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
+                <StackPane fx:id="canvasHost"/>
             </ScrollPane>
             <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
                 <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>

@@ -11,7 +11,8 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.PrinterComponentController"
       spacing="8" styleClass="panel">
-    <HBox spacing="4" styleClass="printer-toolbar">
+    <Label text="Принтер" styleClass="panel-title"/>
+    <HBox spacing="4">
         <Button fx:id="refreshButton" onAction="#onRefresh" styleClass="icon-button">
             <graphic>
                 <SVGPath styleClass="icon"
@@ -33,6 +34,5 @@
             </tooltip>
         </Button>
     </HBox>
-    <Label text="Принтер" styleClass="panel-title"/>
     <TextArea fx:id="printerInfoArea" editable="false" wrapText="true" prefHeight="220" prefWidth="210"/>
 </VBox>

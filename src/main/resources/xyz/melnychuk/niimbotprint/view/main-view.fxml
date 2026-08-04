@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.view.MainViewController">
     <left>
-        <VBox spacing="8">
-            <fx:include source="../component/sticker-settings-component.fxml" fx:id="stickerSettings"/>
-            <fx:include source="../component/print-settings-component.fxml" fx:id="printSettings"/>
-            <fx:include source="../component/printer-component.fxml" fx:id="printerComponent"/>
-        </VBox>
+        <BorderPane styleClass="panel-root">
+            <top>
+                <fx:include source="../component/sticker-settings-component.fxml" fx:id="stickerSettings"/>
+            </top>
+            <center>
+                <fx:include source="../component/print-settings-component.fxml" fx:id="printSettings"/>
+            </center>
+            <bottom>
+                <fx:include source="../component/printer-component.fxml" fx:id="printerComponent"/>
+            </bottom>
+        </BorderPane>
     </left>
 
     <center>
