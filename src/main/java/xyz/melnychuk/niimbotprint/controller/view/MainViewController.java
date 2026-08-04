@@ -35,11 +35,7 @@ public class MainViewController extends AbstractController {
     @FXML
     private PrinterInfoComponentController printerInfoController;
     @FXML
-    private CanvasComponentController canvasController;
-    @FXML
-    private CanvasActionsComponentController elementActionsController;
-    @FXML
-    private PropertiesComponentController propertiesController;
+    private EditorComponentController editorController;
     @FXML
     private StatusBarComponentController statusBarController;
 
@@ -72,7 +68,7 @@ public class MainViewController extends AbstractController {
                         stickerSettingsController,
                         printSettingsController,
                         printerInfoController,
-                        elementActionsController
+                        editorController
                 )
                 .forEach(component -> {
                     component.setMessageHandler(statusBarController::setMessage);
@@ -80,8 +76,9 @@ public class MainViewController extends AbstractController {
                 });
 
         Sticker sticker = new Sticker();
-        canvasController.setSticker(sticker);
-        editor = canvasController.getStickerEditor();
+        editorController.setStickerService(stickerService);
+        editorController.setSticker(sticker);
+        editor = editorController.getStickerEditor();
 
         topBarController.setPrintService(printService);
         topBarController.setConnectionListener(this::applyConnectionState);
@@ -96,19 +93,7 @@ public class MainViewController extends AbstractController {
         printSettingsController.setPrintService(printService);
         printSettingsController.setStickerEditor(editor);
 
-        elementActionsController.setStickerEditor(editor);
-        elementActionsController.setStickerService(stickerService);
-
         printerInfoController.setPrintService(printService);
-
-        propertiesController.setStickerEditor(editor);
-
-        canvasController.setSelectionListener(element -> {
-            propertiesController.show(element);
-            elementActionsController.setHasSelection(element != null);
-        });
-
-        canvasController.setChangeListener(propertiesController::sync);
 
         applyConnectionState(false);
     }

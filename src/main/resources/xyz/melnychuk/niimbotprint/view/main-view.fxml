@@ -18,15 +18,8 @@
     </left>
 
     <center>
-        <VBox spacing="6">
-            <fx:include source="../component/canvas-actions-component.fxml" fx:id="elementActions"/>
-            <fx:include source="../component/canvas-component.fxml" fx:id="canvas"/>
-        </VBox>
+        <fx:include source="../component/editor-component.fxml" fx:id="editor"/>
     </center>
-
-    <right>
-        <fx:include source="../component/properties-component.fxml" fx:id="properties"/>
-    </right>
 
     <bottom>
         <fx:include source="../component/status-bar-component.fxml" fx:id="statusBar"/>

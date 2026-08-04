@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="xyz.melnychuk.niimbotprint.controller.component.EditorComponentController">
+    <center>
+        <VBox spacing="6">
+            <HBox spacing="5" styleClass="panel">
+                <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
+                <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
+                <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
+                <Button text="+ Текст" onAction="#onAddText"/>
+                <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
+                <Button text="+ Изображение" onAction="#onAddImage"/>
+                <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
+            </HBox>
+            <ScrollPane VBox.vgrow="ALWAYS">
+                <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+    <right>
+        <VBox spacing="8" styleClass="panel" prefWidth="230">
+            <Label text="Свойства" styleClass="panel-title"/>
+            <VBox fx:id="elementProperties" spacing="8"/>
+        </VBox>
+    </right>
+</BorderPane>
