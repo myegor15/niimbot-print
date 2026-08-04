@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.TextPropertiesComponentController" spacing="8">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.TextPropertiesComponentController" spacing="8">
     <HBox spacing="8">
         <Label text="Текст"/>
         <TextField fx:id="textField" HBox.hgrow="ALWAYS"/>

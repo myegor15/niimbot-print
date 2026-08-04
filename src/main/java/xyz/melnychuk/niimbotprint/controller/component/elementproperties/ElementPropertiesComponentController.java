@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimbotprint.controller.component;
+package xyz.melnychuk.niimbotprint.controller.component.elementproperties;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

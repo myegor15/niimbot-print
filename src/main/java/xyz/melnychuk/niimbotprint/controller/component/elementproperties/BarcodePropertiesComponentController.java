@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimbotprint.controller.component;
+package xyz.melnychuk.niimbotprint.controller.component.elementproperties;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -9,7 +9,7 @@ import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.ui.BarcodeGenerator;
 import xyz.melnychuk.niimbotprint.util.Component;
 
-@Component(fxml = "component/barcode-properties-component.fxml")
+@Component(fxml = "component/elementproperties/barcode-properties-component.fxml")
 public class BarcodePropertiesComponentController extends ElementPropertiesComponentController<BarcodeElement> {
 
     @FXML

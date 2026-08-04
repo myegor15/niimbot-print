@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimbotprint.controller.component;
+package xyz.melnychuk.niimbotprint.controller.component.elementproperties;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -11,7 +11,7 @@ import xyz.melnychuk.niimbotprint.util.Component;
 
 import java.util.List;
 
-@Component(fxml = "component/text-properties-component.fxml")
+@Component(fxml = "component/elementproperties/text-properties-component.fxml")
 public class TextPropertiesComponentController extends ElementPropertiesComponentController<TextElement> {
 
     private static final List<String> FONTS = List.of(

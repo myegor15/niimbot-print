@@ -14,13 +14,15 @@ import javafx.stage.FileChooser;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
+import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentController;
+import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
 import xyz.melnychuk.niimbotprint.service.StickerService;
-import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
 import xyz.melnychuk.niimbotprint.ui.Editor;
+import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
