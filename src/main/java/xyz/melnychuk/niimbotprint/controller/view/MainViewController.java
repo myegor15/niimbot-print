@@ -1,10 +1,6 @@
 package xyz.melnychuk.niimbotprint.controller.view;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.util.Duration;
-import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
@@ -15,7 +11,6 @@ import xyz.melnychuk.niimbotprint.util.View;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Slf4j
 @View(
         fxml = "view/main-view.fxml",
         title = "NiimBot Print",
@@ -26,20 +21,17 @@ import java.util.stream.Stream;
 public class MainViewController extends AbstractController {
 
     @FXML
-    private TopBarComponentController topBarController;
-    @FXML
     private StickerSettingsComponentController stickerSettingsController;
     @FXML
     private PrintSettingsComponentController printSettingsController;
     @FXML
-    private PrinterInfoComponentController printerInfoController;
+    private PrinterComponentController printerComponentController;
     @FXML
     private EditorComponentController editorController;
     @FXML
     private StatusBarComponentController statusBarController;
 
     private Sticker sticker;
-    private Timeline timeline;
 
     private PrintService printService;
     private StickerService stickerService;
@@ -51,11 +43,6 @@ public class MainViewController extends AbstractController {
         bind();
     }
 
-    @FXML
-    private void initialize() {
-        initTimeline();
-    }
-
     private void bind() {
         if (bound || printService == null || stickerService == null) {
             return;
@@ -63,10 +50,9 @@ public class MainViewController extends AbstractController {
         bound = true;
 
         Stream.of(
-                        topBarController,
+                        printerComponentController,
                         stickerSettingsController,
                         printSettingsController,
-                        printerInfoController,
                         editorController
                 )
                 .forEach(component -> {
@@ -74,13 +60,11 @@ public class MainViewController extends AbstractController {
                     component.setErrorHandler(this::showError);
                 });
 
-        topBarController.setPrintService(printService);
-        topBarController.setConnectionListener(this::applyConnectionState);
+        printerComponentController.setPrintService(printService);
+        printerComponentController.setConnectionListener(this::applyConnectionState);
 
         statusBarController.setMessage("Готово");
         statusBarController.setApiUrl(printService.getApiUrl());
-
-        printerInfoController.setPrintService(printService);
 
         sticker = new Sticker();
         editorController.setSticker(sticker);
@@ -97,32 +81,9 @@ public class MainViewController extends AbstractController {
         applyConnectionState(false);
     }
 
-    private void initTimeline() {
-        timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> pollStatus()));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
-    }
-
-    private void pollStatus() {
-        if (printService == null) {
-            return;
-        }
-        run(
-                printService::isConnected,
-                ok -> applyConnectionState(Boolean.TRUE.equals(ok)),
-                this::error
-        );
-    }
-
     private void applyConnectionState(boolean connected) {
-        topBarController.updateConnected(connected);
         statusBarController.setConnected(connected);
         printSettingsController.setConnected(connected);
-        if (connected) {
-            printerInfoController.refresh();
-        } else {
-            printerInfoController.clear();
-        }
     }
 
     private void showError(Throwable error) {

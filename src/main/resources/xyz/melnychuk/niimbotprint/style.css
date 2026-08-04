@@ -44,3 +44,24 @@
     -fx-min-width: 45;
     -fx-alignment: CENTER_RIGHT;
 }
+
+.printer-toolbar {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.icon-button {
+    -fx-padding: 4;
+    -fx-background-radius: 4;
+}
+
+.icon-button:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.icon-button .icon {
+    -fx-fill: #333;
+}
+
+.button:disabled .icon {
+    -fx-fill: #aaa;
+}

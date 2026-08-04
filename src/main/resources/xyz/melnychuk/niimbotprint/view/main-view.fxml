@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.view.MainViewController">
-    <top>
-        <fx:include source="../component/topbar-component.fxml" fx:id="topBar"/>
-    </top>
-
     <left>
         <VBox spacing="8">
             <fx:include source="../component/sticker-settings-component.fxml" fx:id="stickerSettings"/>
             <fx:include source="../component/print-settings-component.fxml" fx:id="printSettings"/>
-            <fx:include source="../component/printer-info-component.fxml" fx:id="printerInfo"/>
+            <fx:include source="../component/printer-component.fxml" fx:id="printerComponent"/>
         </VBox>
     </left>
 
