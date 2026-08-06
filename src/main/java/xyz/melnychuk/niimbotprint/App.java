@@ -10,9 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.view.MainViewController;
 import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
-import xyz.melnychuk.niimbotprint.service.EditorService;
-import xyz.melnychuk.niimbotprint.service.PrintService;
-import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
 import xyz.melnychuk.niimbotprint.util.FxmlLoader;
 
@@ -69,11 +66,7 @@ public class App extends Application {
     private void showMain(Stage stage) {
         try {
             var bundle = FxmlLoader.loadView(MainViewController.class, stage);
-            bundle.controller().setServices(
-                    new PrintService(apiManager.getApi()),
-                    new StickerService(),
-                    new EditorService()
-            );
+            bundle.controller().setApiManager(apiManager);
             showScene(stage, bundle.node());
         } catch (Exception e) {
             log.error("Exception in showMain().", e);

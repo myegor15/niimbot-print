@@ -11,7 +11,7 @@ import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.DeviceDto;
 import xyz.melnychuk.niimbotprint.dto.PrinterDto;
-import xyz.melnychuk.niimbotprint.service.PrintService;
+import xyz.melnychuk.niimbotprint.service.PrinterService;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -29,13 +29,13 @@ public class PrinterComponentController extends AbstractController {
 
     private Timeline timeline;
 
-    private PrintService printService;
+    private PrinterService printerService;
 
     @Setter
     private Consumer<Boolean> connectionListener = c -> {};
 
-    public void setPrintService(PrintService printService) {
-        this.printService = Objects.requireNonNull(printService);
+    public void setPrinterService(PrinterService printerService) {
+        this.printerService = Objects.requireNonNull(printerService);
     }
 
     @FXML
@@ -50,11 +50,11 @@ public class PrinterComponentController extends AbstractController {
     }
 
     private void pollStatus() {
-        if (printService == null) {
+        if (printerService == null) {
             return;
         }
         run(
-                printService::isConnected,
+                printerService::isConnected,
                 ok -> applyConnectionState(Boolean.TRUE.equals(ok)),
                 this::error
         );
@@ -81,7 +81,7 @@ public class PrinterComponentController extends AbstractController {
     private void onRefresh() {
         message("Поиск устройств...");
         run(
-                printService::scanDevices,
+                printerService::scanDevices,
                 devices -> {
                     deviceComboBox.getItems().setAll(devices);
                     message("Найдено устройств: " + devices.size());
@@ -97,7 +97,7 @@ public class PrinterComponentController extends AbstractController {
             return;
         }
         run(
-                () -> printService.connect(device),
+                () -> printerService.connect(device),
                 ok -> {
                     if (Boolean.TRUE.equals(ok)) {
                         message("Подключено к " + device);
@@ -114,7 +114,7 @@ public class PrinterComponentController extends AbstractController {
     private void onDisconnect() {
         run(
                 () -> {
-                    printService.disconnect();
+                    printerService.disconnect();
                     return true;
                 },
                 ok -> {
@@ -126,7 +126,7 @@ public class PrinterComponentController extends AbstractController {
     }
 
     private void refreshPrinterInfo() {
-        run(printService::getPrinterInfo, this::setInfo, this::error);
+        run(printerService::getPrinterInfo, this::setInfo, this::error);
     }
 
     private void setInfo(PrinterDto info) {

@@ -7,6 +7,7 @@ import javafx.scene.control.SpinnerValueFactory;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Element;
+import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -16,6 +17,9 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
 
     protected T element;
     private boolean updating;
+
+    @Setter
+    private EditorHistoryService historyService;
 
     @Setter
     private Consumer<Element> elementChangeListener;
@@ -53,9 +57,15 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
             if (updating) {
                 return;
             }
-            setter.accept(element, b);
-            touch();
+            commit(setter, b);
         };
+    }
+
+    private <V> void commit(BiConsumer<T, V> setter, V value) {
+        historyService.beginEdit();
+        setter.accept(element, value);
+        touch();
+        historyService.endEdit();
     }
 
     protected void bindIntSpinner(Spinner<Integer> spinner, int min, int max, BiConsumer<T, Integer> setter, Supplier<Integer> value) {
@@ -65,8 +75,7 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
         spinner.getEditor().textProperty().addListener((o, a, b) -> {
             Integer v = parseInt(b);
             if (v != null) {
-                setter.accept(element, v);
-                touch();
+                commit(setter, v);
             }
         });
     }
@@ -92,8 +101,7 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
         spinner.getEditor().textProperty().addListener((o, a, b) -> {
             Double v = parseDouble(b);
             if (v != null) {
-                setter.accept(element, v);
-                touch();
+                commit(setter, v);
             }
         });
     }

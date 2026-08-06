@@ -74,6 +74,9 @@ public class StickerCanvas extends Pane {
     @Setter
     private Consumer<Element> changeListener = e -> {};
 
+    @Setter
+    private Consumer<Boolean> gestureListener = b -> {};
+
     public StickerCanvas(Sticker sticker) {
         this.sticker = sticker;
         getStyleClass().add("canvas");
@@ -269,6 +272,7 @@ public class StickerCanvas extends Pane {
     private void makeDraggable(Node node, Element element) {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
+            gestureListener.accept(true);
             select(element);
             Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
             start[0] = p.getX() - element.getX();
@@ -296,7 +300,10 @@ public class StickerCanvas extends Pane {
             changeListener.accept(element);
             e.consume();
         });
-        node.setOnMouseReleased(e -> hideGuides());
+        node.setOnMouseReleased(e -> {
+            gestureListener.accept(false);
+            hideGuides();
+        });
     }
 
     public void hideGuides() {
@@ -311,6 +318,7 @@ public class StickerCanvas extends Pane {
             if (selectedElement == null) {
                 return;
             }
+            gestureListener.accept(true);
             ElementView view = views.get(selectedElement);
             if (view == null) {
                 return;
@@ -332,6 +340,7 @@ public class StickerCanvas extends Pane {
             Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
             resize(side, start, p.getX(), p.getY());
         });
+        handle.setOnMouseReleased(e -> gestureListener.accept(false));
     }
 
     private void resize(int[] side, double[] start, double x, double y) {
@@ -390,6 +399,7 @@ public class StickerCanvas extends Pane {
             if (selectedElement == null) {
                 return;
             }
+            gestureListener.accept(true);
             ElementView view = views.get(selectedElement);
             if (view == null) {
                 return;
@@ -417,6 +427,7 @@ public class StickerCanvas extends Pane {
             changeListener.accept(selectedElement);
             e.consume();
         });
+        handle.setOnMouseReleased(e -> gestureListener.accept(false));
     }
 
     private void setRotationHighlight(boolean snapped) {

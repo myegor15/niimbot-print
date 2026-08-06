@@ -17,6 +17,10 @@ public class StickerService {
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
+    public Sticker createSticker() {
+        return new Sticker();
+    }
+
     public Sticker loadSticker(File file) {
         try {
             return mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class);

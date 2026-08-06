@@ -17,6 +17,7 @@ import xyz.melnychuk.niimbotprint.controller.component.elementproperties.Element
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.Element;
+import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
@@ -43,6 +44,10 @@ public class EditorComponentController extends AbstractController implements Edi
     @FXML
     private Button rotateRightButton;
     @FXML
+    private Button undoButton;
+    @FXML
+    private Button redoButton;
+    @FXML
     private ToggleButton gridToggle;
     @FXML
     private ToggleButton snapToggle;
@@ -61,8 +66,14 @@ public class EditorComponentController extends AbstractController implements Edi
 
     private EditorService editorService;
 
+    private EditorHistoryService historyService;
+
     public void setEditorService(EditorService editorService) {
         this.editorService = Objects.requireNonNull(editorService);
+    }
+
+    public void setHistoryService(EditorHistoryService historyService) {
+        this.historyService = Objects.requireNonNull(historyService);
     }
 
     public void setSticker(Sticker sticker) {
@@ -72,6 +83,15 @@ public class EditorComponentController extends AbstractController implements Edi
         canvasHost.getChildren().add(zoomGroup);
         canvas.setSelectionListener(this::onSelectionChanged);
         canvas.setChangeListener(this::sync);
+        canvas.setGestureListener(b -> {
+            if (b) {
+                historyService.beginEdit();
+            } else {
+                historyService.endEdit();
+            }
+        });
+        historyService.setUndoListener(v -> undoButton.setDisable(!v));
+        historyService.setRedoListener(v -> redoButton.setDisable(!v));
         zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> onZoom());
         onZoom();
     }
@@ -117,6 +137,7 @@ public class EditorComponentController extends AbstractController implements Edi
         }
         var bundle = ElementPropertiesComponentControllerFactory.getController(element);
         currentElementPropertiesController = bundle.controller();
+        currentElementPropertiesController.setHistoryService(historyService);
         currentElementPropertiesController.setElementChangeListener(canvas::updateElement);
         currentElementPropertiesController.show(element);
         elementProperties.getChildren().setAll(List.of(bundle.node()));
@@ -130,12 +151,16 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onAddText() {
+        historyService.beginEdit();
         canvas.addElement(editorService.getTextElement());
+        historyService.endEdit();
     }
 
     @FXML
     private void onAddBarcode() {
+        historyService.beginEdit();
         canvas.addElement(editorService.getBarcodeElement());
+        historyService.endEdit();
     }
 
     @FXML
@@ -147,7 +172,9 @@ public class EditorComponentController extends AbstractController implements Edi
         run(
                 () -> editorService.getImageElement(file),
                 element -> {
+                    historyService.beginEdit();
                     canvas.addElement(element);
+                    historyService.endEdit();
                     message("Изображение добавлено");
                 },
                 this::error
@@ -157,7 +184,9 @@ public class EditorComponentController extends AbstractController implements Edi
     @FXML
     private void onDelete() {
         if (canvas.getSelectedElement() != null) {
+            historyService.beginEdit();
             canvas.removeSelected();
+            historyService.endEdit();
             message("Элемент удалён");
         }
     }
@@ -177,8 +206,24 @@ public class EditorComponentController extends AbstractController implements Edi
         if (el == null) {
             return;
         }
+        historyService.beginEdit();
         el.setRotation(((el.getRotation() + delta) % 360 + 360) % 360);
         canvas.updateElement(el);
+        historyService.endEdit();
+    }
+
+    @FXML
+    private void onUndo() {
+        if (historyService.undo()) {
+            refresh();
+        }
+    }
+
+    @FXML
+    private void onRedo() {
+        if (historyService.redo()) {
+            refresh();
+        }
     }
 
     @FXML

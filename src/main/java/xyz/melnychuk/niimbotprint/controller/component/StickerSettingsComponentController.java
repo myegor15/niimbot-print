@@ -9,6 +9,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.PrinterModel;
 import xyz.melnychuk.niimbotprint.model.Sticker;
+import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 
@@ -29,6 +30,12 @@ public class StickerSettingsComponentController extends AbstractController {
     private File currentFile;
 
     private StickerService stickerService;
+
+    private EditorHistoryService historyService;
+
+    public void setHistoryService(EditorHistoryService historyService) {
+        this.historyService = Objects.requireNonNull(historyService);
+    }
 
     public void setStickerService(StickerService stickerService) {
         this.stickerService = Objects.requireNonNull(stickerService);
@@ -53,23 +60,28 @@ public class StickerSettingsComponentController extends AbstractController {
         if (!PrinterModel.B1.equals(model) && !PrinterModel.D11.equals(model)) {
             return;
         }
+        historyService.beginEdit();
         sticker.setPrinterModel(model);
         sticker.setWidth(model.getDefaultWidth());
         sticker.setHeight(model.getDefaultHeight());
         widthSpinner.getValueFactory().setValue(model.getDefaultWidth());
         heightSpinner.getValueFactory().setValue(model.getDefaultHeight());
         editor.refresh();
+        historyService.endEdit();
     }
 
     private void resize(int width, int height) {
+        historyService.beginEdit();
         sticker.setWidth(width);
         sticker.setHeight(height);
         editor.refresh();
+        historyService.endEdit();
     }
 
     @FXML
     private void onNew() {
         currentFile = null;
+        historyService.clearHistory();
         Sticker s = new Sticker();
         sticker.setPrinterModel(s.getPrinterModel());
         sticker.setWidth(s.getWidth());
@@ -92,6 +104,7 @@ public class StickerSettingsComponentController extends AbstractController {
                 () -> stickerService.loadSticker(file),
                 loaded -> {
                     currentFile = file;
+                    historyService.clearHistory();
                     sticker.setPrinterModel(loaded.getPrinterModel());
                     sticker.setWidth(loaded.getWidth());
                     sticker.setHeight(loaded.getHeight());

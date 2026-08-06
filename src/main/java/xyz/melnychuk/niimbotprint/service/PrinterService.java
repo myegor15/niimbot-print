@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Slf4j
-public class PrintService {
+public class PrinterService {
 
     private final NiimBlueApi api;
 
-    public PrintService(NiimBlueApi api) {
+    public PrinterService(NiimBlueApi api) {
         this.api = Objects.requireNonNull(api);
     }
 

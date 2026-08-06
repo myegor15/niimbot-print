@@ -9,7 +9,7 @@ import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
-import xyz.melnychuk.niimbotprint.service.PrintService;
+import xyz.melnychuk.niimbotprint.service.PrinterService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 
 import java.util.Objects;
@@ -29,10 +29,10 @@ public class PrintSettingsComponentController extends AbstractController {
     private Sticker sticker;
     private Editor editor;
 
-    private PrintService printService;
+    private PrinterService printerService;
 
-    public void setPrintService(PrintService printService) {
-        this.printService = Objects.requireNonNull(printService);
+    public void setPrinterService(PrinterService printerService) {
+        this.printerService = Objects.requireNonNull(printerService);
     }
 
     public void setEditor(Editor editor) {
@@ -57,7 +57,7 @@ public class PrintSettingsComponentController extends AbstractController {
                 () -> {
                     PrintTaskDto task = new PrintTaskDto(base64, sticker.getWidth(), sticker.getHeight(),
                             densitySpinner.getValue(), quantitySpinner.getValue(), directionCombo.getValue());
-                    printService.print(task);
+                    printerService.print(task);
                     return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
                 },
                 this::message,

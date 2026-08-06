@@ -16,6 +16,9 @@
     <center>
         <VBox styleClass="editor">
             <HBox spacing="5" styleClass="panel">
+                <Button fx:id="undoButton" text="⟲ Отменить" disable="true" onAction="#onUndo"/>
+                <Button fx:id="redoButton" text="⟳ Вернуть" disable="true" onAction="#onRedo"/>
+                <Region HBox.hgrow="ALWAYS"/>
                 <Button text="+ Текст" onAction="#onAddText"/>
                 <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
                 <Button text="+ Изображение" onAction="#onAddImage"/>
