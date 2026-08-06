@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.BarcodePropertiesComponentController" spacing="8">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.BarcodePropertiesComponentController"
+      spacing="8">
     <HBox spacing="8">
         <Label text="Содержимое"/>
         <TextField fx:id="contentField" HBox.hgrow="ALWAYS"/>
-    </HBox>
-    <HBox spacing="8">
-        <Label text="Формат"/>
-        <ComboBox fx:id="formatBox" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox spacing="8">
         <Label text="Ширина"/>
@@ -23,5 +17,9 @@
     <HBox spacing="8">
         <Label text="Высота"/>
         <Spinner fx:id="heightSpinner" editable="true" prefWidth="120"/>
+    </HBox>
+    <HBox spacing="8">
+        <Label text="Показывать значение"/>
+        <CheckBox fx:id="showValueCheck"/>
     </HBox>
 </VBox>

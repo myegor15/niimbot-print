@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StickerSerializationTest {
     private final ObjectMapper mapper = new ObjectMapper();
@@ -19,7 +17,7 @@ class StickerSerializationTest {
     void roundTripPreservesElements() throws Exception {
         Sticker label = new Sticker(PrinterModel.D11);
         label.getElements().add(new TextElement("Привет", 10, 15));
-        label.getElements().add(new BarcodeElement("12345", 20, 30, 200, 80, "CODE_128"));
+        label.getElements().add(new BarcodeElement(BarcodeElementFormat.CODE_128, "12345", 20, 30, 0, 80, true));
         label.getElements().add(new ImageElement(5, 5, "aGVsbG8=", 100, 50));
 
         String json = mapper.writeValueAsString(label);
@@ -38,7 +36,7 @@ class StickerSerializationTest {
 
         BarcodeElement barcode = (BarcodeElement) restored.getElements().get(1);
         assertEquals("12345", barcode.getContent());
-        assertEquals("CODE_128", barcode.getFormat());
+        assertEquals(BarcodeElementFormat.CODE_128, barcode.getFormat());
 
         ImageElement image = (ImageElement) restored.getElements().get(2);
         assertEquals("aGVsbG8=", image.getImageBase64());
@@ -50,7 +48,7 @@ class StickerSerializationTest {
         TextElement text = new TextElement();
         assertTrue(label.getWidth() > 0);
         assertTrue(text.getFontSize() > 0);
-        assertEquals("CODE_128", new BarcodeElement().getFormat());
+        assertEquals(BarcodeElementFormat.CODE_128, new BarcodeElement().getFormat());
     }
 
     @Test

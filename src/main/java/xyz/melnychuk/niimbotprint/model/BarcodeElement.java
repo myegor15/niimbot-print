@@ -7,20 +7,26 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class BarcodeElement extends StickerElement {
 
+    private static final String DEFAULT_CONTENT = "1234567890";
+    private static final int DEFAULT_WIDTH = 180;
+    private static final int DEFAULT_HEIGHT = 96;
+
+    private BarcodeElementFormat format;
     private String content;
-    private String format;
     private int width;
     private int height;
+    private boolean showValue;
 
     public BarcodeElement() {
-        this("1234567890", 0, 0, 200, 80, "CODE_128");
+        this(BarcodeElementFormat.CODE_128, DEFAULT_CONTENT, 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, true);
     }
 
-    public BarcodeElement(String content, double x, double y, int width, int height, String format) {
+    public BarcodeElement(BarcodeElementFormat format, String content, double x, double y, int width, int height, boolean showValue) {
         super(x, y);
-        this.content = content;
         this.format = format;
+        this.content = content;
         this.width = width;
         this.height = height;
+        this.showValue = showValue;
     }
 }

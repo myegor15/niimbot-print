@@ -3,8 +3,9 @@ package xyz.melnychuk.niimbotprint.ui.canvas;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
@@ -14,6 +15,7 @@ import xyz.melnychuk.niimbotprint.ui.BarcodeGenerator;
 public class BarcodeElementView implements ElementView {
 
     private static final String RENDER_ERROR_TEXT = "Недопустимый штрихкод";
+    private static final double VALUE_FONT_SIZE = 18;
 
     private final BarcodeElement element;
     private final Group root = new Group();
@@ -51,19 +53,36 @@ public class BarcodeElementView implements ElementView {
     @Override
     public void refresh() {
         root.getChildren().clear();
+        int width = element.getWidth();
+        int height = element.getHeight();
         try {
-            var image = BarcodeGenerator.generate(element.getContent(), element.getFormat(),
-                    (int) element.getWidth(), (int) element.getHeight());
+            Text value = new Text(element.getContent());
+            value.setFont(Font.font("Arial", VALUE_FONT_SIZE));
+            var valueBounds = value.getLayoutBounds();
+            double labelH = element.isShowValue() ? valueBounds.getHeight() : 0;
+            int barH = Math.max(1, height - (int) Math.round(labelH));
+
+            var image = BarcodeGenerator.generate(element.getContent(), element.getFormat(), width, barH);
             ImageView view = new ImageView(SwingFXUtils.toFXImage(image, null));
-            view.setFitWidth(element.getWidth());
-            view.setFitHeight(element.getHeight());
+            view.setFitWidth(width);
+            view.setFitHeight(barH);
             view.setPreserveRatio(false);
             root.getChildren().add(view);
+
+            if (element.isShowValue()) {
+                if (valueBounds.getWidth() > width) {
+                    value.setScaleX(width / valueBounds.getWidth());
+                }
+                double scaledWidth = valueBounds.getWidth() * value.getScaleX();
+                value.setX(Math.max(0, (width - scaledWidth) / 2));
+                double top = barH + (labelH - valueBounds.getHeight()) / 2;
+                value.setY(top - valueBounds.getMinY());
+                root.getChildren().add(value);
+            }
         } catch (Exception e) {
             log.warn("Barcode cannot be rendered for content '{}' format '{}': {}",
                     element.getContent(), element.getFormat(), e.getMessage());
-            Label error = new Label(RENDER_ERROR_TEXT);
-            root.getChildren().add(error);
+            root.getChildren().add(new Text(RENDER_ERROR_TEXT));
         }
     }
 
@@ -71,9 +90,24 @@ public class BarcodeElementView implements ElementView {
     public void resize(double scale, double newX, double newY) {
         element.setX(newX);
         element.setY(newY);
-        element.setWidth((int) Math.round(baseW * scale));
-        element.setHeight((int) Math.round(baseH * scale));
+        element.setWidth(Math.max(1, (int) Math.round(baseW * scale)));
+        element.setHeight(Math.max(1, (int) Math.round(baseH * scale)));
         refresh();
         applyPosition();
+    }
+
+    @Override
+    public void resizeAxis(double newWidth, double newHeight, double newX, double newY) {
+        element.setX(newX);
+        element.setY(newY);
+        element.setWidth(Math.max(1, (int) Math.round(newWidth)));
+        element.setHeight(Math.max(1, (int) Math.round(newHeight)));
+        refresh();
+        applyPosition();
+    }
+
+    @Override
+    public boolean supportsAxisResize() {
+        return true;
     }
 }

@@ -32,6 +32,9 @@ public class StickerCanvas extends Pane {
     private static final Color GUIDE_COLOR = Color.rgb(255, 60, 60, 0.9);
     private static final Color HANDLE_COLOR = Color.rgb(30, 120, 255);
     private static final Color SNAP_COLOR = Color.rgb(60, 160, 60);
+    private static final int[][] SIDES = {
+            {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}
+    };
 
     private Sticker sticker;
 
@@ -55,7 +58,7 @@ public class StickerCanvas extends Pane {
     private Line hGuide;
 
     private Rectangle selectionBox;
-    private final Rectangle[] handles = new Rectangle[4];
+    private final Rectangle[] handles = new Rectangle[8];
 
     private final Group rotationHandle = new Group();
     private Line rotStem;
@@ -170,7 +173,7 @@ public class StickerCanvas extends Pane {
             handle.setFill(Color.WHITE);
             handle.setStroke(HANDLE_COLOR);
             handle.setVisible(false);
-            installResizeHandler(handle, corner(i));
+            installResizeHandler(handle, side(i));
             handles[i] = handle;
             getChildren().add(handle);
         }
@@ -186,11 +189,8 @@ public class StickerCanvas extends Pane {
         getChildren().add(rotationHandle);
     }
 
-    private int[] corner(int index) {
-        return new int[]{
-                (index & 1) == 0 ? -1 : 1,
-                (index & 2) == 0 ? -1 : 1
-        };
+    private int[] side(int index) {
+        return SIDES[index];
     }
 
     public void refresh() {
@@ -305,7 +305,7 @@ public class StickerCanvas extends Pane {
         hGuide.setVisible(false);
     }
 
-    private void installResizeHandler(Rectangle handle, int[] corner) {
+    private void installResizeHandler(Rectangle handle, int[] side) {
         final double[] start = new double[8];
         handle.setOnMousePressed(e -> {
             if (selectedElement == null) {
@@ -322,20 +322,31 @@ public class StickerCanvas extends Pane {
             view.beginResize();
             double ax = sel.getLayoutX() + b.getMinX();
             double ay = sel.getLayoutY() + b.getMinY();
-            start[5] = ax + (corner[0] < 0 ? start[2] : 0);
-            start[6] = ay + (corner[1] < 0 ? start[3] : 0);
+            start[0] = ax;
+            start[1] = ay;
+            start[5] = ax + (side[0] < 0 ? start[2] : 0);
+            start[6] = ay + (side[1] < 0 ? start[3] : 0);
             e.consume();
         });
         handle.setOnMouseDragged(e -> {
             Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
-            resize(corner, start, p.getX(), p.getY());
+            resize(side, start, p.getX(), p.getY());
         });
     }
 
-    private void resize(int[] corner, double[] start, double x, double y) {
+    private void resize(int[] side, double[] start, double x, double y) {
         if (selectedElement == null) {
             return;
         }
+        boolean corner = side[0] != 0 && side[1] != 0;
+        if (corner) {
+            resizeCorner(side, start, x, y);
+        } else {
+            resizeAxis(side, start, x, y);
+        }
+    }
+
+    private void resizeCorner(int[] corner, double[] start, double x, double y) {
         double origW = start[2] > 0 ? start[2] : 1;
         double origH = start[3] > 0 ? start[3] : 1;
         double sx = clamp(x, 0, sticker.getWidth());
@@ -351,6 +362,25 @@ public class StickerCanvas extends Pane {
         newY = Math.min(newY, start[6]);
 
         views.get(selectedElement).resize(k, newX, newY);
+        updateElement(selectedElement);
+    }
+
+    private void resizeAxis(int[] side, double[] start, double x, double y) {
+        double newW = start[2];
+        double newH = start[3];
+        if (side[0] != 0) {
+            newW = Math.max(MIN_SIZE, Math.abs(clamp(x, 0, sticker.getWidth()) - start[5]));
+        }
+        if (side[1] != 0) {
+            newH = Math.max(MIN_SIZE, Math.abs(clamp(y, 0, sticker.getHeight()) - start[6]));
+        }
+        double newX = side[0] != 0
+                ? clamp(side[0] < 0 ? start[5] - newW : start[5], 0, sticker.getWidth() - MIN_SIZE)
+                : start[0];
+        double newY = side[1] != 0
+                ? clamp(side[1] < 0 ? start[6] - newH : start[6], 0, sticker.getHeight() - MIN_SIZE)
+                : start[1];
+        views.get(selectedElement).resizeAxis(newW, newH, newX, newY);
         updateElement(selectedElement);
     }
 
@@ -468,20 +498,32 @@ public class StickerCanvas extends Pane {
     private void updateHandles(double x, double y, double w, double h) {
         double half = HANDLE_SIZE / 2;
         for (int i = 0; i < handles.length; i++) {
-            int[] c = corner(i);
+            int[] side = SIDES[i];
             Rectangle handle = handles[i];
-            handle.setX(x + (c[0] > 0 ? w : 0) - half);
-            handle.setY(y + (c[1] > 0 ? h : 0) - half);
-            handle.setCursor(c[0] == c[1]
-                    ? (c[0] > 0 ? Cursor.SE_RESIZE : Cursor.NW_RESIZE)
-                    : (c[0] > 0 ? Cursor.SW_RESIZE : Cursor.NE_RESIZE));
+            handle.setX(x + (side[0] < 0 ? 0 : side[0] > 0 ? w : w / 2) - half);
+            handle.setY(y + (side[1] < 0 ? 0 : side[1] > 0 ? h : h / 2) - half);
+            handle.setCursor(cursorFor(side));
         }
     }
 
+    private Cursor cursorFor(int[] side) {
+        boolean corner = side[0] != 0 && side[1] != 0;
+        if (corner) {
+            return side[0] == side[1]
+                    ? (side[0] > 0 ? Cursor.SE_RESIZE : Cursor.NW_RESIZE)
+                    : (side[0] > 0 ? Cursor.SW_RESIZE : Cursor.NE_RESIZE);
+        }
+        return side[0] != 0 ? Cursor.H_RESIZE : Cursor.V_RESIZE;
+    }
+
     private void setHandlesVisible(boolean visible) {
-        for (Rectangle handle : handles) {
-            handle.setVisible(visible);
-            handle.setMouseTransparent(!visible);
+        ElementView view = selectedElement == null ? null : views.get(selectedElement);
+        boolean axis = view != null && view.supportsAxisResize();
+        for (int i = 0; i < handles.length; i++) {
+            boolean isCorner = SIDES[i][0] != 0 && SIDES[i][1] != 0;
+            boolean show = visible && (axis || isCorner);
+            handles[i].setVisible(show);
+            handles[i].setMouseTransparent(!show);
         }
         rotationHandle.setVisible(visible);
         rotationHandle.setMouseTransparent(!visible);

@@ -16,4 +16,12 @@ public interface ElementView {
     void beginResize();
 
     void resize(double scale, double newX, double newY);
+
+    default void resizeAxis(double newWidth, double newHeight, double newX, double newY) {
+        // Uses only for supportsAxisResize() == true,
+    }
+
+    default boolean supportsAxisResize() {
+        return false;
+    }
 }
