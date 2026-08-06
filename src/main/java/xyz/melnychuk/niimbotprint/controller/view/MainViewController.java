@@ -5,8 +5,8 @@ import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
-import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
+import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.View;
@@ -70,21 +70,21 @@ public class MainViewController extends AbstractController {
         printerComponentController.setPrinterService(printerService);
         printerComponentController.setConnectionListener(this::applyConnectionState);
 
-        statusBarController.setMessage("Готово");
         statusBarController.setApiUrl(printerService.getApiUrl());
+        statusBarController.setMessage("Готово");
 
+        editorController.setEditorService(editorService);
         editorController.setHistoryService(editorHistoryService);
         editorController.setSticker(sticker);
-        editorController.setEditorService(editorService);
 
-        stickerSettingsController.setSticker(sticker);
-        stickerSettingsController.setEditor(editorController);
         stickerSettingsController.setStickerService(stickerService);
         stickerSettingsController.setHistoryService(editorHistoryService);
+        stickerSettingsController.setSticker(sticker);
+        stickerSettingsController.setEditor(editorController);
 
+        printSettingsController.setPrinterService(printerService);
         printSettingsController.setSticker(sticker);
         printSettingsController.setEditor(editorController);
-        printSettingsController.setPrinterService(printerService);
 
         applyConnectionState(false);
     }
