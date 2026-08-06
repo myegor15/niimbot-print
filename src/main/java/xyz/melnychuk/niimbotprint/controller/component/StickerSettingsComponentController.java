@@ -6,7 +6,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.PrinterModel;
 import xyz.melnychuk.niimbotprint.model.Sticker;
@@ -14,6 +13,7 @@ import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 
 import java.io.File;
+import java.util.Objects;
 
 public class StickerSettingsComponentController extends AbstractController {
 
@@ -28,8 +28,11 @@ public class StickerSettingsComponentController extends AbstractController {
     private Editor editor;
     private File currentFile;
 
-    @Setter
     private StickerService stickerService;
+
+    public void setStickerService(StickerService stickerService) {
+        this.stickerService = Objects.requireNonNull(stickerService);
+    }
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;

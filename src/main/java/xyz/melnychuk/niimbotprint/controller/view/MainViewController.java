@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.*;
 import xyz.melnychuk.niimbotprint.model.Sticker;
+import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.View;
@@ -35,11 +36,13 @@ public class MainViewController extends AbstractController {
 
     private PrintService printService;
     private StickerService stickerService;
+    private EditorService editorService;
     private boolean bound;
 
-    public void setServices(PrintService printService, StickerService stickerService) {
+    public void setServices(PrintService printService, StickerService stickerService, EditorService editorService) {
         this.printService = Objects.requireNonNull(printService);
         this.stickerService = Objects.requireNonNull(stickerService);
+        this.editorService = Objects.requireNonNull(editorService);
         bind();
     }
 
@@ -68,7 +71,7 @@ public class MainViewController extends AbstractController {
 
         sticker = new Sticker();
         editorController.setSticker(sticker);
-        editorController.setStickerService(stickerService);
+        editorController.setEditorService(editorService);
 
         stickerSettingsController.setSticker(sticker);
         stickerSettingsController.setEditor(editorController);

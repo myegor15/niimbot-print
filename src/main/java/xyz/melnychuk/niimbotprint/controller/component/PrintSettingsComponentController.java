@@ -12,6 +12,8 @@ import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 
+import java.util.Objects;
+
 public class PrintSettingsComponentController extends AbstractController {
 
     @FXML
@@ -27,8 +29,11 @@ public class PrintSettingsComponentController extends AbstractController {
     private Sticker sticker;
     private Editor editor;
 
-    @Setter
     private PrintService printService;
+
+    public void setPrintService(PrintService printService) {
+        this.printService = Objects.requireNonNull(printService);
+    }
 
     public void setEditor(Editor editor) {
         this.editor = editor;

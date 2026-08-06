@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.view.MainViewController;
 import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
+import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 import xyz.melnychuk.niimbotprint.service.StickerService;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
@@ -70,7 +71,8 @@ public class App extends Application {
             var bundle = FxmlLoader.loadView(MainViewController.class, stage);
             bundle.controller().setServices(
                     new PrintService(apiManager.getApi()),
-                    new StickerService()
+                    new StickerService(),
+                    new EditorService()
             );
             showScene(stage, bundle.node());
         } catch (Exception e) {

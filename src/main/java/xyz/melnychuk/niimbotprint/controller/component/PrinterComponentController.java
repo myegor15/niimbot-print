@@ -13,6 +13,7 @@ import xyz.melnychuk.niimbotprint.dto.DeviceDto;
 import xyz.melnychuk.niimbotprint.dto.PrinterDto;
 import xyz.melnychuk.niimbotprint.service.PrintService;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class PrinterComponentController extends AbstractController {
@@ -28,11 +29,14 @@ public class PrinterComponentController extends AbstractController {
 
     private Timeline timeline;
 
-    @Setter
     private PrintService printService;
 
     @Setter
     private Consumer<Boolean> connectionListener = c -> {};
+
+    public void setPrintService(PrintService printService) {
+        this.printService = Objects.requireNonNull(printService);
+    }
 
     @FXML
     private void initialize() {

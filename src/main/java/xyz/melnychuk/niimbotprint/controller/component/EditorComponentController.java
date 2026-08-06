@@ -11,16 +11,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import lombok.Setter;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
-import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.model.TextElement;
-import xyz.melnychuk.niimbotprint.service.StickerService;
+import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
 
@@ -31,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 public class EditorComponentController extends AbstractController implements Editor {
 
@@ -57,8 +55,11 @@ public class EditorComponentController extends AbstractController implements Edi
     private Sticker sticker;
     private StickerCanvas canvas;
 
-    @Setter
-    private StickerService stickerService;
+    private EditorService editorService;
+
+    public void setEditorService(EditorService editorService) {
+        this.editorService = Objects.requireNonNull(editorService);
+    }
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
@@ -123,12 +124,12 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onAddText() {
-        canvas.addElement(new TextElement("Текст", 10, 10));
+        canvas.addElement(editorService.getTextElement());
     }
 
     @FXML
     private void onAddBarcode() {
-        canvas.addElement(new BarcodeElement());
+        canvas.addElement(editorService.getBarcodeElement());
     }
 
     @FXML
@@ -138,7 +139,7 @@ public class EditorComponentController extends AbstractController implements Edi
             return;
         }
         run(
-                () -> stickerService.loadImageElement(file),
+                () -> editorService.getImageElement(file),
                 element -> {
                     canvas.addElement(element);
                     message("Изображение добавлено");
