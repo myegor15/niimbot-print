@@ -39,6 +39,10 @@ public class EditorComponentController extends AbstractController implements Edi
     @FXML
     private Button deleteButton;
     @FXML
+    private Button rotateLeftButton;
+    @FXML
+    private Button rotateRightButton;
+    @FXML
     private ToggleButton gridToggle;
     @FXML
     private ToggleButton snapToggle;
@@ -100,6 +104,8 @@ public class EditorComponentController extends AbstractController implements Edi
 
     private void onSelectionChanged(Element element) {
         deleteButton.setDisable(element == null);
+        rotateLeftButton.setDisable(element == null);
+        rotateRightButton.setDisable(element == null);
         show(element);
     }
 
@@ -154,6 +160,25 @@ public class EditorComponentController extends AbstractController implements Edi
             canvas.removeSelected();
             message("Элемент удалён");
         }
+    }
+
+    @FXML
+    private void onRotateLeft() {
+        rotateSelected(-45);
+    }
+
+    @FXML
+    private void onRotateRight() {
+        rotateSelected(45);
+    }
+
+    private void rotateSelected(double delta) {
+        Element el = canvas.getSelectedElement();
+        if (el == null) {
+            return;
+        }
+        el.setRotation(((el.getRotation() + delta) % 360 + 360) % 360);
+        canvas.updateElement(el);
     }
 
     @FXML

@@ -19,6 +19,10 @@
                 <Button text="+ Текст" onAction="#onAddText"/>
                 <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
                 <Button text="+ Изображение" onAction="#onAddImage"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="⟲ 45°" fx:id="rotateLeftButton" disable="true" onAction="#onRotateLeft"/>
+                <Button text="⟳ 45°" fx:id="rotateRightButton" disable="true" onAction="#onRotateRight"/>
+                <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
             </HBox>
             <ScrollPane VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
