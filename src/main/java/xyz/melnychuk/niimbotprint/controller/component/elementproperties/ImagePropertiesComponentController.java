@@ -9,19 +9,30 @@ import xyz.melnychuk.niimbotprint.util.Component;
 public class ImagePropertiesComponentController extends ElementPropertiesComponentController<ImageElement> {
 
     @FXML
-    private Spinner<Double> widthSpinner;
+    private Spinner<Integer> widthSpinner;
     @FXML
-    private Spinner<Double> heightSpinner;
+    private Spinner<Integer> heightSpinner;
 
     @Override
     protected void apply() {
-        bindSpinner(widthSpinner, 1, 2000, ImageElement::setWidth, element::getWidth);
-        bindSpinner(heightSpinner, 1, 2000, ImageElement::setHeight, element::getHeight);
+        double ratio = element.getWidth() / (double) Math.max(1, element.getHeight());
+        bindIntSpinner(widthSpinner, 1, 2000,
+                (e, w) -> {
+                    e.setWidth(w);
+                    e.setHeight((int) Math.round(w / ratio));
+                },
+                element::getWidth);
+        bindIntSpinner(heightSpinner, 1, 2000,
+                (e, h) -> {
+                    e.setHeight(h);
+                    e.setWidth((int) Math.round(h * ratio));
+                },
+                element::getHeight);
     }
 
     @Override
     protected void sync() {
-        syncSpinner(widthSpinner, element::getWidth);
-        syncSpinner(heightSpinner, element::getHeight);
+        syncIntSpinner(widthSpinner, element::getWidth);
+        syncIntSpinner(heightSpinner, element::getHeight);
     }
 }

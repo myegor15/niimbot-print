@@ -8,14 +8,14 @@ import lombok.EqualsAndHashCode;
 public class ImageElement extends StickerElement {
 
     private String imageBase64;
-    private double width;
-    private double height;
+    private int width;
+    private int height;
 
     public ImageElement() {
         this(0, 0, null, 100, 100);
     }
 
-    public ImageElement(double x, double y, String imageBase64, double width, double height) {
+    public ImageElement(double x, double y, String imageBase64, int width, int height) {
         super(x, y);
         this.imageBase64 = imageBase64;
         this.width = width;

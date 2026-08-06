@@ -39,6 +39,7 @@ public class StickerService {
         }
     }
 
+    //TODO: move to other new service
     public ImageElement loadImageElement(File file) {
         try {
             byte[] bytes = Files.readAllBytes(file.toPath());
@@ -46,7 +47,7 @@ public class StickerService {
             BufferedImage image = ImageIO.read(file);
             double w = 100;
             double h = image != null ? 100.0 * image.getHeight() / image.getWidth() : 100;
-            return new ImageElement(10, 10, base64, w, h);
+            return new ImageElement(10, 10, base64, (int) Math.round(w), (int) Math.round(h));
         } catch (Exception e) {
             log.error("Exception in loadImageElement().", e);
             throw new AppException(e);

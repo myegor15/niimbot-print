@@ -9,7 +9,7 @@ public class TextElement extends StickerElement {
 
     private String text;
     private String fontFamily;
-    private double fontSize;
+    private int fontSize;
     private boolean bold;
 
     public TextElement() {

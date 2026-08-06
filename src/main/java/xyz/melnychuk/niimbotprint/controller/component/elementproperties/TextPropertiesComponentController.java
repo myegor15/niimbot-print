@@ -24,7 +24,7 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
     @FXML
     private ComboBox<String> fontBox;
     @FXML
-    private Spinner<Double> sizeSpinner;
+    private Spinner<Integer> sizeSpinner;
     @FXML
     private CheckBox boldCheck;
 
@@ -37,7 +37,7 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
         fontBox.setValue(FONTS.contains(element.getFontFamily()) ? element.getFontFamily() : "Arial");
         bind(fontBox.valueProperty(), TextElement::setFontFamily);
 
-        bindSpinner(sizeSpinner, 6, 200, TextElement::setFontSize, element::getFontSize);
+        bindIntSpinner(sizeSpinner, 6, 200, TextElement::setFontSize, element::getFontSize);
 
         boldCheck.setSelected(element.isBold());
         bind(boldCheck.selectedProperty(), TextElement::setBold);
@@ -45,6 +45,6 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
 
     @Override
     protected void sync() {
-        syncSpinner(sizeSpinner, element::getFontSize);
+        syncIntSpinner(sizeSpinner, element::getFontSize);
     }
 }

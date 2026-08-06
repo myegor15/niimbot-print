@@ -61,8 +61,8 @@ public class ImageElementView implements ElementView {
     public void resize(double scale, double newX, double newY) {
         element.setX(newX);
         element.setY(newY);
-        element.setWidth(baseW * scale);
-        element.setHeight(baseH * scale);
+        element.setWidth((int) Math.round(baseW * scale));
+        element.setHeight((int) Math.round(baseH * scale));
         refresh();
         applyPosition();
     }

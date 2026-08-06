@@ -58,6 +58,33 @@ public abstract class ElementPropertiesComponentController<T extends StickerElem
         };
     }
 
+    protected void bindIntSpinner(Spinner<Integer> spinner, int min, int max, BiConsumer<T, Integer> setter, Supplier<Integer> value) {
+        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, value.get(), 1));
+        spinner.setEditable(true);
+        bind(spinner.valueProperty(), setter);
+        spinner.getEditor().textProperty().addListener((o, a, b) -> {
+            Integer v = parseInt(b);
+            if (v != null) {
+                setter.accept(element, v);
+                touch();
+            }
+        });
+    }
+
+    protected void syncIntSpinner(Spinner<Integer> spinner, Supplier<Integer> value) {
+        if (element != null && spinner.getValueFactory() != null) {
+            spinner.getValueFactory().setValue(value.get());
+        }
+    }
+
+    protected static Integer parseInt(String text) {
+        try {
+            return text == null ? null : Integer.valueOf(text.trim().replace(",", "."));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     protected void bindSpinner(Spinner<Double> spinner, double min, double max, BiConsumer<T, Double> setter, Supplier<Double> value) {
         spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, value.get(), 1));
         spinner.setEditable(true);

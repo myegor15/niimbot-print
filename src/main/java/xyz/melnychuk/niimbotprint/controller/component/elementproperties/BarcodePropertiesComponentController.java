@@ -17,9 +17,9 @@ public class BarcodePropertiesComponentController extends ElementPropertiesCompo
     @FXML
     private ComboBox<String> formatBox;
     @FXML
-    private Spinner<Double> widthSpinner;
+    private Spinner<Integer> widthSpinner;
     @FXML
-    private Spinner<Double> heightSpinner;
+    private Spinner<Integer> heightSpinner;
 
     @Override
     protected void apply() {
@@ -30,13 +30,13 @@ public class BarcodePropertiesComponentController extends ElementPropertiesCompo
         formatBox.setValue(element.getFormat());
         bind(formatBox.valueProperty(), BarcodeElement::setFormat);
 
-        bindSpinner(widthSpinner, 1, 2000, BarcodeElement::setWidth, element::getWidth);
-        bindSpinner(heightSpinner, 1, 2000, BarcodeElement::setHeight, element::getHeight);
+        bindIntSpinner(widthSpinner, 1, 2000, BarcodeElement::setWidth, element::getWidth);
+        bindIntSpinner(heightSpinner, 1, 2000, BarcodeElement::setHeight, element::getHeight);
     }
 
     @Override
     protected void sync() {
-        syncSpinner(widthSpinner, element::getWidth);
-        syncSpinner(heightSpinner, element::getHeight);
+        syncIntSpinner(widthSpinner, element::getWidth);
+        syncIntSpinner(heightSpinner, element::getHeight);
     }
 }

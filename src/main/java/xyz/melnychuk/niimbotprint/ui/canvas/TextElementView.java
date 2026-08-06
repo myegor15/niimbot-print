@@ -54,7 +54,7 @@ public class TextElementView implements ElementView {
     public void resize(double scale, double newX, double newY) {
         element.setX(newX);
         element.setY(newY);
-        element.setFontSize(Math.max(1, baseFontSize * scale));
+        element.setFontSize((int) Math.round(Math.max(1, baseFontSize * scale)));
         refresh();
         applyPosition();
     }
