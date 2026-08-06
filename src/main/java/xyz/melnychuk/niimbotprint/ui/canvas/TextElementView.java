@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import xyz.melnychuk.niimbotprint.model.StickerElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
@@ -40,9 +41,11 @@ public class TextElementView implements ElementView {
     @Override
     public void refresh() {
         label.setText(element.getText());
-        label.setFont(Font.font(element.getFontFamily(),
+        label.setFont(Font.font(element.getFontFamily().getDisplayName(),
                 element.isBold() ? FontWeight.BOLD : FontWeight.NORMAL,
+                element.isItalic() ? FontPosture.ITALIC : FontPosture.REGULAR,
                 element.getFontSize()));
+        label.setUnderline(element.isUnderline());
     }
 
     @Override

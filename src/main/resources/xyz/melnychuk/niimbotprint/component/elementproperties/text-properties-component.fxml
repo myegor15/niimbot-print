@@ -25,4 +25,12 @@
         <Label text="Жирный"/>
         <CheckBox fx:id="boldCheck"/>
     </HBox>
+    <HBox spacing="8">
+        <Label text="Курсив"/>
+        <CheckBox fx:id="italicCheck"/>
+    </HBox>
+    <HBox spacing="8">
+        <Label text="Подчёркнутый"/>
+        <CheckBox fx:id="underlineCheck"/>
+    </HBox>
 </VBox>

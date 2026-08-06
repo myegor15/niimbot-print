@@ -7,19 +7,28 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class TextElement extends StickerElement {
 
+    private static final String DEFAULT_TEXT = "Текст";
+    private static final FontFamily DEFAULT_FONT = FontFamily.ARIAL;
+    private static final int DEFAULT_FONT_SIZE = 16;
+
     private String text;
-    private String fontFamily;
+    private FontFamily fontFamily;
     private int fontSize;
     private boolean bold;
+    private boolean italic;
+    private boolean underline;
 
     public TextElement() {
-        this("Текст", 0, 0);
+        this(DEFAULT_FONT, DEFAULT_TEXT, 0, 0, DEFAULT_FONT_SIZE, false, false, false);
     }
 
-    public TextElement(String text, double x, double y) {
+    public TextElement(FontFamily fontFamily, String text, double x, double y, int fontSize, boolean bold, boolean italic, boolean underline) {
         super(x, y);
         this.text = text;
-        this.fontFamily = "Arial";
-        this.fontSize = 16;
+        this.fontFamily = fontFamily;
+        this.fontSize = fontSize;
+        this.bold = bold;
+        this.italic = italic;
+        this.underline = underline;
     }
 }

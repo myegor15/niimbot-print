@@ -16,7 +16,7 @@ class StickerSerializationTest {
     @Test
     void roundTripPreservesElements() throws Exception {
         Sticker label = new Sticker(PrinterModel.D11);
-        label.getElements().add(new TextElement("Привет", 10, 15));
+        label.getElements().add(new TextElement(FontFamily.ARIAL, "Привет", 10, 15, 16, false, false, false));
         label.getElements().add(new BarcodeElement(BarcodeElementFormat.CODE_128, "12345", 20, 30, 0, 80, true));
         label.getElements().add(new ImageElement(5, 5, "aGVsbG8=", 100, 50));
 
@@ -32,7 +32,7 @@ class StickerSerializationTest {
         TextElement text = (TextElement) restored.getElements().get(0);
         assertEquals("Привет", text.getText());
         assertEquals(10, text.getX());
-        assertEquals("Arial", text.getFontFamily());
+        assertEquals(FontFamily.ARIAL, text.getFontFamily());
 
         BarcodeElement barcode = (BarcodeElement) restored.getElements().get(1);
         assertEquals("12345", barcode.getContent());

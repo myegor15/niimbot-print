@@ -5,6 +5,7 @@ import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.model.BarcodeElement;
 import xyz.melnychuk.niimbotprint.model.ImageElement;
 import xyz.melnychuk.niimbotprint.model.TextElement;
+import xyz.melnychuk.niimbotprint.model.FontFamily;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -16,7 +17,7 @@ import java.util.Base64;
 public class EditorService {
 
     public TextElement getTextElement() {
-        return new TextElement("Текст", 10, 10);
+        return new TextElement(FontFamily.ARIAL, "Текст", 10, 10, 16, false, false, false);
     }
 
     public BarcodeElement getBarcodeElement() {
