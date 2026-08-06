@@ -27,7 +27,7 @@ public class StickerCanvas extends Pane {
     private static final double HANDLE_SIZE = 9;
     private static final double MIN_SIZE = 10;
     private static final double GRID_CELLS = 10;
-    private static final double ROTATION_DISTANCE = 40;
+    private static final double FRAME_HANDLE_OFFSET = 20;
     private static final Color GRID_COLOR = Color.rgb(0, 0, 0, 0.08);
     private static final Color GUIDE_COLOR = Color.rgb(255, 60, 60, 0.9);
     private static final Color HANDLE_COLOR = Color.rgb(30, 120, 255);
@@ -484,8 +484,13 @@ public class StickerCanvas extends Pane {
         double cx = x + w / 2;
         double cy = y + h / 2;
         double theta = Math.toRadians(selectedElement.getRotation());
-        double tx = cx + ROTATION_DISTANCE * Math.sin(theta);
-        double ty = cy - ROTATION_DISTANCE * Math.cos(theta);
+        double dx = Math.sin(theta);
+        double dy = -Math.cos(theta);
+        double txBound = dx > 0 ? (x + w - cx) / dx : dx < 0 ? (x - cx) / dx : Double.POSITIVE_INFINITY;
+        double tyBound = dy > 0 ? (y + h - cy) / dy : dy < 0 ? (y - cy) / dy : Double.POSITIVE_INFINITY;
+        double distance = Math.min(txBound, tyBound) + FRAME_HANDLE_OFFSET;
+        double tx = cx + dx * distance;
+        double ty = cy + dy * distance;
         rotStem.setStartX(cx);
         rotStem.setStartY(cy);
         rotStem.setEndX(tx);
