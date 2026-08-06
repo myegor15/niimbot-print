@@ -16,9 +16,9 @@ class StickerSerializationTest {
     @Test
     void roundTripPreservesElements() throws Exception {
         Sticker label = new Sticker(PrinterModel.D11);
-        label.getElements().add(new TextElement(FontFamily.ARIAL, "Привет", 10, 15, 16, false, false, false));
-        label.getElements().add(new BarcodeElement(BarcodeElementFormat.CODE_128, "12345", 20, 30, 0, 80, true));
-        label.getElements().add(new ImageElement(5, 5, "aGVsbG8=", 100, 50));
+        label.getElements().add(new Text(FontFamily.ARIAL, "Привет", 10, 15, 16, false, false, false));
+        label.getElements().add(new Barcode(BarcodeFormat.CODE_128, "12345", 20, 30, 0, 80, true));
+        label.getElements().add(new Image(5, 5, "aGVsbG8=", 100, 50));
 
         String json = mapper.writeValueAsString(label);
 
@@ -29,26 +29,26 @@ class StickerSerializationTest {
         assertEquals(PrinterModel.D11.getDefaultHeight(), restored.getHeight());
         assertEquals(3, restored.getElements().size());
 
-        TextElement text = (TextElement) restored.getElements().get(0);
+        Text text = (Text) restored.getElements().get(0);
         assertEquals("Привет", text.getText());
         assertEquals(10, text.getX());
         assertEquals(FontFamily.ARIAL, text.getFontFamily());
 
-        BarcodeElement barcode = (BarcodeElement) restored.getElements().get(1);
+        Barcode barcode = (Barcode) restored.getElements().get(1);
         assertEquals("12345", barcode.getContent());
-        assertEquals(BarcodeElementFormat.CODE_128, barcode.getFormat());
+        assertEquals(BarcodeFormat.CODE_128, barcode.getFormat());
 
-        ImageElement image = (ImageElement) restored.getElements().get(2);
+        Image image = (Image) restored.getElements().get(2);
         assertEquals("aGVsbG8=", image.getImageBase64());
     }
 
     @Test
     void defaultElementsUseSaneDefaults() {
         Sticker label = new Sticker();
-        TextElement text = new TextElement();
+        Text text = new Text();
         assertTrue(label.getWidth() > 0);
         assertTrue(text.getFontSize() > 0);
-        assertEquals(BarcodeElementFormat.CODE_128, new BarcodeElement().getFormat());
+        assertEquals(BarcodeFormat.CODE_128, new Barcode().getFormat());
     }
 
     @Test

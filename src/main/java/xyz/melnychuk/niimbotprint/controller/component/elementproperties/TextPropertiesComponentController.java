@@ -7,14 +7,14 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-import xyz.melnychuk.niimbotprint.model.TextElement;
+import xyz.melnychuk.niimbotprint.model.Text;
 import xyz.melnychuk.niimbotprint.model.FontFamily;
 import xyz.melnychuk.niimbotprint.util.Component;
 
 import java.util.stream.Stream;
 
 @Component(fxml = "component/elementproperties/text-properties-component.fxml")
-public class TextPropertiesComponentController extends ElementPropertiesComponentController<TextElement> {
+public class TextPropertiesComponentController extends ElementPropertiesComponentController<Text> {
 
     @FXML
     private TextField textField;
@@ -32,7 +32,7 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
     @Override
     protected void apply() {
         textField.setText(element.getText());
-        bind(textField.textProperty(), TextElement::setText);
+        bind(textField.textProperty(), Text::setText);
 
         fontBox.setItems(FXCollections.observableArrayList(Stream.of(FontFamily.values()).toList()));
         fontBox.setConverter(new StringConverter<>() {
@@ -50,18 +50,18 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
             }
         });
         fontBox.setValue(element.getFontFamily());
-        bind(fontBox.valueProperty(), TextElement::setFontFamily);
+        bind(fontBox.valueProperty(), Text::setFontFamily);
 
-        bindIntSpinner(sizeSpinner, 6, 200, TextElement::setFontSize, element::getFontSize);
+        bindIntSpinner(sizeSpinner, 6, 200, Text::setFontSize, element::getFontSize);
 
         boldCheck.setSelected(element.isBold());
-        bind(boldCheck.selectedProperty(), TextElement::setBold);
+        bind(boldCheck.selectedProperty(), Text::setBold);
 
         italicCheck.setSelected(element.isItalic());
-        bind(italicCheck.selectedProperty(), TextElement::setItalic);
+        bind(italicCheck.selectedProperty(), Text::setItalic);
 
         underlineCheck.setSelected(element.isUnderline());
-        bind(underlineCheck.selectedProperty(), TextElement::setUnderline);
+        bind(underlineCheck.selectedProperty(), Text::setUnderline);
     }
 
     @Override

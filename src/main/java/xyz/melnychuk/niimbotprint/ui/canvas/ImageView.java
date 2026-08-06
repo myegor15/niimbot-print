@@ -3,25 +3,25 @@ package xyz.melnychuk.niimbotprint.ui.canvas;
 import javafx.scene.Node;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
-import xyz.melnychuk.niimbotprint.model.ImageElement;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Image;
+import xyz.melnychuk.niimbotprint.model.Element;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import java.util.Objects;
 
-public class ImageElementView implements ElementView {
+public class ImageView implements ElementView {
 
     private static final int BINARY_THRESHOLD = 128;
 
-    private final ImageElement element;
-    private final ImageView view = new ImageView();
+    private final Image element;
+    private final javafx.scene.image.ImageView view = new javafx.scene.image.ImageView();
     private String lastBase64;
-    private Image image;
+    private javafx.scene.image.Image image;
     private double baseW;
     private double baseH;
 
-    public ImageElementView(ImageElement element) {
+    public ImageView(Image element) {
         this.element = element;
         view.setPreserveRatio(true);
         refresh();
@@ -29,7 +29,7 @@ public class ImageElementView implements ElementView {
     }
 
     @Override
-    public StickerElement element() {
+    public Element element() {
         return element;
     }
 
@@ -67,7 +67,7 @@ public class ImageElementView implements ElementView {
         applyPosition();
     }
 
-    private Image cachedImage() {
+    private javafx.scene.image.Image cachedImage() {
         String base64 = element.getImageBase64();
         if (image == null || !Objects.equals(base64, lastBase64)) {
             lastBase64 = base64;
@@ -76,15 +76,15 @@ public class ImageElementView implements ElementView {
         return image;
     }
 
-    private static Image decodeBase64(String base64) {
+    private static javafx.scene.image.Image decodeBase64(String base64) {
         if (base64 == null || base64.isBlank()) {
             return null;
         }
         byte[] data = Base64.getDecoder().decode(base64);
-        return toBinary(new Image(new ByteArrayInputStream(data)));
+        return toBinary(new javafx.scene.image.Image(new ByteArrayInputStream(data)));
     }
 
-    private static Image toBinary(Image image) {
+    private static javafx.scene.image.Image toBinary(javafx.scene.image.Image image) {
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
         WritableImage binary = new WritableImage(width, height);

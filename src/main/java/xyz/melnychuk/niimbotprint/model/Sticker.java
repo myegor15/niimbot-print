@@ -11,7 +11,7 @@ public class Sticker {
     private PrinterModel printerModel;
     private int width;
     private int height;
-    private List<StickerElement> elements = new ArrayList<>();
+    private List<Element> elements = new ArrayList<>();
 
     public Sticker() {
         this(PrinterModel.B1);

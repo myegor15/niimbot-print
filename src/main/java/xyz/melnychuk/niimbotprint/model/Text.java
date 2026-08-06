@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TextElement extends StickerElement {
+public class Text extends Element {
 
     private static final String DEFAULT_TEXT = "Текст";
     private static final FontFamily DEFAULT_FONT = FontFamily.ARIAL;
@@ -18,11 +18,11 @@ public class TextElement extends StickerElement {
     private boolean italic;
     private boolean underline;
 
-    public TextElement() {
+    public Text() {
         this(DEFAULT_FONT, DEFAULT_TEXT, 0, 0, DEFAULT_FONT_SIZE, false, false, false);
     }
 
-    public TextElement(FontFamily fontFamily, String text, double x, double y, int fontSize, boolean bold, boolean italic, boolean underline) {
+    public Text(FontFamily fontFamily, String text, double x, double y, int fontSize, boolean bold, boolean italic, boolean underline) {
         super(x, y);
         this.text = text;
         this.fontFamily = fontFamily;

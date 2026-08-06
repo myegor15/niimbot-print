@@ -3,23 +3,23 @@ package xyz.melnychuk.niimbotprint.ui.canvas;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import xyz.melnychuk.niimbotprint.AppException;
-import xyz.melnychuk.niimbotprint.model.BarcodeElement;
-import xyz.melnychuk.niimbotprint.model.ImageElement;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.model.TextElement;
+import xyz.melnychuk.niimbotprint.model.Barcode;
+import xyz.melnychuk.niimbotprint.model.Image;
+import xyz.melnychuk.niimbotprint.model.Element;
+import xyz.melnychuk.niimbotprint.model.Text;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ElementViewFactory {
 
-    public static ElementView getElementView(StickerElement element) {
-        if (element instanceof TextElement text) {
-            return new TextElementView(text);
+    public static ElementView getElementView(Element element) {
+        if (element instanceof Text text) {
+            return new TextView(text);
         }
-        if (element instanceof ImageElement image) {
-            return new ImageElementView(image);
+        if (element instanceof Image image) {
+            return new ImageView(image);
         }
-        if (element instanceof BarcodeElement barcode) {
-            return new BarcodeElementView(barcode);
+        if (element instanceof Barcode barcode) {
+            return new BarcodeView(barcode);
         }
         throw new AppException("Unknown element: " + element);
     }

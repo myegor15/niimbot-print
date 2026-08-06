@@ -12,11 +12,11 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "id")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TextElement.class, name = "text"),
-        @JsonSubTypes.Type(value = ImageElement.class, name = "image"),
-        @JsonSubTypes.Type(value = BarcodeElement.class, name = "barcode")
+        @JsonSubTypes.Type(value = Text.class, name = "text"),
+        @JsonSubTypes.Type(value = Image.class, name = "image"),
+        @JsonSubTypes.Type(value = Barcode.class, name = "barcode")
 })
-public abstract class StickerElement {
+public abstract class Element {
 
     @JsonIgnore
     private final UUID id = UUID.randomUUID();
@@ -25,10 +25,10 @@ public abstract class StickerElement {
     private double y;
     private double rotation;
 
-    protected StickerElement() {
+    protected Element() {
     }
 
-    protected StickerElement(double x, double y) {
+    protected Element(double x, double y) {
         this.x = x;
         this.y = y;
     }

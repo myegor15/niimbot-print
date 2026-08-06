@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.model.Sticker;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Element;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class StickerCanvas extends Pane {
     private Sticker sticker;
 
     @Getter
-    private StickerElement selectedElement;
+    private Element selectedElement;
 
     private Rectangle background;
 
@@ -66,13 +66,13 @@ public class StickerCanvas extends Pane {
 
     private final double[] rotation = new double[8];
 
-    private final Map<StickerElement, ElementView> views = new IdentityHashMap<>();
+    private final Map<Element, ElementView> views = new IdentityHashMap<>();
 
     @Setter
-    private Consumer<StickerElement> selectionListener = e -> {};
+    private Consumer<Element> selectionListener = e -> {};
 
     @Setter
-    private Consumer<StickerElement> changeListener = e -> {};
+    private Consumer<Element> changeListener = e -> {};
 
     public StickerCanvas(Sticker sticker) {
         this.sticker = sticker;
@@ -196,14 +196,14 @@ public class StickerCanvas extends Pane {
     public void refresh() {
         views.values().forEach(v -> getChildren().remove(v.node()));
         views.clear();
-        for (StickerElement element : sticker.getElements()) {
+        for (Element element : sticker.getElements()) {
             attach(ElementViewFactory.getElementView(element));
         }
         updateSelectionBox();
     }
 
     private void attach(ElementView view) {
-        StickerElement element = view.element();
+        Element element = view.element();
         Node node = view.node();
         node.setRotate(element.getRotation());
         views.put(element, view);
@@ -216,14 +216,14 @@ public class StickerCanvas extends Pane {
         getChildren().add(index, node);
     }
 
-    public StickerElement addElement(StickerElement element) {
+    public Element addElement(Element element) {
         sticker.getElements().add(element);
         attach(ElementViewFactory.getElementView(element));
         select(element);
         return element;
     }
 
-    public void updateElement(StickerElement element) {
+    public void updateElement(Element element) {
         ElementView view = views.get(element);
         if (view == null) {
             return;
@@ -251,7 +251,7 @@ public class StickerCanvas extends Pane {
         }
     }
 
-    public void select(StickerElement element) {
+    public void select(Element element) {
         selectedElement = element;
         updateSelectionBox();
         selectionListener.accept(element);
@@ -266,7 +266,7 @@ public class StickerCanvas extends Pane {
         selectionListener.accept(null);
     }
 
-    private void makeDraggable(Node node, StickerElement element) {
+    private void makeDraggable(Node node, Element element) {
         double[] start = new double[2];
         node.setOnMousePressed(e -> {
             select(element);

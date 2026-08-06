@@ -7,29 +7,29 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import lombok.extern.slf4j.Slf4j;
-import xyz.melnychuk.niimbotprint.model.BarcodeElement;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Barcode;
+import xyz.melnychuk.niimbotprint.model.Element;
 import xyz.melnychuk.niimbotprint.ui.BarcodeGenerator;
 
 @Slf4j
-public class BarcodeElementView implements ElementView {
+public class BarcodeView implements ElementView {
 
     private static final String RENDER_ERROR_TEXT = "Недопустимый штрихкод";
     private static final double VALUE_FONT_SIZE = 18;
 
-    private final BarcodeElement element;
+    private final Barcode element;
     private final Group root = new Group();
     private double baseW;
     private double baseH;
 
-    public BarcodeElementView(BarcodeElement element) {
+    public BarcodeView(Barcode element) {
         this.element = element;
         refresh();
         applyPosition();
     }
 
     @Override
-    public StickerElement element() {
+    public Element element() {
         return element;
     }
 

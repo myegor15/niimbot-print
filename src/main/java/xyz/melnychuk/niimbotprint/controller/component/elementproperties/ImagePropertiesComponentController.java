@@ -2,11 +2,11 @@ package xyz.melnychuk.niimbotprint.controller.component.elementproperties;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
-import xyz.melnychuk.niimbotprint.model.ImageElement;
+import xyz.melnychuk.niimbotprint.model.Image;
 import xyz.melnychuk.niimbotprint.util.Component;
 
 @Component(fxml = "component/elementproperties/image-properties-component.fxml")
-public class ImagePropertiesComponentController extends ElementPropertiesComponentController<ImageElement> {
+public class ImagePropertiesComponentController extends ElementPropertiesComponentController<Image> {
 
     @FXML
     private Spinner<Integer> widthSpinner;

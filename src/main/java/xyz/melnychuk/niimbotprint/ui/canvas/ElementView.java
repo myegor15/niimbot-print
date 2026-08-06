@@ -1,11 +1,11 @@
 package xyz.melnychuk.niimbotprint.ui.canvas;
 
 import javafx.scene.Node;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Element;
 
 public interface ElementView {
 
-    StickerElement element();
+    Element element();
 
     Node node();
 

@@ -6,26 +6,26 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Element;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class ElementPropertiesComponentController<T extends StickerElement> extends AbstractController {
+public abstract class ElementPropertiesComponentController<T extends Element> extends AbstractController {
 
     protected T element;
     private boolean updating;
 
     @Setter
-    private Consumer<StickerElement> elementChangeListener;
+    private Consumer<Element> elementChangeListener;
 
-    public final void show(StickerElement element) {
+    public final void show(Element element) {
         this.element = (T) element;
         apply();
     }
 
-    public final void sync(StickerElement element) {
+    public final void sync(Element element) {
         if (this.element != element) {
             return;
         }

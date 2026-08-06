@@ -7,7 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import xyz.melnychuk.niimbotprint.AppException;
-import xyz.melnychuk.niimbotprint.model.BarcodeElementFormat;
+import xyz.melnychuk.niimbotprint.model.BarcodeFormat;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BarcodeGenerator {
 
-    public static BufferedImage generate(String content, BarcodeElementFormat format, int width, int height) {
+    public static BufferedImage generate(String content, BarcodeFormat format, int width, int height) {
         try {
             BitMatrix matrix = encode(content, format);
             int[] bounds = bounds(matrix);
@@ -35,7 +35,7 @@ public final class BarcodeGenerator {
         }
     }
 
-    private static BitMatrix encode(String content, BarcodeElementFormat format) throws WriterException {
+    private static BitMatrix encode(String content, BarcodeFormat format) throws WriterException {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.MARGIN, 0);
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");

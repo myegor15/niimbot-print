@@ -16,7 +16,7 @@ import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
 import xyz.melnychuk.niimbotprint.model.Sticker;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
+import xyz.melnychuk.niimbotprint.model.Element;
 import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
@@ -98,12 +98,12 @@ public class EditorComponentController extends AbstractController implements Edi
         }
     }
 
-    private void onSelectionChanged(StickerElement element) {
+    private void onSelectionChanged(Element element) {
         deleteButton.setDisable(element == null);
         show(element);
     }
 
-    private void show(StickerElement element) {
+    private void show(Element element) {
         if (element == null) {
             currentElementPropertiesController = null;
             elementProperties.getChildren().clear();
@@ -116,7 +116,7 @@ public class EditorComponentController extends AbstractController implements Edi
         elementProperties.getChildren().setAll(List.of(bundle.node()));
     }
 
-    private void sync(StickerElement changed) {
+    private void sync(Element changed) {
         if (currentElementPropertiesController != null) {
             currentElementPropertiesController.sync(changed);
         }

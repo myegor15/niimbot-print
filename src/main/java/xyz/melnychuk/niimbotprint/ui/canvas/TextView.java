@@ -6,16 +6,16 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import xyz.melnychuk.niimbotprint.model.StickerElement;
-import xyz.melnychuk.niimbotprint.model.TextElement;
+import xyz.melnychuk.niimbotprint.model.Element;
+import xyz.melnychuk.niimbotprint.model.Text;
 
-public class TextElementView implements ElementView {
+public class TextView implements ElementView {
 
-    private final TextElement element;
+    private final Text element;
     private final Label label = new Label();
     private double baseFontSize;
 
-    public TextElementView(TextElement element) {
+    public TextView(Text element) {
         this.element = element;
         label.setPadding(Insets.EMPTY);
         refresh();
@@ -23,7 +23,7 @@ public class TextElementView implements ElementView {
     }
 
     @Override
-    public StickerElement element() {
+    public Element element() {
         return element;
     }
 
