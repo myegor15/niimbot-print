@@ -11,11 +11,12 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" minWidth="0" minHeight="0"
             fx:controller="xyz.melnychuk.niimbotprint.controller.component.EditorComponentController">
     <center>
         <VBox styleClass="editor">
-            <HBox spacing="5" styleClass="panel">
+            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true">
+                <HBox spacing="5" styleClass="panel">
                 <Button fx:id="undoButton" text="⟲ Отменить" disable="true" onAction="#onUndo"/>
                 <Button fx:id="redoButton" text="⟳ Вернуть" disable="true" onAction="#onRedo"/>
                 <Region HBox.hgrow="ALWAYS"/>
@@ -27,24 +28,29 @@
                 <Button text="⟳ 45°" fx:id="rotateRightButton" disable="true" onAction="#onRotateRight"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
-            </HBox>
+                </HBox>
+            </ScrollPane>
             <ScrollPane fx:id="canvasScroll" VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
                 <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
             </ScrollPane>
-            <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
-                <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
-                <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
-                <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Slider fx:id="zoomSlider" min="25" max="200" value="100" blockIncrement="25" majorTickUnit="25" showTickLabels="true" snapToTicks="true" prefWidth="200"/>
-                <Label fx:id="zoomLabel" text="100%" styleClass="zoom-value"/>
-            </HBox>
+            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true">
+                <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
+                    <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
+                    <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
+                    <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Slider fx:id="zoomSlider" min="25" max="200" value="100" blockIncrement="25" majorTickUnit="25" showTickLabels="true" snapToTicks="true" prefWidth="200"/>
+                    <Label fx:id="zoomLabel" text="100%" styleClass="zoom-value"/>
+                </HBox>
+            </ScrollPane>
         </VBox>
     </center>
     <right>
         <VBox spacing="8" styleClass="panel" prefWidth="230">
             <Label text="Свойства" styleClass="panel-title"/>
-            <VBox fx:id="elementProperties" spacing="8"/>
+            <ScrollPane styleClass="properties-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
+                <VBox fx:id="elementProperties" spacing="8"/>
+            </ScrollPane>
         </VBox>
     </right>
 </BorderPane>
