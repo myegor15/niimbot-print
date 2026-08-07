@@ -14,6 +14,7 @@
         <javafx.version>25.0.4</javafx.version>
         <jackson.version>2.22.1</jackson.version>
         <zxing.version>3.5.4</zxing.version>
+        <ikonli.version>12.4.0</ikonli.version>
         <lombok.version>1.18.46</lombok.version>
         <junit.version>5.12.1</junit.version>
         <slf4j.version>2.0.18</slf4j.version>
@@ -53,6 +54,17 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>${zxing.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-materialdesign2-pack</artifactId>
+            <version>${ikonli.version}</version>
         </dependency>
 
         <dependency>

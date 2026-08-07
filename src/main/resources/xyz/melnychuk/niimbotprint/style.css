@@ -101,10 +101,19 @@
     -fx-background-color: #e0e0e0;
 }
 
-.icon-button .icon {
-    -fx-fill: #333;
+.icon-button .ikonli-font-icon {
+    -fx-icon-size: 18px;
+    -fx-icon-color: #333;
 }
 
-.button:disabled .icon {
-    -fx-fill: #aaa;
+.icon-button:hover .ikonli-font-icon {
+    -fx-icon-color: #111;
+}
+
+.icon-button:disabled .ikonli-font-icon {
+    -fx-icon-color: #aaa;
+}
+
+.toggle-button:selected .ikonli-font-icon {
+    -fx-icon-color: #1a73e8;
 }

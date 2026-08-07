@@ -12,6 +12,10 @@ module xyz.melnychuk.niimbotprint {
     requires com.google.zxing;
     requires com.google.zxing.javase;
 
+    requires org.kordamp.ikonli.core;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.materialdesign2;
+
     requires org.slf4j;
     requires ch.qos.logback.core;
     requires ch.qos.logback.classic;

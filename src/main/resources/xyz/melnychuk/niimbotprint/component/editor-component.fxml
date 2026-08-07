@@ -5,11 +5,13 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" minWidth="0" minHeight="0"
             fx:controller="xyz.melnychuk.niimbotprint.controller.component.EditorComponentController">
@@ -17,17 +19,81 @@
         <VBox styleClass="editor">
             <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true">
                 <HBox spacing="5" styleClass="panel">
-                <Button fx:id="undoButton" text="⟲ Отменить" disable="true" onAction="#onUndo"/>
-                <Button fx:id="redoButton" text="⟳ Вернуть" disable="true" onAction="#onRedo"/>
+                <Button fx:id="undoButton" disable="true" onAction="#onUndo" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2u-undo" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Отменить"/>
+                    </tooltip>
+                </Button>
+                <Button fx:id="redoButton" disable="true" onAction="#onRedo" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2r-redo" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Вернуть"/>
+                    </tooltip>
+                </Button>
+                    <Button fx:id="deleteButton" disable="true" onAction="#onDelete" styleClass="icon-button">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2d-delete" iconSize="18"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Удалить"/>
+                        </tooltip>
+                    </Button>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="+ Текст" onAction="#onAddText"/>
-                <Button text="+ Штрихкод" onAction="#onAddBarcode"/>
-                <Button text="+ Изображение" onAction="#onAddImage"/>
+                <Button onAction="#onAddText" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-text" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Добавить текст"/>
+                    </tooltip>
+                </Button>
+                <Button onAction="#onAddBarcode" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2b-barcode" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Добавить штрихкод"/>
+                    </tooltip>
+                </Button>
+                <Button onAction="#onAddImage" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2i-image" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Добавить изображение"/>
+                    </tooltip>
+                </Button>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="⟲ 45°" fx:id="rotateLeftButton" disable="true" onAction="#onRotateLeft"/>
-                <Button text="⟳ 45°" fx:id="rotateRightButton" disable="true" onAction="#onRotateRight"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
+                <Button fx:id="rotateLeftButton" disable="true" onAction="#onRotateLeft" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2r-rotate-left" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Повернуть влево на 45°"/>
+                    </tooltip>
+                </Button>
+                <Button fx:id="rotateRightButton" disable="true" onAction="#onRotateRight" styleClass="icon-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2r-rotate-right" iconSize="18"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Повернуть вправо на 45°"/>
+                    </tooltip>
+                </Button>
+<!--                <Region HBox.hgrow="ALWAYS"/>-->
+<!--                <Button fx:id="deleteButton" disable="true" onAction="#onDelete" styleClass="icon-button">-->
+<!--                    <graphic>-->
+<!--                        <FontIcon iconLiteral="mdi2d-delete" iconSize="18"/>-->
+<!--                    </graphic>-->
+<!--                    <tooltip>-->
+<!--                        <Tooltip text="Удалить"/>-->
+<!--                    </tooltip>-->
+<!--                </Button>-->
                 </HBox>
             </ScrollPane>
             <ScrollPane fx:id="canvasScroll" VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
@@ -35,9 +101,30 @@
             </ScrollPane>
             <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true">
                 <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
-                    <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
-                    <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>
-                    <ToggleButton fx:id="angleSnapToggle" text="Угол 15°" selected="true" onAction="#onToggleRotationSnap"/>
+                    <ToggleButton fx:id="gridToggle" selected="true" onAction="#onToggleGrid" styleClass="icon-button">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2g-grid" iconSize="18"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Показать сетку"/>
+                        </tooltip>
+                    </ToggleButton>
+                    <ToggleButton fx:id="snapToggle" selected="true" onAction="#onTogglePositionSnap" styleClass="icon-button">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2m-magnet" iconSize="18"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Магнит по позиции"/>
+                        </tooltip>
+                    </ToggleButton>
+                    <ToggleButton fx:id="angleSnapToggle" selected="true" onAction="#onToggleRotationSnap" styleClass="icon-button">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-angle-acute" iconSize="18"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Магнит по углу 15°"/>
+                        </tooltip>
+                    </ToggleButton>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Slider fx:id="zoomSlider" min="25" max="200" value="100" blockIncrement="25" majorTickUnit="25" showTickLabels="true" snapToTicks="true" prefWidth="200"/>
                     <Label fx:id="zoomLabel" text="100%" styleClass="zoom-value"/>
