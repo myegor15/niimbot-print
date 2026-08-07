@@ -1,6 +1,10 @@
 package xyz.melnychuk.niimbotprint.ui.canvas;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -67,6 +71,8 @@ public class StickerCanvas extends Pane {
     private final double[] rotation = new double[8];
 
     private final Map<Element, ElementView> views = new IdentityHashMap<>();
+
+    private final ObjectProperty<Object> zoneVersion = new SimpleObjectProperty<>(new Object());
 
     @Setter
     private Consumer<Element> selectionListener = e -> {};
@@ -142,6 +148,27 @@ public class StickerCanvas extends Pane {
     private static double adaptiveStep(double size) {
         int cells = (int) Math.max(1, Math.round(size / GRID_CELLS));
         return size / cells;
+    }
+
+    public DoubleBinding contentWidth() {
+        return extentBinding(true);
+    }
+
+    public DoubleBinding contentHeight() {
+        return extentBinding(false);
+    }
+
+    private DoubleBinding extentBinding(boolean horizontal) {
+        return Bindings.createDoubleBinding(() -> {
+            double min = 0;
+            double max = horizontal ? sticker.getWidth() : sticker.getHeight();
+            for (ElementView view : views.values()) {
+                Bounds b = view.node().getBoundsInParent();
+                min = Math.min(min, horizontal ? b.getMinX() : b.getMinY());
+                max = Math.max(max, horizontal ? b.getMaxX() : b.getMaxY());
+            }
+            return max - min;
+        }, zoneVersion);
     }
 
     public void setGridVisible(boolean visible) {
@@ -281,8 +308,8 @@ public class StickerCanvas extends Pane {
         });
         node.setOnMouseDragged(e -> {
             Point2D p = sceneToLocal(e.getSceneX(), e.getSceneY());
-            double x = clamp(p.getX() - start[0], 0, sticker.getWidth());
-            double y = clamp(p.getY() - start[1], 0, sticker.getHeight());
+            double x = p.getX() - start[0];
+            double y = p.getY() - start[1];
             if (positionSnap) {
                 Bounds bounds = views.get(element).node().getLayoutBounds();
                 double[] snapped = SnapEngine.snapPosition(x, y,
@@ -358,15 +385,13 @@ public class StickerCanvas extends Pane {
     private void resizeCorner(int[] corner, double[] start, double x, double y) {
         double origW = start[2] > 0 ? start[2] : 1;
         double origH = start[3] > 0 ? start[3] : 1;
-        double sx = clamp(x, 0, sticker.getWidth());
-        double sy = clamp(y, 0, sticker.getHeight());
+        double sx = x;
+        double sy = y;
         double k = Math.hypot(start[5] - sx, start[6] - sy) / Math.hypot(origW, origH);
         k = Math.max(k, MIN_SIZE / Math.max(1, Math.min(origW, origH)));
 
         double newX = corner[0] < 0 ? start[5] - origW * k : start[5];
         double newY = corner[1] < 0 ? start[6] - origH * k : start[6];
-        newX = clamp(newX, 0, sticker.getWidth() - MIN_SIZE);
-        newY = clamp(newY, 0, sticker.getHeight() - MIN_SIZE);
         newX = Math.min(newX, start[5]);
         newY = Math.min(newY, start[6]);
 
@@ -378,17 +403,13 @@ public class StickerCanvas extends Pane {
         double newW = start[2];
         double newH = start[3];
         if (side[0] != 0) {
-            newW = Math.max(MIN_SIZE, Math.abs(clamp(x, 0, sticker.getWidth()) - start[5]));
+            newW = Math.max(MIN_SIZE, Math.abs(x - start[5]));
         }
         if (side[1] != 0) {
-            newH = Math.max(MIN_SIZE, Math.abs(clamp(y, 0, sticker.getHeight()) - start[6]));
+            newH = Math.max(MIN_SIZE, Math.abs(y - start[6]));
         }
-        double newX = side[0] != 0
-                ? clamp(side[0] < 0 ? start[5] - newW : start[5], 0, sticker.getWidth() - MIN_SIZE)
-                : start[0];
-        double newY = side[1] != 0
-                ? clamp(side[1] < 0 ? start[6] - newH : start[6], 0, sticker.getHeight() - MIN_SIZE)
-                : start[1];
+        double newX = side[0] < 0 ? start[5] - newW : start[0];
+        double newY = side[1] < 0 ? start[6] - newH : start[1];
         views.get(selectedElement).resizeAxis(newW, newH, newX, newY);
         updateElement(selectedElement);
     }
@@ -457,6 +478,7 @@ public class StickerCanvas extends Pane {
     }
 
     private void updateSelectionBox() {
+        zoneVersion.set(new Object());
         if (selectionBox == null) {
             selectionBox = new Rectangle();
             selectionBox.setFill(Color.TRANSPARENT);

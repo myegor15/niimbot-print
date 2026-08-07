@@ -2,9 +2,13 @@ package xyz.melnychuk.niimbotprint.controller.component;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.WritableImage;
@@ -35,6 +39,8 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private StackPane canvasHost;
+    @FXML
+    private ScrollPane canvasScroll;
     @FXML
     private VBox elementProperties;
     @FXML
@@ -81,6 +87,8 @@ public class EditorComponentController extends AbstractController implements Edi
         canvas = new StickerCanvas(sticker);
         zoomGroup = new Group(canvas);
         canvasHost.getChildren().add(zoomGroup);
+        canvasHost.minWidthProperty().bind(hostSize(true));
+        canvasHost.minHeightProperty().bind(hostSize(false));
         canvas.setSelectionListener(this::onSelectionChanged);
         canvas.setChangeListener(this::sync);
         canvas.setGestureListener(b -> {
@@ -94,6 +102,18 @@ public class EditorComponentController extends AbstractController implements Edi
         historyService.setRedoListener(v -> redoButton.setDisable(!v));
         zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> onZoom());
         onZoom();
+    }
+
+    private DoubleBinding hostSize(boolean horizontal) {
+        DoubleBinding content = horizontal ? canvas.contentWidth() : canvas.contentHeight();
+        return Bindings.createDoubleBinding(
+                () -> Math.max(
+                        horizontal ? canvasScroll.getViewportBounds().getWidth() : canvasScroll.getViewportBounds().getHeight(),
+                        content.get() * zoomGroup.getScaleX()),
+                canvasScroll.viewportBoundsProperty(),
+                content,
+                zoomGroup.scaleXProperty(),
+                zoomGroup.scaleYProperty());
     }
 
     @Override

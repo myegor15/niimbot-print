@@ -36,7 +36,7 @@ public final class SnapEngine {
                 }
             }
         }
-        if (best < SNAP_THRESHOLD) {
+        if (best < SNAP_THRESHOLD && bestCoord >= 0 && bestCoord + size <= max) {
             placeGuide(guide, vertical, bestTarget, w, h);
             return bestCoord;
         }

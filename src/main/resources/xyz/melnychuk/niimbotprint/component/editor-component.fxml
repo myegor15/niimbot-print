@@ -28,8 +28,8 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="deleteButton" text="Удалить" disable="true" onAction="#onDelete"/>
             </HBox>
-            <ScrollPane VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
-                <StackPane fx:id="canvasHost"/>
+            <ScrollPane fx:id="canvasScroll" VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
+                <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
             </ScrollPane>
             <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
                 <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
