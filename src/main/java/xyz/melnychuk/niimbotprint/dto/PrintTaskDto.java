@@ -10,8 +10,7 @@ public class PrintTaskDto {
     private String imageBase64;
     private int width;
     private int height;
-    private int density;
+    private PrintDensity density;
     private int quantity;
-    private String direction;
 
 }

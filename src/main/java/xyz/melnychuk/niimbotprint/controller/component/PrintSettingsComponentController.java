@@ -7,6 +7,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
+import xyz.melnychuk.niimbotprint.dto.PrintDensity;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
@@ -17,16 +18,15 @@ import java.util.Objects;
 public class PrintSettingsComponentController extends AbstractController {
 
     @FXML
-    private Spinner<Integer> densitySpinner;
+    private ComboBox<PrintDensity> densityComboBox;
     @FXML
     private Spinner<Integer> quantitySpinner;
-    @FXML
-    private ComboBox<String> directionCombo;
     @FXML
     private Button printButton;
 
     @Setter
     private Sticker sticker;
+    @Setter
     private Editor editor;
 
     private PrinterService printerService;
@@ -35,12 +35,11 @@ public class PrintSettingsComponentController extends AbstractController {
         this.printerService = Objects.requireNonNull(printerService);
     }
 
-    public void setEditor(Editor editor) {
-        this.editor = editor;
-        densitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3));
+    @FXML
+    private void initialize() {
+        densityComboBox.getItems().addAll(PrintDensity.values());
+        densityComboBox.setValue(PrintDensity.NORMAL);
         quantitySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-        directionCombo.getItems().addAll("top", "left");
-        directionCombo.setValue("top");
     }
 
     public void setConnected(boolean connected) {
@@ -56,7 +55,7 @@ public class PrintSettingsComponentController extends AbstractController {
         run(
                 () -> {
                     PrintTaskDto task = new PrintTaskDto(base64, sticker.getWidth(), sticker.getHeight(),
-                            densitySpinner.getValue(), quantitySpinner.getValue(), directionCombo.getValue());
+                            densityComboBox.getValue(), quantitySpinner.getValue());
                     printerService.print(task);
                     return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
                 },

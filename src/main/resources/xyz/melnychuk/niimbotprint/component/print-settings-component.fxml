@@ -4,19 +4,22 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.PrintSettingsComponentController"
-      spacing="8" styleClass="panel">
+      spacing="8" styleClass="panel" maxWidth="Infinity">
     <Label text="Печать" styleClass="panel-title"/>
     <GridPane hgap="6" vgap="6">
+        <columnConstraints>
+            <ColumnConstraints minWidth="0" hgrow="SOMETIMES"/>
+            <ColumnConstraints minWidth="0" hgrow="ALWAYS"/>
+        </columnConstraints>
         <Label text="Плотность" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <Spinner fx:id="densitySpinner" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="true" prefWidth="90"/>
+        <ComboBox fx:id="densityComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1" maxWidth="Infinity"/>
         <Label text="Количество" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <Spinner fx:id="quantitySpinner" GridPane.rowIndex="1" GridPane.columnIndex="1" editable="true" prefWidth="90"/>
-        <Label text="Направление" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="directionCombo" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="90"/>
+        <Spinner fx:id="quantitySpinner" GridPane.rowIndex="1" GridPane.columnIndex="1" editable="true" prefWidth="90" maxWidth="90"/>
     </GridPane>
     <Button fx:id="printButton" text="Печать" maxWidth="Infinity" disable="true" onAction="#onPrint"/>
 </VBox>
