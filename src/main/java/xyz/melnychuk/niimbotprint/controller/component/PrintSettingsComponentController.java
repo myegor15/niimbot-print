@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import lombok.NonNull;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.PrintDensity;
@@ -12,8 +13,6 @@ import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
-
-import java.util.Objects;
 
 public class PrintSettingsComponentController extends AbstractController {
 
@@ -25,15 +24,15 @@ public class PrintSettingsComponentController extends AbstractController {
     private Button printButton;
 
     @Setter
+    @NonNull
     private Sticker sticker;
     @Setter
+    @NonNull
     private Editor editor;
 
+    @Setter
+    @NonNull
     private PrinterService printerService;
-
-    public void setPrinterService(PrinterService printerService) {
-        this.printerService = Objects.requireNonNull(printerService);
-    }
 
     @FXML
     private void initialize() {
@@ -48,16 +47,22 @@ public class PrintSettingsComponentController extends AbstractController {
 
     @FXML
     private void onPrint() {
-        String base64 = editor.snapshot();
-        if (base64 == null) {
+        String snapshot = editor.snapshot();
+        if (snapshot == null) {
             return;
         }
+        int quantity = quantitySpinner.getValue();
+        PrintTaskDto task = PrintTaskDto.builder()
+                .imageBase64(snapshot)
+                .width(sticker.getWidth())
+                .height(sticker.getHeight())
+                .density(densityComboBox.getValue())
+                .quantity(quantity)
+                .build();
         run(
                 () -> {
-                    PrintTaskDto task = new PrintTaskDto(base64, sticker.getWidth(), sticker.getHeight(),
-                            densityComboBox.getValue(), quantitySpinner.getValue());
                     printerService.print(task);
-                    return "Печать отправлена (" + quantitySpinner.getValue() + " шт.)";
+                    return "Печать отправлена (" + quantity + " шт.)";
                 },
                 this::message,
                 this::error
