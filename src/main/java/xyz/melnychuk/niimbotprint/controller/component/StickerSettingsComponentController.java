@@ -6,6 +6,8 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import lombok.NonNull;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.PrinterModel;
 import xyz.melnychuk.niimbotprint.model.Sticker;
@@ -25,52 +27,56 @@ public class StickerSettingsComponentController extends AbstractController {
     @FXML
     private Spinner<Integer> heightSpinner;
 
+    @Setter
+    @NonNull
+    private StickerService stickerService;
+    @Setter
+    @NonNull
+    private EditorHistoryService historyService;
+
     private Sticker sticker;
     private Editor editor;
     private File currentFile;
-
-    private StickerService stickerService;
-
-    private EditorHistoryService historyService;
-
-    public void setHistoryService(EditorHistoryService historyService) {
-        this.historyService = Objects.requireNonNull(historyService);
-    }
-
-    public void setStickerService(StickerService stickerService) {
-        this.stickerService = Objects.requireNonNull(stickerService);
-    }
+    private boolean updating;
 
     public void setSticker(Sticker sticker) {
-        this.sticker = sticker;
-        modelComboBox.getItems().setAll(PrinterModel.values());
-        modelComboBox.setValue(sticker.getPrinterModel() != null ? sticker.getPrinterModel() : PrinterModel.B1);
-        widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, sticker.getWidth()));
-        heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, sticker.getHeight()));
+        this.sticker = Objects.requireNonNull(sticker);
+        historyService.setChangeListener(this::syncControls);
+        syncControls();
     }
 
     public void setEditor(Editor editor) {
-        this.editor = editor;
+        this.editor = Objects.requireNonNull(editor);
+        syncControls();
+    }
+
+    @FXML
+    private void initialize() {
+        modelComboBox.getItems().setAll(PrinterModel.values());
+        widthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, 8));
+        heightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 2000, 8));
         modelComboBox.valueProperty().addListener((o, a, b) -> applyModel(b));
         widthSpinner.valueProperty().addListener((o, a, b) -> resize(b, heightSpinner.getValue()));
         heightSpinner.valueProperty().addListener((o, a, b) -> resize(widthSpinner.getValue(), b));
     }
 
     private void applyModel(PrinterModel model) {
-        if (!PrinterModel.B1.equals(model) && !PrinterModel.D11.equals(model)) {
+        if (updating || model == null) {
             return;
         }
         historyService.withEdit(() -> {
             sticker.setPrinterModel(model);
             sticker.setWidth(model.getDefaultWidth());
             sticker.setHeight(model.getDefaultHeight());
-            widthSpinner.getValueFactory().setValue(model.getDefaultWidth());
-            heightSpinner.getValueFactory().setValue(model.getDefaultHeight());
+            syncControls();
             editor.refresh();
         });
     }
 
     private void resize(int width, int height) {
+        if (updating) {
+            return;
+        }
         historyService.withEdit(() -> {
             sticker.setWidth(width);
             sticker.setHeight(height);
@@ -78,18 +84,34 @@ public class StickerSettingsComponentController extends AbstractController {
         });
     }
 
+    private void syncControls() {
+        if (sticker == null) {
+            return;
+        }
+        updating = true;
+        try {
+            modelComboBox.setValue(sticker.getPrinterModel() != null ? sticker.getPrinterModel() : PrinterModel.B1);
+            widthSpinner.getValueFactory().setValue(sticker.getWidth());
+            heightSpinner.getValueFactory().setValue(sticker.getHeight());
+        } finally {
+            updating = false;
+        }
+    }
+
+    private void applySticker(Sticker source) {
+        sticker.setPrinterModel(source.getPrinterModel());
+        sticker.setWidth(source.getWidth());
+        sticker.setHeight(source.getHeight());
+        sticker.getElements().clear();
+        sticker.getElements().addAll(source.getElements());
+    }
+
     @FXML
     private void onNew() {
         currentFile = null;
         historyService.clearHistory();
-        Sticker s = new Sticker();
-        sticker.setPrinterModel(s.getPrinterModel());
-        sticker.setWidth(s.getWidth());
-        sticker.setHeight(s.getHeight());
-        sticker.getElements().clear();
-        modelComboBox.setValue(s.getPrinterModel());
-        widthSpinner.getValueFactory().setValue(s.getWidth());
-        heightSpinner.getValueFactory().setValue(s.getHeight());
+        applySticker(stickerService.createSticker());
+        syncControls();
         editor.refresh();
         message("Новая этикетка");
     }
@@ -105,13 +127,8 @@ public class StickerSettingsComponentController extends AbstractController {
                 loaded -> {
                     currentFile = file;
                     historyService.clearHistory();
-                    sticker.setPrinterModel(loaded.getPrinterModel());
-                    sticker.setWidth(loaded.getWidth());
-                    sticker.setHeight(loaded.getHeight());
-                    sticker.setElements(loaded.getElements());
-                    modelComboBox.setValue(loaded.getPrinterModel() != null ? loaded.getPrinterModel() : PrinterModel.B1);
-                    widthSpinner.getValueFactory().setValue(loaded.getWidth());
-                    heightSpinner.getValueFactory().setValue(loaded.getHeight());
+                    applySticker(loaded);
+                    syncControls();
                     editor.refresh();
                     message("Открыто: " + file.getName());
                 },
@@ -140,11 +157,8 @@ public class StickerSettingsComponentController extends AbstractController {
     private void saveTo(File file) {
         currentFile = file;
         run(
-                () -> {
-                    stickerService.saveSticker(sticker, file);
-                    return true;
-                },
-                ok -> message("Сохранено: " + file.getName()),
+                () -> stickerService.saveSticker(sticker, file),
+                () -> message("Сохранено: " + file.getName()),
                 this::error
         );
     }
@@ -166,5 +180,4 @@ public class StickerSettingsComponentController extends AbstractController {
         }
         return new File(file.getParent(), file.getName() + ".json");
     }
-
 }

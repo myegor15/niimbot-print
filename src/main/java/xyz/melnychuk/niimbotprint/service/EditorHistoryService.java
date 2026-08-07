@@ -22,6 +22,7 @@ public class EditorHistoryService {
 
     private Consumer<Boolean> undoListener = u -> {};
     private Consumer<Boolean> redoListener = r -> {};
+    private Runnable changeListener = () -> {};
 
     public EditorHistoryService(Sticker sticker) {
         this.sticker = sticker;
@@ -71,6 +72,7 @@ public class EditorHistoryService {
         redoStack.push(snapshot());
         restore(undoStack.pop());
         fireListeners();
+        changeListener.run();
         return true;
     }
 
@@ -81,6 +83,7 @@ public class EditorHistoryService {
         undoStack.push(snapshot());
         restore(redoStack.pop());
         fireListeners();
+        changeListener.run();
         return true;
     }
 
@@ -102,6 +105,10 @@ public class EditorHistoryService {
         fireListeners();
     }
 
+    public void setChangeListener(Runnable changeListener) {
+        this.changeListener = changeListener == null ? () -> {} : changeListener;
+    }
+
     private Sticker snapshot() {
         return mapper.convertValue(mapper.convertValue(sticker, Object.class), Sticker.class);
     }
@@ -116,6 +123,7 @@ public class EditorHistoryService {
     }
 
     private void restore(Sticker snapshot) {
+        sticker.setPrinterModel(snapshot.getPrinterModel());
         sticker.getElements().clear();
         sticker.getElements().addAll(snapshot.getElements());
         sticker.setWidth(snapshot.getWidth());
