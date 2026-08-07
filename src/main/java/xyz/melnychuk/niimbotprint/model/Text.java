@@ -19,10 +19,10 @@ public class Text extends Element {
     private boolean underline;
 
     public Text() {
-        this(DEFAULT_FONT, DEFAULT_TEXT, 0, 0, DEFAULT_FONT_SIZE, false, false, false);
+        this(0, 0, DEFAULT_FONT, DEFAULT_TEXT, DEFAULT_FONT_SIZE, false, false, false);
     }
 
-    public Text(FontFamily fontFamily, String text, double x, double y, int fontSize, boolean bold, boolean italic, boolean underline) {
+    public Text(double x, double y, FontFamily fontFamily, String text, int fontSize, boolean bold, boolean italic, boolean underline) {
         super(x, y);
         this.text = text;
         this.fontFamily = fontFamily;

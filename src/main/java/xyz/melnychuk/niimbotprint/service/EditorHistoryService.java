@@ -34,6 +34,12 @@ public class EditorHistoryService {
         fireListeners();
     }
 
+    public void withEdit(Runnable action) {
+        beginEdit();
+        action.run();
+        endEdit();
+    }
+
     public void beginEdit() {
         if (sticker == null) {
             return;

@@ -17,7 +17,7 @@ import java.util.Base64;
 public class EditorService {
 
     public Text getTextElement() {
-        return new Text(FontFamily.ARIAL, "Текст", 10, 10, 16, false, false, false);
+        return new Text(10, 10, FontFamily.ARIAL, "Текст", 16, false, false, false);
     }
 
     public Barcode getBarcodeElement() {

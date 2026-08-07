@@ -16,8 +16,8 @@ class StickerSerializationTest {
     @Test
     void roundTripPreservesElements() throws Exception {
         Sticker label = new Sticker(PrinterModel.D11);
-        label.getElements().add(new Text(FontFamily.ARIAL, "Привет", 10, 15, 16, false, false, false));
-        label.getElements().add(new Barcode(BarcodeFormat.CODE_128, "12345", 20, 30, 0, 80, true));
+        label.getElements().add(new Text(10, 15, FontFamily.ARIAL, "Привет", 16, false, false, false));
+        label.getElements().add(new Barcode(20, 30, BarcodeFormat.CODE_128, "12345", 0, 80, true));
         label.getElements().add(new Image(5, 5, "aGVsbG8=", 100, 50));
 
         String json = mapper.writeValueAsString(label);

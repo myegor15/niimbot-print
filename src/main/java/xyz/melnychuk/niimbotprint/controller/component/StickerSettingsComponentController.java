@@ -60,22 +60,22 @@ public class StickerSettingsComponentController extends AbstractController {
         if (!PrinterModel.B1.equals(model) && !PrinterModel.D11.equals(model)) {
             return;
         }
-        historyService.beginEdit();
-        sticker.setPrinterModel(model);
-        sticker.setWidth(model.getDefaultWidth());
-        sticker.setHeight(model.getDefaultHeight());
-        widthSpinner.getValueFactory().setValue(model.getDefaultWidth());
-        heightSpinner.getValueFactory().setValue(model.getDefaultHeight());
-        editor.refresh();
-        historyService.endEdit();
+        historyService.withEdit(() -> {
+            sticker.setPrinterModel(model);
+            sticker.setWidth(model.getDefaultWidth());
+            sticker.setHeight(model.getDefaultHeight());
+            widthSpinner.getValueFactory().setValue(model.getDefaultWidth());
+            heightSpinner.getValueFactory().setValue(model.getDefaultHeight());
+            editor.refresh();
+        });
     }
 
     private void resize(int width, int height) {
-        historyService.beginEdit();
-        sticker.setWidth(width);
-        sticker.setHeight(height);
-        editor.refresh();
-        historyService.endEdit();
+        historyService.withEdit(() -> {
+            sticker.setWidth(width);
+            sticker.setHeight(height);
+            editor.refresh();
+        });
     }
 
     @FXML

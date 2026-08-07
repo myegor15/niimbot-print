@@ -71,7 +71,6 @@ public class EditorComponentController extends AbstractController implements Edi
     private EditorCanvas canvas;
 
     private EditorService editorService;
-
     private EditorHistoryService historyService;
 
     public void setEditorService(EditorService editorService) {
@@ -171,16 +170,12 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onAddText() {
-        historyService.beginEdit();
-        canvas.addElement(editorService.getTextElement());
-        historyService.endEdit();
+        historyService.withEdit(() -> canvas.addElement(editorService.getTextElement()));
     }
 
     @FXML
     private void onAddBarcode() {
-        historyService.beginEdit();
-        canvas.addElement(editorService.getBarcodeElement());
-        historyService.endEdit();
+        historyService.withEdit(() -> canvas.addElement(editorService.getBarcodeElement()));
     }
 
     @FXML
@@ -192,9 +187,7 @@ public class EditorComponentController extends AbstractController implements Edi
         run(
                 () -> editorService.getImageElement(file),
                 element -> {
-                    historyService.beginEdit();
-                    canvas.addElement(element);
-                    historyService.endEdit();
+                    historyService.withEdit(() -> canvas.addElement(element));
                     message("Изображение добавлено");
                 },
                 this::error
@@ -205,9 +198,7 @@ public class EditorComponentController extends AbstractController implements Edi
     private void onDelete() {
         Element element = canvas.getSelectedElement();
         if (element != null) {
-            historyService.beginEdit();
-            canvas.removeElement(element);
-            historyService.endEdit();
+            historyService.withEdit(() -> canvas.removeElement(element));
             message("Элемент удалён");
         }
     }
@@ -227,10 +218,10 @@ public class EditorComponentController extends AbstractController implements Edi
         if (el == null) {
             return;
         }
-        historyService.beginEdit();
-        el.setRotation(((el.getRotation() + delta) % 360 + 360) % 360);
-        canvas.updateElement(el);
-        historyService.endEdit();
+        historyService.withEdit(() -> {
+            el.setRotation(((el.getRotation() + delta) % 360 + 360) % 360);
+            canvas.updateElement(el);
+        });
     }
 
     @FXML

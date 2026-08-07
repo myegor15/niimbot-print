@@ -18,10 +18,10 @@ public class Barcode extends Element {
     private boolean showValue;
 
     public Barcode() {
-        this(BarcodeFormat.CODE_128, DEFAULT_CONTENT, 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, true);
+        this(0, 0, BarcodeFormat.CODE_128, DEFAULT_CONTENT, DEFAULT_WIDTH, DEFAULT_HEIGHT, true);
     }
 
-    public Barcode(BarcodeFormat format, String content, double x, double y, int width, int height, boolean showValue) {
+    public Barcode(double x, double y, BarcodeFormat format, String content, int width, int height, boolean showValue) {
         super(x, y);
         this.format = format;
         this.content = content;

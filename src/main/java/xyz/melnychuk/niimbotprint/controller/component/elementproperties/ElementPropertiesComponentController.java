@@ -62,10 +62,10 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     }
 
     private <V> void commit(BiConsumer<T, V> setter, V value) {
-        historyService.beginEdit();
-        setter.accept(element, value);
-        touch();
-        historyService.endEdit();
+        historyService.withEdit(() -> {
+            setter.accept(element, value);
+            touch();
+        });
     }
 
     protected void bindIntSpinner(Spinner<Integer> spinner, int min, int max, BiConsumer<T, Integer> setter, Supplier<Integer> value) {
