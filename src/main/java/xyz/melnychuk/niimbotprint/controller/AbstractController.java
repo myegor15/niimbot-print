@@ -26,6 +26,12 @@ public abstract class AbstractController {
         errorHandler.accept(t);
     }
 
+    protected void run(Runnable action,
+                       Runnable onSuccess,
+                       Consumer<Throwable> onError) {
+        AsyncUtils.run(action, onSuccess, onError);
+    }
+
     protected <T> void run(Supplier<T> action,
                            Consumer<T> onSuccess,
                            Consumer<Throwable> onError) {

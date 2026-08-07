@@ -10,6 +10,19 @@ import java.util.function.Supplier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AsyncUtils {
 
+    public static void run(Runnable action,
+                           Runnable onSuccess,
+                           Consumer<Throwable> onError) {
+        run(
+                () -> {
+                    action.run();
+                    return null;
+                },
+                o -> onSuccess.run(),
+                onError
+        );
+    }
+
     public static <T> void run(Supplier<T> action,
                                Consumer<T> onSuccess,
                                Consumer<Throwable> onError) {

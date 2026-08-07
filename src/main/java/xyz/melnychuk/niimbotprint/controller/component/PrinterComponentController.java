@@ -7,13 +7,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
+import lombok.NonNull;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.DeviceDto;
 import xyz.melnychuk.niimbotprint.dto.PrinterDto;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class PrinterComponentController extends AbstractController {
@@ -29,14 +29,15 @@ public class PrinterComponentController extends AbstractController {
 
     private Timeline timeline;
 
+    @Setter
+    @NonNull
     private PrinterService printerService;
 
     @Setter
+    @NonNull
     private Consumer<Boolean> connectionListener = c -> {};
 
-    public void setPrinterService(PrinterService printerService) {
-        this.printerService = Objects.requireNonNull(printerService);
-    }
+    private boolean infoRequestInFlight;
 
     @FXML
     private void initialize() {
@@ -55,14 +56,13 @@ public class PrinterComponentController extends AbstractController {
         }
         run(
                 printerService::isConnected,
-                ok -> applyConnectionState(Boolean.TRUE.equals(ok)),
+                ok -> setConnected(connected(ok)),
                 this::error
         );
     }
 
-    private void applyConnectionState(boolean connected) {
-        setConnected(connected);
-        connectionListener.accept(connected);
+    private boolean connected(Boolean ok) {
+        return Boolean.TRUE.equals(ok);
     }
 
     private void setConnected(boolean connected) {
@@ -75,6 +75,7 @@ public class PrinterComponentController extends AbstractController {
         } else {
             clearPrinterInfo();
         }
+        connectionListener.accept(connected);
     }
 
     @FXML
@@ -99,12 +100,12 @@ public class PrinterComponentController extends AbstractController {
         run(
                 () -> printerService.connect(device),
                 ok -> {
-                    if (Boolean.TRUE.equals(ok)) {
+                    if (connected(ok)) {
                         message("Подключено к " + device);
                     } else {
                         message("Не удалось подключиться");
                     }
-                    applyConnectionState(Boolean.TRUE.equals(ok));
+                    setConnected(connected(ok));
                 },
                 this::error
         );
@@ -113,32 +114,51 @@ public class PrinterComponentController extends AbstractController {
     @FXML
     private void onDisconnect() {
         run(
+                printerService::disconnect,
                 () -> {
-                    printerService.disconnect();
-                    return true;
-                },
-                ok -> {
                     message("Отключено");
-                    applyConnectionState(false);
+                    setConnected(false);
                 },
                 this::error
         );
     }
 
     private void refreshPrinterInfo() {
-        run(printerService::getPrinterInfo, this::setInfo, this::error);
+        if (infoRequestInFlight) {
+            return;
+        }
+        infoRequestInFlight = true;
+        run(
+                printerService::getPrinterInfo,
+                info -> {
+                    infoRequestInFlight = false;
+                    setInfo(info);
+                },
+                e -> {
+                    infoRequestInFlight = false;
+                    error(e);
+                }
+        );
     }
 
     private void setInfo(PrinterDto info) {
-        printerInfoArea.setText(
-                "Модель: " + info.getModel() + "\n"
-                        + "DPI: " + info.getDpi() + "\n"
-                        + "Задача: " + info.getDetectedPrintTask() + "\n"
-                        + "Серийник: " + info.getSerial() + "\n"
-                        + "MAC: " + info.getMac() + "\n"
-                        + "Заряд: " + info.getCharge() + "%\n"
-                        + "FW: " + info.getSoftwareVersion()
-        );
+        printerInfoArea.setText("""
+                Модель: %s
+                DPI: %s
+                Задача: %s
+                Серийник: %s
+                MAC: %s
+                Заряд: %s%%
+                FW: %s
+                """.formatted(
+                info.getModel(),
+                info.getDpi(),
+                info.getDetectedPrintTask(),
+                info.getSerial(),
+                info.getMac(),
+                info.getCharge(),
+                info.getSoftwareVersion()
+        ));
     }
 
     private void clearPrinterInfo() {

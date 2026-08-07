@@ -1,25 +1,23 @@
 package xyz.melnychuk.niimbotprint.controller.component;
 
-import javafx.embed.swing.SwingFXUtils;
-import javafx.fxml.FXML;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.fxml.FXML;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import lombok.NonNull;
+import lombok.Setter;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
-import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.model.Element;
+import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
@@ -33,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 
 public class EditorComponentController extends AbstractController implements Editor {
 
@@ -70,16 +67,12 @@ public class EditorComponentController extends AbstractController implements Edi
     private Sticker sticker;
     private EditorCanvas canvas;
 
+    @Setter
+    @NonNull
     private EditorService editorService;
+    @Setter
+    @NonNull
     private EditorHistoryService historyService;
-
-    public void setEditorService(EditorService editorService) {
-        this.editorService = Objects.requireNonNull(editorService);
-    }
-
-    public void setHistoryService(EditorHistoryService historyService) {
-        this.historyService = Objects.requireNonNull(historyService);
-    }
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
