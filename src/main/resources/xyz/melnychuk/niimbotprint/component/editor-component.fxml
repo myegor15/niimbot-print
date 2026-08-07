@@ -15,7 +15,7 @@
             fx:controller="xyz.melnychuk.niimbotprint.controller.component.EditorComponentController">
     <center>
         <VBox styleClass="editor">
-            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true">
+            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true">
                 <HBox spacing="5" styleClass="panel">
                 <Button fx:id="undoButton" text="⟲ Отменить" disable="true" onAction="#onUndo"/>
                 <Button fx:id="redoButton" text="⟳ Вернуть" disable="true" onAction="#onRedo"/>
@@ -33,7 +33,7 @@
             <ScrollPane fx:id="canvasScroll" VBox.vgrow="ALWAYS" styleClass="canvas-scroll">
                 <StackPane fx:id="canvasHost" styleClass="canvas-host"/>
             </ScrollPane>
-            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true">
+            <ScrollPane styleClass="toolbar-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" fitToWidth="true">
                 <HBox styleClass="editor-toolbar" spacing="6" alignment="CENTER_LEFT">
                     <ToggleButton fx:id="gridToggle" text="Сетка" selected="true" onAction="#onToggleGrid"/>
                     <ToggleButton fx:id="snapToggle" text="Магнит" selected="true" onAction="#onTogglePositionSnap"/>

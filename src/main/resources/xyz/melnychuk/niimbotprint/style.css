@@ -7,8 +7,6 @@
 .panel-root {
     -fx-background-color: #f5f5f5;
     -fx-min-width: 230;
-    -fx-border-color: #dddddd;
-    -fx-border-width: 0 1 0 0;
 }
 
 .editor {
@@ -45,7 +43,8 @@
     -fx-background-color: #f5f5f5;
     -fx-background-insets: 0;
     -fx-padding: 0;
-    -fx-border-width: 0;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #dddddd;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
