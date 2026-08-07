@@ -1,4 +1,4 @@
-package xyz.melnychuk.niimbotprint.ui.canvas;
+package xyz.melnychuk.niimbotprint.ui.canvas.element;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,15 +12,11 @@ import xyz.melnychuk.niimbotprint.model.Text;
 public final class ElementViewFactory {
 
     public static ElementView getElementView(Element element) {
-        if (element instanceof Text text) {
-            return new TextView(text);
-        }
-        if (element instanceof Image image) {
-            return new ImageView(image);
-        }
-        if (element instanceof Barcode barcode) {
-            return new BarcodeView(barcode);
-        }
-        throw new AppException("Unknown element: " + element);
+        return switch (element) {
+            case Text text -> new TextView(text);
+            case Image image -> new ImageView(image);
+            case Barcode barcode -> new BarcodeView(barcode);
+            case Element other -> throw new AppException("Unknown element: " + other);
+        };
     }
 }

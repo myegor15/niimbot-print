@@ -4,7 +4,6 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
-import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,7 +23,8 @@ import xyz.melnychuk.niimbotprint.model.Element;
 import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 import xyz.melnychuk.niimbotprint.service.EditorService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
-import xyz.melnychuk.niimbotprint.ui.canvas.StickerCanvas;
+import xyz.melnychuk.niimbotprint.ui.canvas.EditorCanvas;
+import xyz.melnychuk.niimbotprint.ui.canvas.PaneEditorCanvas;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -68,7 +68,7 @@ public class EditorComponentController extends AbstractController implements Edi
     private ElementPropertiesComponentController<?> currentElementPropertiesController;
 
     private Sticker sticker;
-    private StickerCanvas canvas;
+    private EditorCanvas canvas;
 
     private EditorService editorService;
 
@@ -84,8 +84,8 @@ public class EditorComponentController extends AbstractController implements Edi
 
     public void setSticker(Sticker sticker) {
         this.sticker = sticker;
-        canvas = new StickerCanvas(sticker);
-        zoomGroup = new Group(canvas);
+        canvas = new PaneEditorCanvas(sticker);
+        zoomGroup = new Group(canvas.getNode());
         canvasHost.getChildren().add(zoomGroup);
         canvasHost.minWidthProperty().bind(hostSize(true));
         canvasHost.minHeightProperty().bind(hostSize(false));
@@ -129,7 +129,7 @@ public class EditorComponentController extends AbstractController implements Edi
         canvas.hideGuides();
         canvas.setSelectionVisible(false);
         try {
-            WritableImage image = canvas.snapshot(null, null);
+            WritableImage image = canvas.getNode().snapshot(null, null);
             BufferedImage buffered = SwingFXUtils.fromFXImage(image, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(buffered, "png", out);
@@ -203,9 +203,10 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onDelete() {
-        if (canvas.getSelectedElement() != null) {
+        Element element = canvas.getSelectedElement();
+        if (element != null) {
             historyService.beginEdit();
-            canvas.removeSelected();
+            canvas.removeElement(element);
             historyService.endEdit();
             message("Элемент удалён");
         }

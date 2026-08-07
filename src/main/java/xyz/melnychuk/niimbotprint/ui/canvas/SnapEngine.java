@@ -1,6 +1,5 @@
 package xyz.melnychuk.niimbotprint.ui.canvas;
 
-import javafx.scene.shape.Line;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -12,18 +11,23 @@ public final class SnapEngine {
     private static final double ROTATION_SNAP_THRESHOLD = 5;
     private static final double[] SNAP_OFFSETS = {0, 0.5, 1};
 
-    public static double[] snapPosition(double x, double y, double sizeW, double sizeH,
-                                        double maxW, double maxH, Line vGuide, Line hGuide) {
-        double sx = snapAxis(x, sizeW, maxW, vGuide, true, maxW, maxH);
-        double sy = snapAxis(y, sizeH, maxH, hGuide, false, maxW, maxH);
-        return new double[]{sx, sy};
+    public record AxisSnap(double coord, Double guide) {
     }
 
-    private static double snapAxis(double coord, double size, double max, Line guide,
-                                   boolean vertical, double w, double h) {
+    public record SnapResult(double x, double y, Double vGuide, Double hGuide) {
+    }
+
+    public static SnapResult snapPosition(double x, double y, double sizeW, double sizeH,
+                                          double maxW, double maxH) {
+        AxisSnap v = snapAxis(x, sizeW, maxW);
+        AxisSnap h = snapAxis(y, sizeH, maxH);
+        return new SnapResult(v.coord(), h.coord(), v.guide(), h.guide());
+    }
+
+    private static AxisSnap snapAxis(double coord, double size, double max) {
         double best = Double.MAX_VALUE;
         double bestCoord = coord;
-        double bestTarget = Double.NaN;
+        Double bestTarget = null;
         double[] targets = {max / 2, 0, max};
         for (double offset : SNAP_OFFSETS) {
             double ref = coord + offset * size;
@@ -31,32 +35,13 @@ public final class SnapEngine {
                 double distance = Math.abs(ref - target);
                 if (distance < SNAP_THRESHOLD && distance < best) {
                     best = distance;
-                    bestCoord = target - offset * size;
                     bestTarget = target;
+                    bestCoord = target - offset * size;
                 }
             }
         }
-        if (best < SNAP_THRESHOLD && bestCoord >= 0 && bestCoord + size <= max) {
-            placeGuide(guide, vertical, bestTarget, w, h);
-            return bestCoord;
-        }
-        guide.setVisible(false);
-        return coord;
-    }
-
-    private static void placeGuide(Line guide, boolean vertical, double target, double w, double h) {
-        guide.setVisible(true);
-        if (vertical) {
-            guide.setStartX(target);
-            guide.setEndX(target);
-            guide.setStartY(0);
-            guide.setEndY(h);
-        } else {
-            guide.setStartX(0);
-            guide.setEndX(w);
-            guide.setStartY(target);
-            guide.setEndY(target);
-        }
+        boolean snapped = best < SNAP_THRESHOLD && bestCoord >= 0 && bestCoord + size <= max;
+        return new AxisSnap(snapped ? bestCoord : coord, snapped ? bestTarget : null);
     }
 
     public static double snapRotation(double degrees) {
