@@ -4,6 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import lombok.NonNull;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Element;
@@ -19,14 +20,19 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     private boolean updating;
 
     @Setter
+    @NonNull
     private EditorHistoryService historyService;
+    private Consumer<Element> elementChangeListener = e -> {};
 
-    @Setter
-    private Consumer<Element> elementChangeListener;
+    public void setElementChangeListener(Consumer<Element> elementChangeListener) {
+        this.elementChangeListener = elementChangeListener == null ? e -> {} : elementChangeListener;
+    }
 
     public final void show(Element element) {
         this.element = (T) element;
+        updating = true;
         apply();
+        updating = false;
     }
 
     public final void sync(Element element) {
@@ -43,9 +49,7 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     protected abstract void sync();
 
     protected void touch() {
-        if (elementChangeListener != null) {
-            elementChangeListener.accept(element);
-        }
+        elementChangeListener.accept(element);
     }
 
     protected <V> void bind(ObservableValue<V> property, BiConsumer<T, V> setter) {
@@ -72,53 +76,11 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
         spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, value.get(), 1));
         spinner.setEditable(true);
         bind(spinner.valueProperty(), setter);
-        spinner.getEditor().textProperty().addListener((o, a, b) -> {
-            Integer v = parseInt(b);
-            if (v != null) {
-                commit(setter, v);
-            }
-        });
     }
 
     protected void syncIntSpinner(Spinner<Integer> spinner, Supplier<Integer> value) {
-        if (element != null && spinner.getValueFactory() != null) {
+        if (spinner.getValueFactory() != null) {
             spinner.getValueFactory().setValue(value.get());
-        }
-    }
-
-    protected static Integer parseInt(String text) {
-        try {
-            return text == null ? null : Integer.valueOf(text.trim().replace(",", "."));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    protected void bindSpinner(Spinner<Double> spinner, double min, double max, BiConsumer<T, Double> setter, Supplier<Double> value) {
-        spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, value.get(), 1));
-        spinner.setEditable(true);
-        bind(spinner.valueProperty(), setter);
-        spinner.getEditor().textProperty().addListener((o, a, b) -> {
-            Double v = parseDouble(b);
-            if (v != null) {
-                commit(setter, v);
-            }
-        });
-    }
-
-    protected void syncSpinner(Spinner<Double> spinner, Supplier<Double> value) {
-        if (element != null && spinner.getValueFactory() != null) {
-            spinner.getValueFactory().setValue(value.get());
-        }
-    }
-
-    protected static Double parseDouble(String text) {
-        try {
-            return text == null
-                    ? null
-                    : Double.valueOf(text.trim().replace(",", "."));
-        } catch (NumberFormatException e) {
-            return null;
         }
     }
 }

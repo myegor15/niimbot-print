@@ -37,16 +37,13 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
         fontBox.setItems(FXCollections.observableArrayList(Stream.of(FontFamily.values()).toList()));
         fontBox.setConverter(new StringConverter<>() {
             @Override
-            public String toString(FontFamily object) {
-                return object.getDisplayName();
+            public String toString(FontFamily font) {
+                return font == null ? null : font.getDisplayName();
             }
 
             @Override
             public FontFamily fromString(String string) {
-                return Stream.of(FontFamily.values())
-                        .filter(font -> font.getDisplayName().equals(string))
-                        .findFirst()
-                        .orElse(null);
+                return FontFamily.byDisplayName(string);
             }
         });
         fontBox.setValue(element.getFontFamily());
@@ -66,6 +63,11 @@ public class TextPropertiesComponentController extends ElementPropertiesComponen
 
     @Override
     protected void sync() {
+        textField.setText(element.getText());
+        fontBox.setValue(element.getFontFamily());
         syncIntSpinner(sizeSpinner, element::getFontSize);
+        boldCheck.setSelected(element.isBold());
+        italicCheck.setSelected(element.isItalic());
+        underlineCheck.setSelected(element.isUnderline());
     }
 }

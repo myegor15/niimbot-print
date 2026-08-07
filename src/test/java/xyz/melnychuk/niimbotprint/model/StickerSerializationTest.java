@@ -33,6 +33,7 @@ class StickerSerializationTest {
         assertEquals("Привет", text.getText());
         assertEquals(10, text.getX());
         assertEquals(FontFamily.ARIAL, text.getFontFamily());
+        assertEquals(((Text) label.getElements().get(0)).getId(), text.getId());
 
         Barcode barcode = (Barcode) restored.getElements().get(1);
         assertEquals("12345", barcode.getContent());

@@ -33,7 +33,9 @@ public class BarcodePropertiesComponentController extends ElementPropertiesCompo
 
     @Override
     protected void sync() {
+        contentField.setText(element.getContent());
         syncIntSpinner(widthSpinner, element::getWidth);
         syncIntSpinner(heightSpinner, element::getHeight);
+        showValueCheck.setSelected(element.isShowValue());
     }
 }

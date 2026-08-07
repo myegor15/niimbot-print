@@ -1,6 +1,5 @@
 package xyz.melnychuk.niimbotprint.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
@@ -18,7 +17,6 @@ import java.util.UUID;
 })
 public abstract class Element {
 
-    @JsonIgnore
     private final UUID id = UUID.randomUUID();
 
     private double x;

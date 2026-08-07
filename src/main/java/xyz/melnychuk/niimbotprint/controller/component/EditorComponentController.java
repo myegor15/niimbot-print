@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 public class EditorComponentController extends AbstractController implements Editor {
 
@@ -219,15 +220,37 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onUndo() {
+        UUID id = selectedElementId();
         if (historyService.undo()) {
-            refresh();
+            restoreSelection(id);
         }
     }
 
     @FXML
     private void onRedo() {
+        UUID id = selectedElementId();
         if (historyService.redo()) {
-            refresh();
+            restoreSelection(id);
+        }
+    }
+
+    private UUID selectedElementId() {
+        Element selected = canvas.getSelectedElement();
+        return selected == null ? null : selected.getId();
+    }
+
+    private void restoreSelection(UUID id) {
+        refresh();
+        Element restored = id == null
+                ? null
+                : sticker.getElements().stream()
+                        .filter(e -> e.getId().equals(id))
+                        .findFirst()
+                        .orElse(null);
+        if (restored != null) {
+            canvas.select(restored);
+        } else {
+            canvas.selectNone();
         }
     }
 
