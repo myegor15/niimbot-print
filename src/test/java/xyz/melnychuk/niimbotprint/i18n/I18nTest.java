@@ -30,16 +30,29 @@ class I18nTest {
 
     @Test
     void initFallsBackToEnglishForUnsupportedLocale() {
-        I18n.init(Locale.forLanguageTag("fr"));
-        assertEquals(Language.ENGLISH, I18n.getLanguage());
-        I18n.init(null);
-        assertEquals(Language.ENGLISH, I18n.getLanguage());
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("fr"));
+            I18n.init();
+            assertEquals(Language.ENGLISH, I18n.getLanguage());
+            Locale.setDefault(Locale.ROOT);
+            I18n.init();
+            assertEquals(Language.ENGLISH, I18n.getLanguage());
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 
     @Test
     void initDetectsSupportedOsLocale() {
-        I18n.init(Locale.forLanguageTag("uk"));
-        assertEquals(Language.UKRAINIAN, I18n.getLanguage());
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("uk"));
+            I18n.init();
+            assertEquals(Language.UKRAINIAN, I18n.getLanguage());
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 
     @Test

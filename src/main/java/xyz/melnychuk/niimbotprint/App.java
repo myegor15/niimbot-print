@@ -10,12 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.view.MainViewController;
 import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
-import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
 import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
 import xyz.melnychuk.niimbotprint.util.FxmlLoader;
-
-import java.util.Locale;
 
 @Slf4j
 public class App extends Application {
@@ -31,16 +29,16 @@ public class App extends Application {
         startNiimBlue(stage);
     }
 
-    private void initI18n(Stage stage) {
-        I18n.init(Locale.getDefault());
-        I18n.addLanguageListener(language -> reloadMain(stage));
-    }
-
     @Override
     public void stop() {
         if (apiManager != null) {
             apiManager.stop();
         }
+    }
+
+    private void initI18n(Stage stage) {
+        I18n.init();
+        I18n.addLanguageListener(language -> reloadMain(stage));
     }
 
     private void startUi(Stage stage) {

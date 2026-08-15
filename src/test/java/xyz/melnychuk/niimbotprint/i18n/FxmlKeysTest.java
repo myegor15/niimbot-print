@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -25,7 +24,7 @@ class FxmlKeysTest {
 
     @BeforeEach
     void setUp() {
-        I18n.init(Locale.ENGLISH);
+        I18n.setLanguage(Language.ENGLISH);
     }
 
     @Test
