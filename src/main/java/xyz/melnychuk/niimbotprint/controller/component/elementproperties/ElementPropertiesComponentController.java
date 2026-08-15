@@ -7,6 +7,7 @@ import javafx.scene.control.SpinnerValueFactory;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Element;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -19,23 +20,30 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     private Consumer<Element> elementChangeListener = e -> {};
 
     public void setElementChangeListener(Consumer<Element> elementChangeListener) {
-        this.elementChangeListener = elementChangeListener == null ? e -> {} : elementChangeListener;
+        this.elementChangeListener = Objects.requireNonNull(elementChangeListener);
     }
 
     public final void show(Element element) {
         this.element = (T) element;
         updating = true;
-        apply();
-        updating = false;
+        try {
+            apply();
+        } finally {
+            updating = false;
+        }
     }
 
     public final void sync(Element element) {
         if (this.element != element) {
             return;
         }
+
         updating = true;
-        sync();
-        updating = false;
+        try {
+            sync();
+        } finally {
+            updating = false;
+        }
     }
 
     protected abstract void apply();

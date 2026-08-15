@@ -99,11 +99,7 @@ public class StickerSettingsComponentController extends AbstractController {
     }
 
     private void applySticker(Sticker source) {
-        sticker.setPrinterModel(source.getPrinterModel());
-        sticker.setWidth(source.getWidth());
-        sticker.setHeight(source.getHeight());
-        sticker.getElements().clear();
-        sticker.getElements().addAll(source.getElements());
+        sticker.copyFrom(source);
     }
 
     @FXML

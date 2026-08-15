@@ -13,6 +13,7 @@ import xyz.melnychuk.niimbotprint.dto.PrintDensity;
 import xyz.melnychuk.niimbotprint.dto.PrintTaskDto;
 import xyz.melnychuk.niimbotprint.i18n.I18n;
 import xyz.melnychuk.niimbotprint.i18n.message.PrinterMessage;
+import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
 import xyz.melnychuk.niimbotprint.ui.Editor;
 
@@ -25,6 +26,8 @@ public class PrintSettingsComponentController extends AbstractController {
     @FXML
     private Button printButton;
 
+
+    private Sticker sticker;
     @Setter
     @NonNull
     private Editor editor;
@@ -40,6 +43,7 @@ public class PrintSettingsComponentController extends AbstractController {
 
     @Override
     protected void bind(AppContext appContext) {
+        sticker = appContext.getSticker();
         printerService = appContext.getPrinterService();
     }
 
@@ -56,8 +60,8 @@ public class PrintSettingsComponentController extends AbstractController {
         int quantity = quantitySpinner.getValue();
         PrintTaskDto task = PrintTaskDto.builder()
                 .imageBase64(snapshot)
-                .width(getAppContext().getSticker().getWidth())
-                .height(getAppContext().getSticker().getHeight())
+                .width(sticker.getWidth())
+                .height(sticker.getHeight())
                 .density(densityComboBox.getValue())
                 .quantity(quantity)
                 .build();

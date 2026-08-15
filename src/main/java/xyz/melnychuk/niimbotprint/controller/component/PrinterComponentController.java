@@ -143,15 +143,14 @@ public class PrinterComponentController extends AbstractController {
         infoRequestInFlight = true;
         run(
                 printerService::getPrinterInfo,
-                info -> {
-                    infoRequestInFlight = false;
-                    setInfo(info);
-                },
-                e -> {
-                    infoRequestInFlight = false;
-                    error(e);
-                }
+                info -> finishInfoRequest(() -> setInfo(info)),
+                error -> finishInfoRequest(() -> this.error(error))
         );
+    }
+
+    private void finishInfoRequest(Runnable action) {
+        infoRequestInFlight = false;
+        action.run();
     }
 
     private void setInfo(PrinterDto info) {

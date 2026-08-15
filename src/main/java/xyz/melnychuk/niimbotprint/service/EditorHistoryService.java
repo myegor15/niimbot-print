@@ -1,6 +1,8 @@
 package xyz.melnychuk.niimbotprint.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 
@@ -9,6 +11,7 @@ import java.util.Deque;
 import java.util.function.Consumer;
 
 @Slf4j
+@RequiredArgsConstructor
 public class EditorHistoryService {
 
     private static final int LIMIT = 50;
@@ -17,16 +20,13 @@ public class EditorHistoryService {
     private final Deque<Sticker> undoStack = new ArrayDeque<>();
     private final Deque<Sticker> redoStack = new ArrayDeque<>();
 
-    private Sticker sticker;
+    @NonNull
+    private final Sticker sticker;
     private Sticker pending;
 
     private Consumer<Boolean> undoListener = u -> {};
     private Consumer<Boolean> redoListener = r -> {};
     private Runnable changeListener = () -> {};
-
-    public EditorHistoryService(Sticker sticker) {
-        this.sticker = sticker;
-    }
 
     public void clearHistory() {
         undoStack.clear();
@@ -123,11 +123,7 @@ public class EditorHistoryService {
     }
 
     private void restore(Sticker snapshot) {
-        sticker.setPrinterModel(snapshot.getPrinterModel());
-        sticker.getElements().clear();
-        sticker.getElements().addAll(snapshot.getElements());
-        sticker.setWidth(snapshot.getWidth());
-        sticker.setHeight(snapshot.getHeight());
+        sticker.copyFrom(snapshot);
     }
 
     private void fireListeners() {

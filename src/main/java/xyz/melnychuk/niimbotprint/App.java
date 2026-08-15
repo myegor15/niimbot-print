@@ -18,7 +18,6 @@ import xyz.melnychuk.niimbotprint.util.FxmlLoader;
 @Slf4j
 public class App extends Application {
 
-    private NiimBlueApiManager apiManager;
     private AppContext appContext;
     private MainViewController mainController;
 
@@ -31,8 +30,8 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        if (apiManager != null) {
-            apiManager.stop();
+        if (appContext != null) {
+            appContext.getApiManager().stop();
         }
     }
 
@@ -51,8 +50,7 @@ public class App extends Application {
         AsyncUtils.run(
                 NiimBlueApiManager::start,
                 apiManager -> {
-                    this.apiManager = apiManager;
-                    this.appContext = AppContext.create(apiManager);
+                    this.appContext = new AppContext(apiManager);
                     showMain(stage, true);
                 },
                 e -> {

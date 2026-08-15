@@ -22,4 +22,12 @@ public class Sticker {
         this.width = printerModel.getDefaultWidth();
         this.height = printerModel.getDefaultHeight();
     }
+
+    public void copyFrom(Sticker source) {
+        this.printerModel = source.printerModel;
+        this.width = source.width;
+        this.height = source.height;
+        this.elements.clear();
+        this.elements.addAll(source.elements);
+    }
 }

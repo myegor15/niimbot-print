@@ -38,26 +38,24 @@ public class MainViewController extends AbstractController {
     protected void bind(AppContext appContext) {
         statusBarController.setAppContext(appContext);
 
-        editorController.setAppContext(appContext);
-        editorController.setMessageHandler(statusBarController::setMessage);
-        editorController.setErrorHandler(this::showError);
-
-        stickerSettingsController.setAppContext(appContext);
-        stickerSettingsController.setMessageHandler(statusBarController::setMessage);
-        stickerSettingsController.setErrorHandler(this::showError);
+        bindComponent(appContext, editorController);
         stickerSettingsController.setEditor(editorController);
 
-        printSettingsController.setAppContext(appContext);
-        printSettingsController.setMessageHandler(statusBarController::setMessage);
-        printSettingsController.setErrorHandler(this::showError);
+        bindComponent(appContext, stickerSettingsController);
         printSettingsController.setEditor(editorController);
 
-        printerComponentController.setAppContext(appContext);
-        printerComponentController.setMessageHandler(statusBarController::setMessage);
-        printerComponentController.setErrorHandler(this::showError);
+        bindComponent(appContext, printSettingsController);
         printerComponentController.setConnectionListener(this::applyConnectionState);
 
+        bindComponent(appContext, printerComponentController);
+
         applyConnectionState(false);
+    }
+
+    private void bindComponent(AppContext appContext, AbstractController controller) {
+        controller.setAppContext(appContext);
+        controller.setMessageHandler(statusBarController::setMessage);
+        controller.setErrorHandler(this::showError);
     }
 
     private void applyConnectionState(boolean connected) {
