@@ -5,13 +5,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.ImagePropertiesComponentController" spacing="8">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.ImagePropertiesComponentController"
+      spacing="8">
     <HBox spacing="8">
-        <Label text="Ширина"/>
+        <Label text="%label.width"/>
         <Spinner fx:id="widthSpinner" editable="true" prefWidth="120"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Высота"/>
+        <Label text="%label.height"/>
         <Spinner fx:id="heightSpinner" editable="true" prefWidth="120"/>
     </HBox>
 </VBox>

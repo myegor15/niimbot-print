@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<HBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.StatusBarComponentController"
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="xyz.melnychuk.niimbotprint.controller.component.StatusBarComponentController"
       spacing="8" styleClass="status-bar">
     <Label fx:id="apiLabel" text="..."/>
-    <Label fx:id="connectionLabel" text="Не подключено"/>
+    <Label fx:id="connectionLabel" text="%status.disconnected"/>
     <Region HBox.hgrow="ALWAYS"/>
-    <Label fx:id="messageLabel" text="Готово"/>
+    <Label fx:id="messageLabel" text="%status.ready"/>
+    <Button fx:id="languageButton" styleClass="icon-button" onAction="#onLanguagePressed">
+        <graphic>
+            <FontIcon iconLiteral="mdi2t-translate" iconSize="14"/>
+        </graphic>
+    </Button>
 </HBox>

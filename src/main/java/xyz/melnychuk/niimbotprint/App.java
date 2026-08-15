@@ -10,18 +10,30 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
 import xyz.melnychuk.niimbotprint.controller.view.MainViewController;
 import xyz.melnychuk.niimbotprint.controller.view.SplashViewController;
+import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
 import xyz.melnychuk.niimbotprint.util.FxmlLoader;
+
+import java.util.Locale;
 
 @Slf4j
 public class App extends Application {
 
     private NiimBlueApiManager apiManager;
+    private AppContext appContext;
+    private MainViewController mainController;
 
     @Override
     public void start(Stage stage) {
+        initI18n(stage);
         startUi(stage);
         startNiimBlue(stage);
+    }
+
+    private void initI18n(Stage stage) {
+        I18n.init(Locale.getDefault());
+        I18n.addLanguageListener(language -> reloadMain(stage));
     }
 
     @Override
@@ -42,47 +54,60 @@ public class App extends Application {
                 NiimBlueApiManager::start,
                 apiManager -> {
                     this.apiManager = apiManager;
-                    showMain(stage);
+                    this.appContext = AppContext.create(apiManager);
+                    showMain(stage, true);
                 },
                 e -> {
                     log.error("Exception in startNiimBlue().", e);
-                    showError(stage, "Не удалось запустить встроенный сервер печати.");
+                    showError(stage, AppMessage.ERROR_SERVER_START);
                 }
         );
     }
 
     private boolean showSplash(Stage stage) {
         try {
-            var bandle = FxmlLoader.loadView(SplashViewController.class, stage);
-            showScene(stage, bandle.node());
+            var bundle = FxmlLoader.loadView(SplashViewController.class);
+            showScene(stage, bundle.node(), true);
             return true;
         } catch (Exception e) {
             log.error("Exception in showSplash().", e);
-            showError(stage, "Не удалось открыть окно загрузки.");
+            showError(stage, AppMessage.ERROR_SPLASH_OPEN);
             return false;
         }
     }
 
-    private void showMain(Stage stage) {
+    private void showMain(Stage stage, boolean center) {
         try {
-            var bundle = FxmlLoader.loadView(MainViewController.class, stage);
-            bundle.controller().setApiManager(apiManager);
-            showScene(stage, bundle.node());
+            var bundle = FxmlLoader.loadView(MainViewController.class);
+            mainController = bundle.controller();
+            mainController.setAppContext(appContext);
+            stage.setTitle(I18n.get(AppMessage.APP_TITLE));
+            showScene(stage, bundle.node(), center);
         } catch (Exception e) {
             log.error("Exception in showMain().", e);
-            showError(stage, "Не удалось открыть главное окно.");
+            showError(stage, AppMessage.ERROR_MAIN_OPEN);
         }
     }
 
-    private void showScene(Stage stage, Scene scene) {
-        stage.setScene(scene);
-        stage.centerOnScreen();
+    private void reloadMain(Stage stage) {
+        if (mainController == null) {
+            return;
+        }
+        mainController.dispose();
+        showMain(stage, false);
     }
 
-    private void showError(Stage stage, String message) {
+    private void showScene(Stage stage, Scene scene, boolean center) {
+        stage.setScene(scene);
+        if (center) {
+            stage.centerOnScreen();
+        }
+    }
+
+    private void showError(Stage stage, AppMessage key, Object... args) {
         Platform.setImplicitExit(false);
         stage.close();
-        new Alert(Alert.AlertType.ERROR, message, ButtonType.OK).showAndWait();
+        new Alert(Alert.AlertType.ERROR, I18n.get(key, args), ButtonType.OK).showAndWait();
         Platform.exit();
     }
 }

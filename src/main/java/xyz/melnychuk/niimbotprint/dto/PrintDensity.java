@@ -2,20 +2,22 @@ package xyz.melnychuk.niimbotprint.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.PrinterMessage;
 
 @Getter
 @RequiredArgsConstructor
 public enum PrintDensity {
 
-    LIGHT("Светлая", 1),
-    NORMAL("Нормальная", 3),
-    DARK("Насыщенная", 5);
+    LIGHT(PrinterMessage.DENSITY_LIGHT, 1),
+    NORMAL(PrinterMessage.DENSITY_NORMAL, 3),
+    DARK(PrinterMessage.DENSITY_DARK, 5);
 
-    private final String label;
+    private final PrinterMessage labelKey;
     private final int value;
 
     @Override
     public String toString() {
-        return label;
+        return I18n.get(labelKey);
     }
 }

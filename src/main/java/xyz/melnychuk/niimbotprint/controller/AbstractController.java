@@ -1,21 +1,46 @@
 package xyz.melnychuk.niimbotprint.controller;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import xyz.melnychuk.niimbotprint.AppContext;
+import xyz.melnychuk.niimbotprint.AppReadableException;
+import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class AbstractController {
 
+    @Getter
+    private AppContext appContext;
+
+    private boolean bound;
+
+    @Setter
+    @NonNull
     private Consumer<String> messageHandler = text -> {};
+
+    @Setter
+    @NonNull
     private Consumer<Throwable> errorHandler = t -> {};
 
-    public void setMessageHandler(Consumer<String> handler) {
-        this.messageHandler = handler;
+    public void setAppContext(AppContext appContext) {
+        this.appContext = Objects.requireNonNull(appContext);
+        if (bound) {
+            return;
+        }
+        bound = true;
+        bind(appContext);
     }
 
-    public void setErrorHandler(Consumer<Throwable> handler) {
-        this.errorHandler = handler;
+    public void dispose() {
+    }
+
+    protected void bind(AppContext appContext) {
     }
 
     protected void message(String text) {
@@ -36,5 +61,12 @@ public abstract class AbstractController {
                            Consumer<T> onSuccess,
                            Consumer<Throwable> onError) {
         AsyncUtils.run(action, onSuccess, onError);
+    }
+
+    protected String getErrorMessage(Throwable error) {
+        return switch (error) {
+            case AppReadableException readable -> I18n.get(readable.getKey(), readable.getArgs());
+            case null, default -> I18n.get(AppMessage.ERROR_SYSTEM);
+        };
     }
 }

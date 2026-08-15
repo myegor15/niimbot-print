@@ -7,19 +7,19 @@
       fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.BarcodePropertiesComponentController"
       spacing="8">
     <HBox spacing="8">
-        <Label text="Содержимое"/>
+        <Label text="%label.content"/>
         <TextField fx:id="contentField" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Ширина"/>
+        <Label text="%label.width"/>
         <Spinner fx:id="widthSpinner" editable="true" prefWidth="120"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Высота"/>
+        <Label text="%label.height"/>
         <Spinner fx:id="heightSpinner" editable="true" prefWidth="120"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Показывать значение"/>
+        <Label text="%label.showValue"/>
         <CheckBox fx:id="showValueCheck"/>
     </HBox>
 </VBox>

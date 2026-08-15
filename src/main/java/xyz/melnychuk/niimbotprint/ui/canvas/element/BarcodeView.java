@@ -7,6 +7,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import lombok.extern.slf4j.Slf4j;
+import xyz.melnychuk.niimbotprint.i18n.message.EditorMessage;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
 import xyz.melnychuk.niimbotprint.model.Barcode;
 import xyz.melnychuk.niimbotprint.ui.BarcodeGenerator;
 import xyz.melnychuk.niimbotprint.ui.canvas.ResizeHandle;
@@ -16,7 +18,6 @@ import java.util.List;
 @Slf4j
 public class BarcodeView extends AbstractElementView<Barcode> {
 
-    private static final String RENDER_ERROR_TEXT = "Недопустимый штрихкод";
     private static final double VALUE_FONT_SIZE = 18;
 
     private final Group root = new Group();
@@ -74,7 +75,7 @@ public class BarcodeView extends AbstractElementView<Barcode> {
         } catch (Exception e) {
             log.warn("Barcode cannot be rendered for content '{}' format '{}': {}",
                     element().getContent(), element().getFormat(), e.getMessage());
-            root.getChildren().add(new Text(RENDER_ERROR_TEXT));
+            root.getChildren().add(new Text(I18n.get(EditorMessage.BARCODE_INVALID)));
         }
     }
 

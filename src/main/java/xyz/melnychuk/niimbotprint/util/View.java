@@ -11,8 +11,6 @@ public @interface View {
 
     String fxml();
 
-    String title() default "";
-
     int width() default -1;
 
     int height() default -1;

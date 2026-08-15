@@ -9,9 +9,12 @@ import javafx.scene.control.TextArea;
 import javafx.util.Duration;
 import lombok.NonNull;
 import lombok.Setter;
+import xyz.melnychuk.niimbotprint.AppContext;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.dto.DeviceDto;
 import xyz.melnychuk.niimbotprint.dto.PrinterDto;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.PrinterMessage;
 import xyz.melnychuk.niimbotprint.service.PrinterService;
 
 import java.util.function.Consumer;
@@ -29,8 +32,6 @@ public class PrinterComponentController extends AbstractController {
 
     private Timeline timeline;
 
-    @Setter
-    @NonNull
     private PrinterService printerService;
 
     @Setter
@@ -42,6 +43,11 @@ public class PrinterComponentController extends AbstractController {
     @FXML
     private void initialize() {
         initTimeline();
+    }
+
+    @Override
+    protected void bind(AppContext appContext) {
+        printerService = appContext.getPrinterService();
     }
 
     private void initTimeline() {
@@ -80,12 +86,12 @@ public class PrinterComponentController extends AbstractController {
 
     @FXML
     private void onRefresh() {
-        message("Поиск устройств...");
+        message(I18n.get(PrinterMessage.MESSAGE_SCANNING));
         run(
                 printerService::scanDevices,
                 devices -> {
                     deviceComboBox.getItems().setAll(devices);
-                    message("Найдено устройств: " + devices.size());
+                    message(I18n.get(PrinterMessage.MESSAGE_DEVICES_FOUND, devices.size()));
                 },
                 this::error
         );
@@ -101,9 +107,9 @@ public class PrinterComponentController extends AbstractController {
                 () -> printerService.connect(device),
                 ok -> {
                     if (connected(ok)) {
-                        message("Подключено к " + device);
+                        message(I18n.get(PrinterMessage.MESSAGE_CONNECTED_TO, device));
                     } else {
-                        message("Не удалось подключиться");
+                        message(I18n.get(PrinterMessage.MESSAGE_CONNECT_FAILED));
                     }
                     setConnected(connected(ok));
                 },
@@ -116,11 +122,18 @@ public class PrinterComponentController extends AbstractController {
         run(
                 printerService::disconnect,
                 () -> {
-                    message("Отключено");
+                    message(I18n.get(PrinterMessage.MESSAGE_DISCONNECTED));
                     setConnected(false);
                 },
                 this::error
         );
+    }
+
+    @Override
+    public void dispose() {
+        if (timeline != null) {
+            timeline.stop();
+        }
     }
 
     private void refreshPrinterInfo() {
@@ -142,15 +155,8 @@ public class PrinterComponentController extends AbstractController {
     }
 
     private void setInfo(PrinterDto info) {
-        printerInfoArea.setText("""
-                Модель: %s
-                DPI: %s
-                Задача: %s
-                Серийник: %s
-                MAC: %s
-                Заряд: %s%%
-                FW: %s
-                """.formatted(
+        printerInfoArea.setText(I18n.get(
+                PrinterMessage.PRINTER_INFO,
                 info.getModel(),
                 info.getDpi(),
                 info.getDetectedPrintTask(),

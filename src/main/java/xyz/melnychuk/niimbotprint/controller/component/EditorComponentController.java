@@ -10,12 +10,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import lombok.NonNull;
-import lombok.Setter;
+import xyz.melnychuk.niimbotprint.AppContext;
 import xyz.melnychuk.niimbotprint.AppException;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentController;
 import xyz.melnychuk.niimbotprint.controller.component.elementproperties.ElementPropertiesComponentControllerFactory;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.EditorMessage;
 import xyz.melnychuk.niimbotprint.model.Element;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
@@ -68,15 +69,15 @@ public class EditorComponentController extends AbstractController implements Edi
     private Sticker sticker;
     private EditorCanvas canvas;
 
-    @Setter
-    @NonNull
     private EditorService editorService;
-    @Setter
-    @NonNull
     private EditorHistoryService historyService;
 
-    public void setSticker(Sticker sticker) {
-        this.sticker = sticker;
+    @Override
+    protected void bind(AppContext appContext) {
+        sticker = appContext.getSticker();
+        editorService = appContext.getEditorService();
+        historyService = appContext.getEditorHistoryService();
+
         canvas = new PaneEditorCanvas(sticker);
         zoomGroup = new Group(canvas.getNode());
         canvasHost.getChildren().add(zoomGroup);
@@ -150,7 +151,7 @@ public class EditorComponentController extends AbstractController implements Edi
         }
         var bundle = ElementPropertiesComponentControllerFactory.getController(element);
         currentElementPropertiesController = bundle.controller();
-        currentElementPropertiesController.setHistoryService(historyService);
+        currentElementPropertiesController.setAppContext(getAppContext());
         currentElementPropertiesController.setElementChangeListener(canvas::updateElement);
         currentElementPropertiesController.show(element);
         elementProperties.getChildren().setAll(List.of(bundle.node()));
@@ -174,7 +175,7 @@ public class EditorComponentController extends AbstractController implements Edi
 
     @FXML
     private void onAddImage() {
-        File file = chooseFile("Выбрать изображение");
+        File file = chooseFile(I18n.get(EditorMessage.FILECHOOSER_CHOOSE_IMAGE));
         if (file == null) {
             return;
         }
@@ -182,7 +183,7 @@ public class EditorComponentController extends AbstractController implements Edi
                 () -> editorService.getImageElement(file),
                 element -> {
                     historyService.withEdit(() -> canvas.addElement(element));
-                    message("Изображение добавлено");
+                    message(I18n.get(EditorMessage.MESSAGE_IMAGE_ADDED));
                 },
                 this::error
         );
@@ -193,7 +194,7 @@ public class EditorComponentController extends AbstractController implements Edi
         Element element = canvas.getSelectedElement();
         if (element != null) {
             historyService.withEdit(() -> canvas.removeElement(element));
-            message("Элемент удалён");
+            message(I18n.get(EditorMessage.MESSAGE_ELEMENT_DELETED));
         }
     }
 

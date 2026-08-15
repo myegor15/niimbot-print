@@ -2,6 +2,8 @@ package xyz.melnychuk.niimbotprint.service;
 
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.AppException;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.EditorMessage;
 import xyz.melnychuk.niimbotprint.model.Barcode;
 import xyz.melnychuk.niimbotprint.model.Image;
 import xyz.melnychuk.niimbotprint.model.Text;
@@ -17,7 +19,7 @@ import java.util.Base64;
 public class EditorService {
 
     public Text getTextElement() {
-        return new Text(10, 10, FontFamily.ARIAL, "Текст", 16, false, false, false);
+        return new Text(10, 10, FontFamily.ARIAL, I18n.get(EditorMessage.TEXT_DEFAULT), 16, false, false, false);
     }
 
     public Barcode getBarcodeElement() {

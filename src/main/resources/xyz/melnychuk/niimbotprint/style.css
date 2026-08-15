@@ -114,6 +114,29 @@
     -fx-icon-color: #aaa;
 }
 
+.status-bar .icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 2 6;
+    -fx-min-height: 18;
+    -fx-pref-height: 18;
+    -fx-background-radius: 3;
+    -fx-font-size: 11px;
+    -fx-graphic-text-gap: 3;
+}
+
+.status-bar .icon-button:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.status-bar .icon-button .ikonli-font-icon {
+    -fx-icon-size: 14px;
+    -fx-icon-color: #333;
+}
+
+.status-bar .icon-button:hover .ikonli-font-icon {
+    -fx-icon-color: #111;
+}
+
 .toggle-button:selected .ikonli-font-icon {
     -fx-icon-color: #1a73e8;
 }

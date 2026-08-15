@@ -6,9 +6,10 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import lombok.NonNull;
-import lombok.Setter;
+import xyz.melnychuk.niimbotprint.AppContext;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
+import xyz.melnychuk.niimbotprint.i18n.I18n;
+import xyz.melnychuk.niimbotprint.i18n.message.StickerMessage;
 import xyz.melnychuk.niimbotprint.model.PrinterModel;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
@@ -27,11 +28,7 @@ public class StickerSettingsComponentController extends AbstractController {
     @FXML
     private Spinner<Integer> heightSpinner;
 
-    @Setter
-    @NonNull
     private StickerService stickerService;
-    @Setter
-    @NonNull
     private EditorHistoryService historyService;
 
     private Sticker sticker;
@@ -39,8 +36,11 @@ public class StickerSettingsComponentController extends AbstractController {
     private File currentFile;
     private boolean updating;
 
-    public void setSticker(Sticker sticker) {
-        this.sticker = Objects.requireNonNull(sticker);
+    @Override
+    protected void bind(AppContext appContext) {
+        stickerService = appContext.getStickerService();
+        historyService = appContext.getEditorHistoryService();
+        sticker = appContext.getSticker();
         historyService.setChangeListener(this::syncControls);
         syncControls();
     }
@@ -110,15 +110,15 @@ public class StickerSettingsComponentController extends AbstractController {
     private void onNew() {
         currentFile = null;
         historyService.clearHistory();
-        applySticker(stickerService.createSticker());
+        applySticker(new Sticker());
         syncControls();
         editor.refresh();
-        message("Новая этикетка");
+        message(I18n.get(StickerMessage.MESSAGE_NEW_STICKER));
     }
 
     @FXML
     private void onOpen() {
-        File file = chooseFile("Открыть этикетку", false);
+        File file = chooseFile(I18n.get(StickerMessage.FILECHOOSER_OPEN_STICKER), false);
         if (file == null) {
             return;
         }
@@ -130,7 +130,7 @@ public class StickerSettingsComponentController extends AbstractController {
                     applySticker(loaded);
                     syncControls();
                     editor.refresh();
-                    message("Открыто: " + file.getName());
+                    message(I18n.get(StickerMessage.MESSAGE_OPENED, file.getName()));
                 },
                 this::error
         );
@@ -147,7 +147,7 @@ public class StickerSettingsComponentController extends AbstractController {
 
     @FXML
     private void onSaveAs() {
-        File file = chooseFile("Сохранить этикетку", true);
+        File file = chooseFile(I18n.get(StickerMessage.FILECHOOSER_SAVE_STICKER), true);
         if (file == null) {
             return;
         }
@@ -158,7 +158,7 @@ public class StickerSettingsComponentController extends AbstractController {
         currentFile = file;
         run(
                 () -> stickerService.saveSticker(sticker, file),
-                () -> message("Сохранено: " + file.getName()),
+                () -> message(I18n.get(StickerMessage.MESSAGE_SAVED, file.getName())),
                 this::error
         );
     }
@@ -166,7 +166,7 @@ public class StickerSettingsComponentController extends AbstractController {
     private File chooseFile(String title, boolean save) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(title);
-        chooser.getExtensionFilters().add(new ExtensionFilter("Этикетка (*.json)", "*.json"));
+        chooser.getExtensionFilters().add(new ExtensionFilter(I18n.get(StickerMessage.FILECHOOSER_STICKER_FILTER), "*.json"));
         if (save) {
             chooser.setInitialFileName("sticker.json");
         }

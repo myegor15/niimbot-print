@@ -6,6 +6,6 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.view.SplashViewController"
       spacing="16" alignment="CENTER">
-    <Label fx:id="messageLabel" text="Запуск приложения..."/>
+    <Label fx:id="messageLabel" text="%splash.starting"/>
     <ProgressIndicator fx:id="progressIndicator"/>
 </VBox>

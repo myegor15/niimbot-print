@@ -4,11 +4,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import lombok.NonNull;
-import lombok.Setter;
 import xyz.melnychuk.niimbotprint.controller.AbstractController;
 import xyz.melnychuk.niimbotprint.model.Element;
-import xyz.melnychuk.niimbotprint.service.EditorHistoryService;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -19,9 +16,6 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     protected T element;
     private boolean updating;
 
-    @Setter
-    @NonNull
-    private EditorHistoryService historyService;
     private Consumer<Element> elementChangeListener = e -> {};
 
     public void setElementChangeListener(Consumer<Element> elementChangeListener) {
@@ -66,7 +60,7 @@ public abstract class ElementPropertiesComponentController<T extends Element> ex
     }
 
     private <V> void commit(BiConsumer<T, V> setter, V value) {
-        historyService.withEdit(() -> {
+        getAppContext().getEditorHistoryService().withEdit(() -> {
             setter.accept(element, value);
             touch();
         });

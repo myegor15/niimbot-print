@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.TextPropertiesComponentController" spacing="8">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="xyz.melnychuk.niimbotprint.controller.component.elementproperties.TextPropertiesComponentController"
+      spacing="8">
     <HBox spacing="8">
-        <Label text="Текст"/>
+        <Label text="%label.text"/>
         <TextField fx:id="textField" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Шрифт"/>
+        <Label text="%label.font"/>
         <ComboBox fx:id="fontBox" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Размер"/>
+        <Label text="%label.size"/>
         <Spinner fx:id="sizeSpinner" editable="true" prefWidth="120"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Жирный"/>
+        <Label text="%label.bold"/>
         <CheckBox fx:id="boldCheck"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Курсив"/>
+        <Label text="%label.italic"/>
         <CheckBox fx:id="italicCheck"/>
     </HBox>
     <HBox spacing="8">
-        <Label text="Подчёркнутый"/>
+        <Label text="%label.underline"/>
         <CheckBox fx:id="underlineCheck"/>
     </HBox>
 </VBox>

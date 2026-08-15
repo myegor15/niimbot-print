@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.AppException;
+import xyz.melnychuk.niimbotprint.AppReadableException;
+import xyz.melnychuk.niimbotprint.i18n.message.StickerMessage;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 
 import java.io.File;
@@ -17,16 +19,12 @@ public class StickerService {
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
-    public Sticker createSticker() {
-        return new Sticker();
-    }
-
     public Sticker loadSticker(File file) {
         try {
             return mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class);
         } catch (Exception e) {
             log.error("Exception in loadSticker().", e);
-            throw new AppException("Неверный файл этикетки: " + e.getMessage(), e);
+            throw new AppReadableException(StickerMessage.ERROR_INVALID_LABEL_FILE, e.getMessage());
         }
     }
 
