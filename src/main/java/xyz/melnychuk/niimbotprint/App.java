@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimblue.NiimBlueApiManager;
@@ -15,6 +16,9 @@ import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
 import xyz.melnychuk.niimbotprint.util.FxmlLoader;
 
+import java.net.URL;
+import java.util.Objects;
+
 @Slf4j
 public class App extends Application {
 
@@ -23,6 +27,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
+        initIcon(stage);
         initI18n(stage);
         startUi(stage);
         startNiimBlue(stage);
@@ -33,6 +38,11 @@ public class App extends Application {
         if (appContext != null) {
             appContext.getApiManager().stop();
         }
+    }
+
+    private void initIcon(Stage stage) {
+        URL resource = Objects.requireNonNull(App.class.getResource("/icon.png"));
+        stage.getIcons().add(new Image(resource.toExternalForm()));
     }
 
     private void initI18n(Stage stage) {
