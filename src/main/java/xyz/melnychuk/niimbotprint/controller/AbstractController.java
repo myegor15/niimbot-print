@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import xyz.melnychuk.niimbotprint.AppContext;
-import xyz.melnychuk.niimbotprint.AppReadableException;
+import xyz.melnychuk.niimbotprint.AppUiException;
 import xyz.melnychuk.niimbotprint.i18n.message.AppMessage;
 import xyz.melnychuk.niimbotprint.i18n.I18n;
 import xyz.melnychuk.niimbotprint.util.AsyncUtils;
@@ -65,7 +65,7 @@ public abstract class AbstractController {
 
     protected String getErrorMessage(Throwable error) {
         return switch (error) {
-            case AppReadableException readable -> I18n.get(readable.getKey(), readable.getArgs());
+            case AppUiException readable -> I18n.get(readable.getKey(), readable.getArgs());
             case null, default -> I18n.get(AppMessage.ERROR_SYSTEM);
         };
     }

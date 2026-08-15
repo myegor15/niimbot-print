@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import xyz.melnychuk.niimbotprint.AppException;
-import xyz.melnychuk.niimbotprint.AppReadableException;
+import xyz.melnychuk.niimbotprint.AppUiException;
 import xyz.melnychuk.niimbotprint.i18n.message.StickerMessage;
 import xyz.melnychuk.niimbotprint.model.Sticker;
 
@@ -24,7 +24,7 @@ public class StickerService {
             return mapper.readValue(Files.readAllBytes(file.toPath()), Sticker.class);
         } catch (Exception e) {
             log.error("Exception in loadSticker().", e);
-            throw new AppReadableException(StickerMessage.ERROR_INVALID_LABEL_FILE, e.getMessage());
+            throw new AppUiException(StickerMessage.ERROR_INVALID_LABEL_FILE, e.getMessage());
         }
     }
 
