@@ -10,7 +10,6 @@ module xyz.melnychuk.niimbotprint {
 
     requires com.fasterxml.jackson.databind;
     requires com.google.zxing;
-    requires com.google.zxing.javase;
 
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
@@ -32,10 +31,10 @@ module xyz.melnychuk.niimbotprint {
     opens xyz.melnychuk.niimbotprint.ui.canvas to javafx.fxml;
     opens xyz.melnychuk.niimbotprint.ui.canvas.element to javafx.fxml;
 
-    opens xyz.melnychuk.niimbotprint.model to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.request to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimblue.response to com.fasterxml.jackson.databind;
     opens xyz.melnychuk.niimbotprint.dto to com.fasterxml.jackson.databind;
+    opens xyz.melnychuk.niimbotprint.model to com.fasterxml.jackson.databind;
 
 }

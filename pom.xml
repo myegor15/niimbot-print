@@ -15,10 +15,10 @@
         <jackson.version>2.22.1</jackson.version>
         <zxing.version>3.5.4</zxing.version>
         <ikonli.version>12.4.0</ikonli.version>
+        <logback.version>1.6.1</logback.version>
         <lombok.version>1.18.46</lombok.version>
         <junit.version>5.12.1</junit.version>
         <slf4j.version>2.0.18</slf4j.version>
-        <logback.version>1.6.1</logback.version>
     </properties>
 
     <dependencies>
@@ -50,11 +50,6 @@
             <artifactId>core</artifactId>
             <version>${zxing.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-            <version>${zxing.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
@@ -68,13 +63,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
@@ -83,6 +71,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
